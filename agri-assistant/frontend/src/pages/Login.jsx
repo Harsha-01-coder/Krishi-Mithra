@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { setToken } from "../utils/auth";
+import "./Login.css"; // Import the CSS
 
 function Login() {
   const [username, setUsername] = useState("");
@@ -10,7 +11,7 @@ function Login() {
   const navigate = useNavigate();
 
   const handleLogin = async () => {
-    setError(""); // Clear previous error
+    setError("");
 
     if (!username.trim() || !password.trim()) {
       setError("Username and password are required");
@@ -25,47 +26,47 @@ function Login() {
 
       if (res.data.token) {
         setToken(res.data.token);
-        navigate("/"); // Redirect to home page
+        navigate("/");
       }
     } catch (err) {
       if (err.response) {
-        // Backend returned an error response
         setError(err.response.data.error || "Login failed");
       } else {
-        // Network or other error
         setError("Could not connect to server");
       }
     }
   };
 
   return (
-    <div className="login-container">
-      <h2>Login</h2>
+    <div className="login-page">
+      <div className="login-card">
+        <h2 className="login-title">Welcome Back</h2>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+        {error && <p className="error-msg">{error}</p>}
 
-      <input
-        placeholder="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button onClick={handleLogin}>Login</button>
+        <input
+          type="text"
+          className="login-input"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+        />
+        <input
+          type="password"
+          className="login-input"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <button className="login-btn" onClick={handleLogin}>
+          Login
+        </button>
 
-      <p>
-        Don't have an account?{" "}
-        <span
-          onClick={() => navigate("/signup")}
-          style={{ color: "blue", cursor: "pointer" }}
-        >
-          Sign Up
-        </span>
-      </p>
+        <p className="signup-text">
+          Don't have an account?{" "}
+          <span onClick={() => navigate("/signup")}>Sign Up</span>
+        </p>
+      </div>
     </div>
   );
 }
