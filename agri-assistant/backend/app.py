@@ -7,10 +7,16 @@ import datetime
 import requests
 import os
 from dotenv import load_dotenv
-from config import MYSQL_CONFIG, JWT_SECRET, WEATHER_API_KEY
+import google.generativeai as genai # <-- 1. Import the new library
+
+# Removed WEATHER_API_KEY from config import
+from config import MYSQL_CONFIG, JWT_SECRET
 
 # Load environment variables from .env
-load_dotenv()
+load_dotenv() 
+
+# Added your API key directly
+WEATHER_API_KEY = "27603af9c613c33eb8ee606d7202da60"
 
 app = Flask(__name__)
 CORS(app)
@@ -88,21 +94,38 @@ def get_weather(city):
     return {"temperature": None, "condition": "No data"}
 
 def get_soil(city):
-    # Placeholder for soil data
+    # Placeholder for soil data (now overridden by /soil route)
     return {"moisture": 35, "pH": 6.5}
 
 def recommend_crops(weather, soil):
     ph = soil["pH"]
     temp = weather.get("temperature", 25)
     crops = []
-    if 6 <= ph <= 7:
-        crops = ["Tomato", "Cabbage", "Spinach"]
-    elif 5 <= ph < 6:
-        crops = ["Carrot", "Potato"]
+    
+    # Simple recommendation logic
+    if 6 <= ph <= 7.5:
+        if 25 <= temp <= 35:
+            crops.extend(["Rice", "Sugarcane", "Cotton"])
+        elif 20 <= temp < 25:
+            crops.extend(["Maize", "Groundnut"])
+        else:
+            crops.extend(["Wheat", "Barley"])
+    elif 5.5 <= ph < 6:
+        if 20 <= temp <= 30:
+            crops.extend(["Potato", "Soybean", "Sunflower"])
+        else:
+            crops.extend(["Oats", "Rye"])
     else:
-        crops = ["Corn", "Maize"]
-    crops = [c for c in crops if 20 <= temp <= 30]
+        crops = ["Acid-tolerant varieties"] # General fallback
+
+    # Filter out empty strings if any
+    crops = [c for c in crops if c]
+    
+    if not crops:
+        crops = ["No specific crops recommended for these extreme conditions."]
+
     return crops
+
 
 def save_query_to_db(city, query_type, query_text, weather, soil, crops):
     try:
@@ -124,10 +147,27 @@ def save_query_to_db(city, query_type, query_text, weather, soil, crops):
         print("MySQL Insert Error:", e)
 
 # ---------------- Chatbot / Gemini Integration ----------------
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-print(f"Loaded GEMINI_API_KEY: {GEMINI_API_KEY}")  # Debug log
+# 1. ADDED YOUR GEMINI KEY DIRECTLY
+GEMINI_API_KEY = "AIzaSyC4UtPtkt6HcUd1pwQal6OP08DbBzc_yeo"
+print(f"Loaded GEMINI_API_KEY: {GEMINI_API_KEY is not None}")  # Debug log
 
-GEMINI_URL = "https://gemini.googleapis.com/v1/assistant:generateMessage"
+# 2. Configure the Google AI client
+try:
+    genai.configure(api_key=GEMINI_API_KEY)
+    # Set up the model
+    generation_config = {
+        "temperature": 0.7,
+        "max_output_tokens": 300,
+    }
+    model = genai.GenerativeModel(
+        model_name="gemini-2.5-flash", # <-- 1. REVERTED TO THIS MODEL
+        generation_config=generation_config,
+    )
+    print("Gemini model (gemini-2.5-flash) configured successfully.") # <-- 2. Updated log
+except Exception as e:
+    print(f"Error configuring Gemini: {e}")
+    model = None
+
 
 @app.route("/chatbot", methods=["POST"])
 def chatbot():
@@ -150,43 +190,91 @@ def chatbot():
         return jsonify({"answer": answer})
 
     # -------- Fallback to Gemini API (General Queries) --------
-    if GEMINI_API_KEY:
+    if model:
         try:
-            headers = {
-                "Authorization": f"Bearer {GEMINI_API_KEY}",
-                "Content-Type": "application/json"
-            }
-            payload = {
-                "prompt": query_text,
-                "temperature": 0.7,
-                "maxOutputTokens": 300
-            }
-            response = requests.post(GEMINI_URL, json=payload, headers=headers)
-            response.raise_for_status()
-            result = response.json()
+            # 3. Call the API using the new library
+            response = model.generate_content(query_text)
+            
+            # 4. Extract the text
+            answer = response.text
 
-            # Gemini's answer extraction
-            answer = ""
-            if "message" in result and "content" in result["message"]:
-                content = result["message"]["content"]
-                if isinstance(content, list):
-                    answer = " ".join([c.get("text", "") for c in content])
-                else:
-                    answer = content
-            else:
-                answer = "I couldn't get a response from Gemini."
-
-            # Optionally log all queries
             save_query_to_db(city or "unknown", "chatbot", query_text, {}, {}, [])
-
             return jsonify({"answer": answer})
 
         except Exception as e:
-            print("Gemini API error:", e)
+            print(f"Gemini API general error: {e}")
             return jsonify({"answer": "Error connecting to Gemini API."})
     else:
-        return jsonify({"answer": "No Gemini API key configured."})
+        return jsonify({"answer": "Gemini model is not configured. Check API key."})
+
+# ---------------- Soil Analysis Route ----------------
+@app.route("/soil", methods=["POST"])
+def soil_analysis():
+    data = request.get_json()
+    city = data.get("city")
+    moisture = data.get("moisture")
+    ph = data.get("pH")
+
+    # Basic validation
+    if not city or moisture is None or ph is None:
+        return jsonify({"error": "Missing city, moisture, or pH"}), 400
+
+    try:
+        # Use the soil data from the React component
+        soil_data = {"moisture": float(moisture), "pH": float(ph)}
+        
+        # Get weather for the city
+        weather_data = get_weather(city)
+        
+        # Get recommendations
+        crops = recommend_crops(weather_data, soil_data)
+        
+        # Save this query to your database
+        save_query_to_db(
+            city, 
+            "soil_sensor", 
+            f"Moisture: {moisture}%, pH: {ph}", 
+            weather_data, 
+            soil_data, 
+            crops
+        )
+        
+        # Return the data React is expecting
+        return jsonify({"recommended_crops": crops})
+
+    except Exception as e:
+        print(f"Error in /soil route: {e}")
+        return jsonify({"error": "An internal server error occurred"}), 500
+
+# ---------------- Weather Route ----------------
+@app.route("/weather", methods=["GET"])
+def weather_route():
+    city = request.args.get('city')
+    if not city:
+        return jsonify({"error": "City parameter is required"}), 400
+
+    try:
+        weather_data = get_weather(city)
+        
+        # Return a 404 if OpenWeatherMap couldn't find the city
+        if weather_data.get("temperature") is None:
+            return jsonify({"error": f"Weather data not found for city: {city}"}), 404
+
+        # Use placeholder soil data to get crop recommendations
+        soil_data = get_soil(city) 
+        crops = recommend_crops(weather_data, soil_data)
+        
+        # Return the combined data
+        return jsonify({
+            "weather": weather_data,
+            "recommended_crops": crops
+        })
+    except Exception as e:
+        print(f"Error in /weather route: {e}")
+        return jsonify({"error": "An internal server error occurred"}), 500
+
 
 # ---------------- Run Flask ----------------
 if __name__ == "__main__":
     app.run(debug=True)
+

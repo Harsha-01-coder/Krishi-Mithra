@@ -1,0 +1,105 @@
+/* --- Weather Card Container --- */
+.weather-card {
+  max-width: 28rem; /* from 'max-w-md' */
+  margin: 2.5rem auto; /* from 'my-10' and 'mx-auto' */
+  padding: 1.5rem; /* from 'p-6' */
+  background-color: #fff; /* from 'bg-white' */
+  border-radius: 0.75rem; /* from 'rounded-xl' */
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 
+              0 4px 6px -2px rgba(0, 0, 0, 0.05); /* from 'shadow-lg' */
+}
+
+.weather-title {
+  font-size: 1.875rem; /* from 'text-3xl' */
+  font-weight: 700; /* from 'font-bold' */
+  color: #1f2937; /* from 'text-gray-800' */
+  text-align: center; /* from 'text-center' */
+  margin-bottom: 1.5rem; /* from 'mb-6' */
+}
+
+/* --- Input Section --- */
+.input-section {
+  display: flex; /* from 'flex' */
+  gap: 0.5rem; /* from 'space-x-2' */
+}
+
+.city-input {
+  width: 100%; /* from 'w-full' */
+  padding: 0.75rem; /* from 'p-3' */
+  border: 1px solid #d1d5db; /* from 'border' and 'border-gray-300' */
+  border-radius: 0.5rem; /* from 'rounded-lg' */
+  transition: all 0.2s ease-in-out; /* from 'transition' */
+  box-sizing: border-box; 
+}
+
+.city-input:focus {
+  outline: none;
+  border-color: transparent; /* from 'focus:border-transparent' */
+  box-shadow: 0 0 0 2px #22c55e; /* from 'focus:ring-2' and 'focus:ring-green-500' */
+}
+
+.submit-button {
+  padding: 0.75rem 1.25rem; /* from 'py-3 px-5' */
+  background-color: #16a34a; /* from 'bg-green-600' */
+  color: white; /* from 'text-white' */
+  font-weight: 600; /* from 'font-semibold' */
+  border: none;
+  border-radius: 0.5rem; /* from 'rounded-lg' */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 
+              0 2px 4px -1px rgba(0, 0, 0, 0.06); /* from 'shadow-md' */
+  cursor: pointer;
+  transition: background-color 0.2s; /* from 'transition' */
+}
+
+.submit-button:hover {
+  background-color: #15803d; /* from 'hover:bg-green-700' */
+}
+
+.submit-button:disabled {
+  background-color: #9ca3af; /* from 'disabled:bg-gray-400' */
+  cursor: not-allowed;
+}
+
+/* --- Results & Error Section --- */
+.results-container {
+  margin-top: 1.5rem; /* from 'mt-6' */
+  text-align: center; /* from 'text-center' */
+}
+
+.error-box {
+  padding: 0.75rem; /* from 'p-3' */
+  background-color: #fef2f2; /* from 'bg-red-50' */
+  border: 1px solid #fecaca; /* from 'border-red-200' */
+  color: #b91c1c; /* from 'text-red-700' */
+  border-radius: 0.5rem; /* from 'rounded-lg' */
+}
+
+.results-box {
+  display: flex; /* from 'flex' */
+  flex-direction: column; /* from 'flex-col' */
+  align-items: center; /* from 'items-center' */
+  padding: 1.5rem; /* from 'p-6' */
+  background-color: #f0fdf4; /* from 'bg-green-50' */
+  border: 1px solid #bbf7d0; /* from 'border-green-200' */
+  border-radius: 0.5rem; /* from 'rounded-lg' */
+}
+
+/* --- This new class styles the SVG icon --- */
+.weather-icon {
+  color: #16a34a; /* from 'text-green-600' */
+}
+
+.results-temp {
+  font-size: 3rem; /* from 'text-5xl' */
+  font-weight: 700; /* from 'font-bold' */
+  color: #1f2937; /* from 'text-gray-800' */
+  margin-top: 0.5rem; /* from 'mt-2' */
+}
+
+.results-condition {
+  font-size: 1.25rem; /* from 'text-xl' */
+  color: #4b5563; /* from 'text-gray-600' */
+  text-transform: capitalize; /* from 'capitalize' */
+  margin-top: 0.25rem; /* from 'mt-1' */
+}
+

@@ -1,0 +1,20 @@
+/* Defines the animation */
+@keyframes slideUpFromBottom {
+  /* Start hidden and 50px below */
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  /* End in its normal position */
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Applies the animation to any element with this class */
+.footer-slide-up {
+  /* Run the 'slideUpFromBottom' animation once,
+     over 0.7 seconds, with a smooth 'ease-out' curve */
+  animation: slideUpFromBottom 0.7s ease-out;
+}

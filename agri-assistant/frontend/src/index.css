@@ -1,14 +1,22 @@
+/* --- Global Base Styles --- */
+
+/* Apply a base font and background color to the entire application */
 body {
   margin: 0;
   padding: 0;
   font-family: 'Arial', sans-serif;
-  background-color: #e8f5e9;
+  background-color: #e8f5e9; /* Your light green background */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-input, button {
-  font-family: 'Arial', sans-serif;
+/* A universal reset for easier layout calculations */
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
+/* Make sure buttons have a consistent font and pointer */
 button {
+  font-family: 'Arial', sans-serif;
   cursor: pointer;
 }
