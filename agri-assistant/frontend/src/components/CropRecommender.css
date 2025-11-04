@@ -1,0 +1,111 @@
+/* --- This centers the component in the middle --- */
+.recommender-container {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    padding: 24px 32px;
+    width: 100%;
+    max-width: 600px; /* Increased width for the grid */
+    margin: 40px auto; /* This centers it vertically and horizontally */
+}
+
+/* --- Basic Styles --- */
+.recommender-container h2 {
+    text-align: center;
+    color: #333;
+    margin-top: 0;
+}
+
+.recommender-container p {
+    text-align: center;
+    color: #666;
+    margin-bottom: 24px;
+}
+
+/* --- Form Input Group --- */
+.input-group {
+    margin-bottom: 16px; /* This provides spacing in case grid isn't active */
+}
+
+.input-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #444;
+}
+
+.input-group input,
+.input-group select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-sizing: border-box; 
+    font-size: 16px;
+}
+
+/* --- NEW: 2-Column Grid Styles --- */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two equal columns */
+    gap: 16px; /* Space between the inputs */
+    margin-bottom: 20px;
+}
+
+/* --- NEW: This makes an item span both columns --- */
+.grid-col-span-2 {
+    grid-column: span 2;
+}
+
+/* --- MODIFIED: Button Style --- */
+/* This now targets the button by its new class */
+.recommender-container .btn-full-width {
+    width: 100%;
+    padding: 12px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    margin-top: 10px;
+}
+
+.recommender-container .btn-full-width:hover {
+    background-color: #218838;
+}
+
+/* --- Results Styles --- */
+#results {
+    margin-top: 20px;
+}
+
+#results h3 {
+    color: #333;
+}
+
+#results ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+#results li {
+    background-color: #e9f5ec;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.error-message {
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    padding: 10px;
+    border-radius: 8px;
+    text-align: center;
+}

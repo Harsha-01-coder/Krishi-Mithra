@@ -1,0 +1,154 @@
+.dashboard-container {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 0 20px;
+}
+.dashboard-title {
+  font-size: 2.5rem;
+  color: #2e7d32;
+  margin-bottom: 20px;
+}
+.dashboard-loading {
+  font-size: 1.5rem;
+  color: #555;
+  text-align: center;
+  padding: 50px;
+}
+.error-message {
+  color: #721c24;
+  font-weight: 500;
+}
+
+/* --- Location Widget --- */
+.location-widget {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+}
+.location-widget form {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.location-widget label {
+  font-weight: 600;
+  color: #333;
+}
+.location-widget input {
+  flex-grow: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+.location-widget button {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* --- Dashboard Grid --- */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.dashboard-widget {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  min-height: 250px;
+}
+.dashboard-widget h3 {
+  font-size: 1.5rem;
+  color: #333;
+  margin: 0 0 15px 0;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+/* Weather Widget */
+.weather-main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.weather-temp {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #2e7d32;
+}
+.weather-condition {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #555;
+  text-transform: capitalize;
+  margin-top: 10px;
+}
+
+/* Prices Widget */
+.prices ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.prices li {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #f4f4f4;
+}
+.price-item {
+  font-weight: 500;
+  color: #555;
+}
+.price-value {
+  font-weight: 700;
+  color: #28a745;
+}
+
+/* News Widget */
+.news-list {
+  list-style: none;
+  padding-left: 0;
+}
+.news-list li {
+  position: relative;
+  padding-left: 25px;
+  margin-bottom: 12px;
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.5;
+}
+.news-list li::before {
+  content: '📰';
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 600px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+  .location-widget form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}

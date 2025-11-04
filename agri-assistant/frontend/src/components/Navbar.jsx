@@ -1,18 +1,33 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-// 1. Import HashLink to handle scrolling links
-import { HashLink } from "react-router-hash-link";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext"; // <-- 1. Import Auth Context
 
 function Navbar() {
   const [openDropdown, setOpenDropdown] = useState(null);
+  const navigate = useNavigate();
+  const { token, logout } = useAuth(); // <-- 2. Get user token and logout function
 
   const toggleDropdown = (menu) => {
     setOpenDropdown(openDropdown === menu ? null : menu);
   };
 
-  // 2. Helper function to close dropdown on link click
-  const handleLinkClick = () => {
-    setOpenDropdown(null);
+  const handleLinkClick = () => setOpenDropdown(null);
+
+  // --- NEW: Logout Handler ---
+  const handleLogout = () => {
+    logout();
+    navigate('/'); // Go home after logout
+    handleLinkClick();
+  };
+
+  // helper for scrolling to sections on the home page
+  const handleScrollTo = (sectionId) => {
+    navigate("/"); // ensure we're on home page
+    setOpenDropdown(null); // Close dropdown after clicking
+    setTimeout(() => {
+      const section = document.querySelector(sectionId);
+      if (section) section.scrollIntoView({ behavior: "smooth" });
+    }, 100);
   };
 
   return (
@@ -30,19 +45,18 @@ function Navbar() {
         boxShadow: "0 3px 8px rgba(0,0,0,0.2)",
       }}
     >
-      {/* ---------- LEFT: LOGO ---------- */}
+      {/* Logo */}
       <div style={{ fontWeight: "bold", fontSize: "1.6rem" }}>
-        {/* 3. Use HashLink for the logo to go to top of home page */}
-        <HashLink 
-          to="/#top" 
+        <Link
+          to="/"
           onClick={handleLinkClick}
           style={{ textDecoration: "none", color: "white" }}
         >
           🌾 Krishi Mithra
-        </HashLink>
+        </Link>
       </div>
 
-      {/* ---------- CENTER: NAV LINKS ---------- */}
+      {/* Nav Links */}
       <div
         style={{
           display: "flex",
@@ -81,33 +95,62 @@ function Navbar() {
                 minWidth: "190px",
               }}
             >
-              {/* 4. Use HashLink for scrolling links */}
-              <HashLink
-                to="/#ai-chatbot"
-                onClick={handleLinkClick}
+              <button
+                onClick={() => handleScrollTo("#ai-chatbot")}
                 style={{
                   display: "block",
+                  width: "100%",
                   padding: "10px 15px",
-                  textDecoration: "none",
+                  background: "none",
+                  border: "none",
+                  textAlign: "left",
                   color: "#2e7d32",
-                  fontWeight: 500,
+                  cursor: "pointer",
+                  fontSize: "1rem",
                 }}
               >
                 🤖 AI Chatbot
-              </HashLink>
-              <HashLink
-                to="/#schemes"
+              </button>
+              
+              <Link
+                to="/schemes"
                 onClick={handleLinkClick}
                 style={{
                   display: "block",
+                  width: "100%",
                   padding: "10px 15px",
-                  textDecoration: "none",
+                  background: "none",
+                  border: "none",
+                  textAlign: "left",
                   color: "#2e7d32",
-                  fontWeight: 500,
+                  cursor: "pointer",
+                  textDecoration: "none",
+                  fontFamily: "inherit",
+                  fontSize: "1rem"
                 }}
               >
                 🧾 Government Schemes
-              </HashLink>
+              </Link>
+              
+              <Link
+                to="/prices"
+                onClick={handleLinkClick}
+                style={{
+                  display: "block",
+                  width: "100%",
+                  padding: "10px 15px",
+                  background: "none",
+                  border: "none",
+                  textAlign: "left",
+                  color: "#2e7d32",
+                  cursor: "pointer",
+                  textDecoration: "none",
+                  fontSize: "1rem",
+                  fontFamily: "inherit",
+                }}
+              >
+                💹 Market Prices
+              </Link>
             </div>
           )}
         </div>
@@ -140,7 +183,6 @@ function Navbar() {
                 minWidth: "220px",
               }}
             >
-              {/* 5. Use regular Link for page navigation */}
               <Link
                 to="/weather"
                 onClick={handleLinkClick}
@@ -154,9 +196,9 @@ function Navbar() {
               >
                 🌦️ Weather Forecast
               </Link>
-              {/* 6. Use HashLink for scrolling links */}
-              <HashLink
-                to="/#soil"
+
+              <Link
+                to="/soil"
                 onClick={handleLinkClick}
                 style={{
                   display: "block",
@@ -167,9 +209,24 @@ function Navbar() {
                 }}
               >
                 🧪 Soil Fertility
-              </HashLink>
-              <HashLink
-                to="/#crops"
+              </Link>
+
+              <Link
+                to="/pest"
+                onClick={handleLinkClick}
+                style={{
+                  display: "block",
+                  padding: "10px 15px",
+                  textDecoration: "none",
+                  color: "#2e7d32",
+                  fontWeight: 500,
+                }}
+              >
+                🐞 Pest Identification
+              </Link>
+
+              <Link
+                to="/crop"
                 onClick={handleLinkClick}
                 style={{
                   display: "block",
@@ -180,68 +237,107 @@ function Navbar() {
                 }}
               >
                 🌱 Crop Recommendation
-              </HashLink>
+              </Link>
+
+              <Link
+                to="/calculator"
+                onClick={handleLinkClick}
+                style={{
+                  display: "block",
+                  padding: "10px 15px",
+                  textDecoration: "none",
+                  color: "#2e7d32",
+                  fontWeight: 500,
+                }}
+              >
+                🧮 Fertilizer Calculator
+              </Link>
+
             </div>
           )}
         </div>
 
+        {/* --- 3. ADDED THE DASHBOARD LINK HERE --- */}
+        {token && (
+          <Link
+            to="/dashboard"
+            onClick={handleLinkClick}
+            style={{ color: "white", textDecoration: "none" }}
+          >
+            Dashboard
+          </Link>
+        )}
+
         {/* Static Links */}
-        <HashLink
-          to="/#about"
+        <Link
+          to="/about"
           onClick={handleLinkClick}
-          style={{
-            textDecoration: "none",
-            color: "white",
-            fontWeight: 500,
-          }}
+          style={{ color: "white", textDecoration: "none" }}
         >
           About Us
-        </HashLink>
-        <HashLink
-          to="/#contact"
+        </Link>
+        <Link
+          to="/contact"
           onClick={handleLinkClick}
-          style={{
-            textDecoration: "none",
-            color: "white",
-            fontWeight: 500,
-          }}
+          style={{ color: "white", textDecoration: "none" }}
         >
           Contact
-        </HashLink>
+        </Link>
       </div>
 
-      {/* ---------- RIGHT: LOGIN/SIGNUP ---------- */}
+      {/* --- 4. UPDATED AUTH LINKS --- */}
       <div>
-        <Link
-          to="/login"
-          onClick={handleLinkClick}
-          style={{
-            color: "white",
-            textDecoration: "none",
-            marginRight: "15px",
-            fontWeight: 500,
-          }}
-        >
-          Login
-        </Link>
-        <Link
-          to="/signup"
-          onClick={handleLinkClick}
-          style={{
-            color: "#2e7d32",
-            background: "white",
-            padding: "6px 14px",
-            borderRadius: "6px",
-            textDecoration: "none",
-            fontWeight: "bold",
-          }}
-        >
-          Signup
-        </Link>
+        {token ? (
+          // --- SHOW THIS IF USER IS LOGGED IN ---
+          <button
+            onClick={handleLogout}
+            style={{
+              color: "#2e7d32",
+              background: "white",
+              padding: "6px 14px",
+              borderRadius: "6px",
+              textDecoration: "none",
+              fontWeight: "bold",
+              border: "none",
+              fontSize: "1rem",
+              cursor: "pointer",
+            }}
+          >
+            Logout
+          </button>
+        ) : (
+          // --- SHOW THIS IF USER IS LOGGED OUT ---
+          <>
+            <Link
+              to="/login"
+              onClick={handleLinkClick}
+              style={{
+                color: "white",
+                textDecoration: "none",
+                marginRight: "15px",
+              }}
+            >
+              Login
+            </Link>
+            <Link
+              to="/signup"
+              onClick={handleLinkClick}
+              style={{
+                color: "#2e7d32",
+                background: "white",
+                padding: "6px 14px",
+                borderRadius: "6px",
+                textDecoration: "none",
+                fontWeight: "bold",
+              }}
+            >
+              Signup
+            </Link>
+          </>
+        )}
       </div>
     </nav>
   );
 }
 
 export default Navbar;
-

@@ -20,3 +20,16 @@ button {
   font-family: 'Arial', sans-serif;
   cursor: pointer;
 }
+/* File: src/index.css */
+
+/* This makes the browser, page, and React app fill the screen */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* A universal reset for easier layout calculations */
+*, *::before, *::after {
+  box-sizing: border-box;
+}

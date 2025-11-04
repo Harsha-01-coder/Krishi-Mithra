@@ -1,73 +1,99 @@
-import React, { useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import './Login.css'; // We can reuse the same CSS as the Login page!
 
 function Signup() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(''); // To show a success message
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSignup = async () => {
-    setError("");
-    setSuccess("");
-
-    if (!username.trim() || !password.trim()) {
-      setError("Username and password are required");
-      return;
-    }
+  const handleSignup = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+    setSuccess('');
 
     try {
-      const res = await axios.post("http://127.0.0.1:5000/signup", {
-        username: username.trim(),
-        password: password.trim(),
+      // Call your Flask backend's /signup route
+      const response = await axios.post('http://127.0.0.1:5000/signup', {
+        username: username,
+        password: password
       });
 
-      if (res.status === 201) {
-        setSuccess("Account created successfully! Redirecting to login...");
-        setTimeout(() => navigate("/login"), 2000);
-      }
+      // If signup is successful
+      setSuccess(response.data.message);
+      
+      // Wait 2 seconds, then redirect to the login page
+      setTimeout(() => {
+        navigate('/login');
+      }, 2000);
+
     } catch (err) {
-      if (err.response) {
-        // Backend returned an error response
-        setError(err.response.data.error || "Signup failed");
+      // If Flask sends an error (like 409 Username exists)
+      if (err.response && err.response.data) {
+        setError(err.response.data.error || 'Signup failed. Please try again.');
       } else {
-        // Network or other error
-        setError("Could not connect to server");
+        setError('Signup failed. Please try again.');
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="login-container">
-      <h2>Sign Up</h2>
+    <div className="auth-container">
+      <div className="auth-card">
+        <h2>Create Account</h2>
+        <p>Join Krishi Mithra today</p>
+        
+        <form onSubmit={handleSignup}>
+          <div className="form-group">
+            <label htmlFor="username">Username</label>
+            <input
+              type="text"
+              id="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+            />
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="password">Password</label>
+            <input
+              type="password"
+              id="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+          
+          {error && (
+            <div className="error-box">
+              {error}
+            </div>
+          )}
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      {success && <p style={{ color: "green" }}>{success}</p>}
-
-      <input
-        placeholder="Username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button onClick={handleSignup}>Sign Up</button>
-
-      <p>
-        Already have an account?{" "}
-        <span
-          onClick={() => navigate("/login")}
-          style={{ color: "blue", cursor: "pointer" }}
-        >
-          Login
-        </span>
-      </p>
+          {success && (
+            <div className="success-box">
+              {success} Redirecting to login...
+            </div>
+          )}
+          
+          <button type="submit" className="submit-button" disabled={isLoading}>
+            {isLoading ? 'Creating Account...' : 'Sign Up'}
+          </button>
+        </form>
+        
+        <p className="switch-auth">
+          Already have an account? <Link to="/login">Login here</Link>
+        </p>
+      </div>
     </div>
   );
 }

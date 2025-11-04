@@ -1,17 +1,21 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Users, Target, Eye } from 'lucide-react';
+import './About.css';
 
-/* --- Helper: Section Component (re-created for this standalone file) --- */
+/* --- Helper: Section Component --- */
 const Section = ({ id, title, subtitle, icon, children, className = "" }) => {
   const IconComponent = icon;
   return (
-    <section id={id} className={`py-20 px-4 md:px-8 ${className}`}>
+    <section
+      id={id}
+      className={`py-20 px-4 md:px-8 opacity-0 transform translate-y-10 transition-all duration-700 ease-out ${className}`}
+    >
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-12">
           {IconComponent && (
-            <IconComponent 
-              className="w-16 h-16 mx-auto mb-4 text-green-700" 
-              strokeWidth={1.5} 
+            <IconComponent
+              className="w-16 h-16 mx-auto mb-4 text-green-700"
+              strokeWidth={1.5}
             />
           )}
           <h2 className="text-4xl md:text-5xl font-bold text-gray-800">
@@ -23,9 +27,7 @@ const Section = ({ id, title, subtitle, icon, children, className = "" }) => {
             </p>
           )}
         </div>
-        <div>
-          {children}
-        </div>
+        <div>{children}</div>
       </div>
     </section>
   );
@@ -34,13 +36,16 @@ const Section = ({ id, title, subtitle, icon, children, className = "" }) => {
 /* --- Helper: Team Member Card --- */
 const TeamMemberCard = ({ name, title, imageUrl }) => (
   <div className="bg-white text-center rounded-lg shadow-lg overflow-hidden transition-transform duration-300 hover:-translate-y-2">
-    <img 
-      src={imageUrl} 
-      alt={name} 
+    <img
+      src={imageUrl}
+      alt={name}
       className="w-full h-56 object-cover"
-      onError={(e) => { 
-        e.target.onerror = null; 
-        e.target.src=`https://placehold.co/400x400/e2e8f0/64748b?text=${name.split(' ').map(n => n[0]).join('')}`; 
+      onError={(e) => {
+        e.target.onerror = null;
+        e.target.src = `https://placehold.co/400x400/e2e8f0/64748b?text=${name
+          .split(' ')
+          .map((n) => n[0])
+          .join('')}`;
       }}
     />
     <div className="p-6">
@@ -50,13 +55,27 @@ const TeamMemberCard = ({ name, title, imageUrl }) => (
   </div>
 );
 
-
-/* --- Main About Page Component --- */
+/* --- Main About Page --- */
 function About() {
+  // 🌱 Scroll animation for sections
+  useEffect(() => {
+    const sections = document.querySelectorAll("section");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) entry.target.classList.add("visible");
+        });
+      },
+      { threshold: 0.1 }
+    );
+    sections.forEach((sec) => observer.observe(sec));
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <div className="bg-gray-50">
-      {/* --- Hero Section --- */}
-      <header className="bg-green-700 text-white py-24 text-center">
+    <div className="bg-gray-50 relative overflow-hidden">
+      {/* 🌾 Hero Section */}
+      <header className="bg-green-700 text-white py-24 text-center relative z-10">
         <div className="max-w-4xl mx-auto px-4">
           <h1 className="text-5xl md:text-6xl font-bold">About Krishi Mithra</h1>
           <p className="text-xl md:text-2xl mt-4">
@@ -65,19 +84,14 @@ function About() {
         </div>
       </header>
 
-      {/* --- Our Mission Section --- */}
-      <Section
-        id="mission"
-        title="Our Mission"
-        icon={Target}
-        className="bg-white"
-      >
+      {/* 🌱 Mission Section */}
+      <Section id="mission" title="Our Mission" icon={Target} className="bg-white">
         <div className="max-w-4xl mx-auto text-center text-lg text-gray-700 space-y-6">
           <p>
             Krishi Mithra was founded with a simple, powerful mission: to bring the power of
             artificial intelligence and data science to every farmer, large or small. We believe that
-            by providing accessible, easy-to-use tools, we can help build a more
-            sustainable, profitable, and resilient future for agriculture.
+            by providing accessible, easy-to-use tools, we can help build a more sustainable,
+            profitable, and resilient future for agriculture.
           </p>
           <p>
             We are dedicated to solving the real-world challenges farmers face daily. From unpredictable weather
@@ -87,13 +101,8 @@ function About() {
         </div>
       </Section>
 
-      {/* --- Our Vision Section --- */}
-      <Section
-        id="vision"
-        title="Our Vision"
-        icon={Eye}
-        className="bg-gray-50"
-      >
+      {/* 🌾 Vision Section */}
+      <Section id="vision" title="Our Vision" icon={Eye} className="bg-gray-50">
         <div className="max-w-4xl mx-auto text-center text-lg text-gray-700 space-y-6">
           <p>
             We envision a world where technology and tradition work hand-in-hand. Where data-driven insights
@@ -104,32 +113,27 @@ function About() {
         </div>
       </Section>
 
-      {/* --- Our Team Section --- */}
+      {/* 👨‍🌾 Team Section */}
       <Section
         id="team"
         title="Meet Our Team"
-        subtitle="The minds behind Krishi Mithra"
+        subtitle="The mind behind Krishi Mithra"
         icon={Users}
         className="bg-white"
       >
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <TeamMemberCard 
-            name="Dr. Priya Sharma" 
-            title="Founder & CEO" 
-            imageUrl="https://images.unsplash.com/photo-1580894732444-845faba3616a?fit=crop&w=400&q=80" 
-          />
-          <TeamMemberCard 
-            name="Rohan Gupta" 
-            title="Chief Technology Officer" 
-            imageUrl="https://images.unsplash.com/photo-1557862921-37829c790f19?fit=crop&w=400&q=80" 
-          />
-          <TeamMemberCard 
-            name="Anjali Kumar" 
-            title="Lead Agronomist" 
-            imageUrl="https://images.unsplash.com/photo-1600880292203-5a0bb0a402ca?fit=crop&w=400&q=80" 
+        <div className="flex justify-center">
+          <TeamMemberCard
+            name="Harsha C"
+            title="Lead Developer"
+            imageUrl=""
           />
         </div>
       </Section>
+
+      {/* 🍃 Floating Leaves */}
+      <div className="leaf"></div>
+      <div className="leaf"></div>
+      <div className="leaf"></div>
     </div>
   );
 }

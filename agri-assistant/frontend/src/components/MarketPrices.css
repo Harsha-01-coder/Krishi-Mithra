@@ -1,0 +1,74 @@
+.prices-container {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    width: 100%;
+}
+
+.prices-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    padding: 24px 32px;
+    width: 100%;
+    max-width: 900px; /* Wider card for the table */
+    overflow-x: auto; /* Allow horizontal scrolling on small screens */
+}
+
+.prices-card h2 {
+    text-align: center;
+    color: #333;
+    margin-top: 0;
+}
+
+.prices-card p {
+    text-align: center;
+    color: #666;
+    margin-bottom: 24px;
+    font-size: 16px;
+}
+
+/* --- Loader and Error --- */
+.loader {
+    text-align: center;
+    font-size: 18px;
+    color: #555;
+    padding: 40px;
+}
+.error-box {
+    color: #721c24;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    padding: 16px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+/* --- Prices Table --- */
+.prices-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.prices-table th,
+.prices-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.prices-table th {
+    background-color: #f9f9f9;
+    font-weight: 600;
+    color: #444;
+}
+
+.prices-table tbody tr:hover {
+    background-color: #fdfdfd;
+}
+
+.prices-table .price-cell {
+    font-weight: 700;
+    color: #28a745;
+}

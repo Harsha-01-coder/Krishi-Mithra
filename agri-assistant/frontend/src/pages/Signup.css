@@ -1,0 +1,125 @@
+/* ---------- Container ---------- */
+.login-container {
+  max-width: 420px;
+  margin: 80px auto;
+  background: linear-gradient(135deg, #f4fdf2, #ffffff);
+  padding: 40px;
+  border-radius: 16px;
+  box-shadow: 0 6px 18px rgba(62, 87, 64, 0.15);
+  text-align: center;
+  transition: all 0.3s ease;
+  border: 2px solid #d9f0e2;
+  position: relative;
+  z-index: 2;
+}
+
+.login-container:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(61, 97, 65, 0.25);
+}
+
+/* ---------- Header ---------- */
+.login-container h2 {
+  color: #2e5a33; /* deep green */
+  margin-bottom: 25px;
+  font-size: 1.9rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* ---------- Inputs ---------- */
+.login-container input {
+  width: 100%;
+  padding: 12px;
+  margin: 12px 0;
+  border: 1.5px solid #bcdac2;
+  border-radius: 10px;
+  font-size: 1rem;
+  outline: none;
+  background-color: #f8fff8;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.login-container input:focus {
+  border-color: #4b9b64; /* green accent */
+  box-shadow: 0 0 6px rgba(75, 155, 100, 0.3);
+}
+
+/* ---------- Button ---------- */
+.login-container button {
+  background-color: #4b9b64; /* leafy green */
+  color: white;
+  border: none;
+  padding: 12px 22px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  margin-top: 10px;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.login-container button:hover {
+  background-color: #3b7f52;
+  transform: scale(1.05);
+}
+
+/* ---------- Text Links ---------- */
+.login-container p {
+  margin-top: 18px;
+  color: #2e3e2c;
+  font-size: 0.95rem;
+}
+
+.login-container p span {
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+.login-container p span:hover {
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* ---------- Page Background ---------- */
+.signup-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+
+  /* ✅ Agriculture-themed background */
+  background-image: 
+    url("https://good-time-invest.com/wp-content/uploads/2022/02/agriculture.jpg"),
+    linear-gradient(135deg, #e8f5e9, #c8e6c9);
+
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+  overflow: hidden;
+  font-family: "Poppins", sans-serif;
+}
+
+/* ✅ Subtle overlay for readability */
+.signup-page::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(232, 245, 233, 0.4); /* soft overlay */
+  z-index: 1;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 600px) {
+  .login-container {
+    width: 90%;
+    padding: 30px;
+  }
+
+  .login-container h2 {
+    font-size: 1.6rem;
+  }
+}

@@ -1,36 +1,47 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-
-// 1. IMPORT YOUR APP.CSS FILE HERE
 import "./App.css";
 
-// Import your new Layout component
-import Layout from "./components/Layout"; 
+import Layout from "./components/Layout";
 
-// Import your Pages
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import Weather from "./components/Weather"; // Note: This is likely a page, not a component
+import Weather from "./components/Weather";
 import About from "./pages/About";
+import Contact from "./pages/Contact";
+import SoilFertility from "./components/SoilFertility";
+import PestId from "./components/PestId";
+import MarketPrices from "./components/MarketPrices";
+import GovSchemes from './components/GovSchemes';
+import CropRecommender from "./components/CropRecommender"; 
+import FertilizerCalculator from './components/FertilizerCalculator';
+import Dashboard from './pages/Dashboard';
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Wrap your pages inside the Layout route.
-          All nested routes will now render inside the <Layout /> component's <Outlet />
-        */}
         <Route path="/" element={<Layout />}>
-          {/* The index route renders at the parent's path ("/") */}
           <Route index element={<Home />} />
-          
+
           {/* Other pages */}
           <Route path="login" element={<Login />} />
           <Route path="signup" element={<Signup />} />
           <Route path="weather" element={<Weather />} />
+          <Route path="about" element={<About />} />
+          <Route path="contact" element={<Contact />} /> 
+          <Route path="soil" element={<SoilFertility/>}/>
+          <Route path="pest" element={<PestId />} />
+          <Route path="prices" element={<MarketPrices />} />
+          <Route path="schemes" element={<GovSchemes />} />
+          <Route path="crop" element={<CropRecommender />} />
+          
+          {/* --- ADDED THIS ROUTE --- */}
+          <Route path="calculator" element={<FertilizerCalculator />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          
         </Route>
-        
       </Routes>
     </Router>
   );
