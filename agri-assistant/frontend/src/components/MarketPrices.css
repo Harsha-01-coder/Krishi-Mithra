@@ -1,74 +1,137 @@
+body {
+  font-family: "Segoe UI", sans-serif;
+  background: #f5f8f2;
+  margin: 0;
+  padding: 0;
+  color: #222;
+}
+
 .prices-container {
-    display: flex;
-    justify-content: center;
-    padding: 20px;
-    width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 30px;
 }
 
 .prices-card {
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    padding: 24px 32px;
-    width: 100%;
-    max-width: 900px; /* Wider card for the table */
-    overflow-x: auto; /* Allow horizontal scrolling on small screens */
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  max-width: 1100px;
+  padding: 20px;
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .prices-card h2 {
-    text-align: center;
-    color: #333;
-    margin-top: 0;
+  margin-top: 0;
+  color: #1a531b;
 }
 
 .prices-card p {
-    text-align: center;
-    color: #666;
-    margin-bottom: 24px;
-    font-size: 16px;
+  color: #555;
+  margin-bottom: 20px;
 }
 
-/* --- Loader and Error --- */
 .loader {
-    text-align: center;
-    font-size: 18px;
-    color: #555;
-    padding: 40px;
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  font-size: 1.1rem;
+  font-weight: 500;
 }
+
 .error-box {
-    color: #721c24;
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
-    padding: 16px;
-    border-radius: 8px;
-    text-align: center;
+  background: #ffe5e5;
+  color: #b00000;
+  padding: 10px 15px;
+  border-radius: 6px;
+  margin: 10px 0;
+  font-weight: 500;
 }
 
-/* --- Prices Table --- */
-.prices-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
+table {
+  width: 100%;
+  border-collapse: collapse;
 }
 
-.prices-table th,
-.prices-table td {
-    padding: 12px 15px;
-    text-align: left;
-    border-bottom: 1px solid #eee;
+th, td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
 }
 
-.prices-table th {
-    background-color: #f9f9f9;
-    font-weight: 600;
-    color: #444;
+th {
+  background: #e9f5e6;
+  color: #1a531b;
 }
 
-.prices-table tbody tr:hover {
-    background-color: #fdfdfd;
+tr:hover {
+  background: #f3fdf3;
 }
 
-.prices-table .price-cell {
-    font-weight: 700;
-    color: #28a745;
+.price-cell {
+  font-weight: 600;
+  color: #1a531b;
+}
+
+.refresh-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  background-color: #1a531b;
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.refresh-btn:hover {
+  background-color: #256d1e;
+}
+
+#status {
+  margin-top: 10px;
+  font-size: 0.9em;
+  color: #444;
+  padding: 5px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.search-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+select {
+  flex: 1;
+  min-width: 150px;
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 15px;
+  background-color: #fff;
+}
+
+.search-section button {
+  padding: 8px 12px;
+  background-color: #1a531b;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.search-section button:hover {
+  background-color: #256d1e;
 }

@@ -257,7 +257,7 @@ function Navbar() {
           )}
         </div>
 
-        {/* --- 3. ADDED THE DASHBOARD LINK HERE --- */}
+        {/* --- LINKS UPDATED HERE --- */}
         {token && (
           <Link
             to="/dashboard"
@@ -283,9 +283,19 @@ function Navbar() {
         >
           Contact
         </Link>
+
+        {/* --- ADDED FORUM LINK --- */}
+        <Link
+          to="/forum"
+          onClick={handleLinkClick}
+          style={{ color: "white", textDecoration: "none" }}
+        >
+          Forum
+        </Link>
+        {/* --- END OF NEW LINK --- */}
       </div>
 
-      {/* --- 4. UPDATED AUTH LINKS --- */}
+      {/* Auth Links */}
       <div>
         {token ? (
           // --- SHOW THIS IF USER IS LOGGED IN ---

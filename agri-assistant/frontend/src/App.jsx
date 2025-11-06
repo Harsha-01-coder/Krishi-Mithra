@@ -17,6 +17,9 @@ import GovSchemes from './components/GovSchemes';
 import CropRecommender from "./components/CropRecommender"; 
 import FertilizerCalculator from './components/FertilizerCalculator';
 import Dashboard from './pages/Dashboard';
+import Forum from './pages/Forum';
+import PostPage from './pages/PostPage';
+import CreatePost from './pages/CreatePost';
 
 function App() {
   return (
@@ -40,6 +43,9 @@ function App() {
           {/* --- ADDED THIS ROUTE --- */}
           <Route path="calculator" element={<FertilizerCalculator />} />
           <Route path="dashboard" element={<Dashboard />} />
+          <Route path="forum" element={<Forum />} />
+          <Route path="forum/post/:id" element={<PostPage />} />
+          <Route path="forum/new-post" element={<CreatePost />} />
           
         </Route>
       </Routes>

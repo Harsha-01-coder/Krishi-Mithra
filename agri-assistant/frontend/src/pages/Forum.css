@@ -1,0 +1,141 @@
+.forum-container {
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+}
+
+.forum-header {
+  text-align: center;
+  border-bottom: 2px solid #f4f4f4;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+}
+.forum-header h1 {
+  color: #2e7d32;
+  margin: 0;
+}
+.forum-header p {
+  font-size: 1.1rem;
+  color: #555;
+}
+.btn-new-post {
+  background-color: #28a745;
+  color: white;
+  padding: 10px 20px;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 600;
+  display: inline-block;
+  margin-top: 10px;
+  border: none;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.btn-new-post:hover {
+  background-color: #218838;
+}
+
+.post-list .post-summary {
+  background: #f9f9f9;
+  border: 1px solid #eee;
+  padding: 15px 20px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease;
+}
+.post-list .post-summary:hover {
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.post-list .post-summary h3 {
+  margin: 0 0 5px 0;
+  color: #333;
+}
+.post-list .post-summary p {
+  margin: 0;
+  color: #777;
+  font-size: 0.9rem;
+}
+
+/* Post Page */
+.post-full {
+  border-bottom: 2px solid #f4f4f4;
+  padding-bottom: 15px;
+}
+.post-full h2 {
+  font-size: 2rem;
+  color: #333;
+  margin: 0 0 10px 0;
+}
+.post-full .post-author {
+  font-size: 0.9rem;
+  color: #777;
+  margin-bottom: 20px;
+}
+.post-full .post-body {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: #444;
+  white-space: pre-wrap; /* Preserves line breaks */
+}
+
+.replies-section {
+  margin-top: 20px;
+}
+.replies-section h3 {
+  color: #333;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+.reply {
+  background: #fdfdfd;
+  border: 1px solid #eee;
+  padding: 15px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+}
+.reply-body {
+  font-size: 1rem;
+  color: #555;
+  margin: 0 0 10px 0;
+  white-space: pre-wrap;
+}
+.reply-author {
+  font-size: 0.9rem;
+  color: #777;
+  margin: 0;
+  text-align: right;
+}
+
+/* Forms (Reply & Create Post) */
+.reply-form, .post-form {
+  margin-top: 20px;
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 8px;
+}
+.form-group {
+  margin-bottom: 15px;
+}
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #444;
+}
+.form-group input, .form-group textarea,
+.reply-form textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-family: inherit;
+  box-sizing: border-box; /* Fixes padding issue */
+}
+.error-message {
+  color: #721c24;
+  font-weight: 500;
+}

@@ -1,195 +1,49 @@
 import React, { useState } from 'react';
-import './CropRecommender.css'; // This imports the CSS you just provided
-
-// --- THIS IS YOUR CROP DATABASE ---
-// This logic matches your form inputs.
-const cropDatabase = [
-    {
-        name: "Rice (Paddy)",
-        soil: ["alluvial", "red", "clayey"],
-        season: ["kharif"],
-        minTemp: 20, maxTemp: 35,
-        minRainfall: 1500, maxRainfall: 3000
-    },
-    {
-        name: "Wheat",
-        soil: ["alluvial", "black", "loamy"],
-        season: ["rabi"],
-        minTemp: 10, maxTemp: 25,
-        minRainfall: 500, maxRainfall: 750
-    },
-    {
-        name: "Cotton",
-        soil: ["black", "red", "alluvial"],
-        season: ["kharif"],
-        minTemp: 21, maxTemp: 30,
-        minRainfall: 500, maxRainfall: 1000
-    },
-    {
-        name: "Sugarcane",
-        soil: ["alluvial", "black", "red", "loamy"],
-        season: ["kharif", "zaid"], // Can be a 12-18 month crop
-        minTemp: 20, maxTemp: 32,
-        minRainfall: 1500, maxRainfall: 2500
-    },
-    {
-        name: "Maize (Corn)",
-        soil: ["alluvial", "red", "laterite", "loamy"],
-        season: ["kharif", "rabi"], // Grown in both seasons in different regions
-        minTemp: 21, maxTemp: 27,
-        minRainfall: 500, maxRainfall: 800
-    },
-    {
-        name: "Watermelon",
-        soil: ["alluvial", "desert", "sandy"],
-        season: ["zaid"],
-        minTemp: 25, maxTemp: 35,
-        minRainfall: 400, maxRainfall: 600
-    },
-    {
-        name: "Mustard",
-        soil: ["alluvial", "loamy"],
-        season: ["rabi"],
-        minTemp: 10, maxTemp: 25,
-        minRainfall: 300, maxRainfall: 500
-    },
-    {
-        name: "Groundnut (Peanut)",
-        soil: ["sandy", "loamy", "red", "black"],
-        season: ["kharif", "rabi"],
-        minTemp: 25, maxTemp: 30,
-        minRainfall: 500, maxRainfall: 750
-    },
-    {
-        name: "Soybean",
-        soil: ["black", "loamy", "alluvial"],
-        season: ["kharif"],
-        minTemp: 20, maxTemp: 30,
-        minRainfall: 600, maxRainfall: 1000
-    },
-    {
-        name: "Chickpea (Gram)",
-        soil: ["loamy", "sandy", "black"],
-        season: ["rabi"],
-        minTemp: 15, maxTemp: 25,
-        minRainfall: 400, maxRainfall: 600
-    },
-    {
-        name: "Potato",
-        soil: ["sandy", "loamy", "alluvial"],
-        season: ["rabi"],
-        minTemp: 15, maxTemp: 25,
-        minRainfall: 500, maxRainfall: 700
-    },
-    {
-        name: "Onion",
-        soil: ["loamy", "red", "alluvial"],
-        season: ["rabi", "kharif"],
-        minTemp: 15, maxTemp: 30,
-        minRainfall: 600, maxRainfall: 800
-    },
-    {
-        name: "Tomato",
-        soil: ["sandy", "loamy", "red", "black"],
-        season: ["rabi", "zaid"],
-        minTemp: 20, maxTemp: 30,
-        minRainfall: 600, maxRainfall: 800
-    },
-    {
-        name: "Jowar (Sorghum)",
-        soil: ["sandy", "loamy", "black", "red"],
-        season: ["kharif", "rabi"],
-        minTemp: 25, maxTemp: 32,
-        minRainfall: 400, maxRainfall: 600
-    },
-    {
-        name: "Bajra (Pearl Millet)",
-        soil: ["sandy", "loamy", "desert"],
-        season: ["kharif"],
-        minTemp: 25, maxTemp: 35,
-        minRainfall: 300, maxRainfall: 500
-    },
-    {
-        name: "Moong Dal (Green Gram)",
-        soil: ["sandy", "loamy", "red"],
-        season: ["kharif", "zaid"],
-        minTemp: 25, maxTemp: 35,
-        minRainfall: 400, maxRainfall: 600
-    },
-    {
-        name: "Masoor Dal (Lentil)",
-        soil: ["alluvial", "loamy", "black"],
-        season: ["rabi"],
-        minTemp: 15, maxTemp: 25,
-        minRainfall: 300, maxRainfall: 450
-    },
-    {
-        name: "Brinjal (Eggplant)",
-        soil: ["loamy", "alluvial", "red"],
-        season: ["kharif", "rabi", "zaid"], // Can be grown year-round
-        minTemp: 20, maxTemp: 32,
-        minRainfall: 600, maxRainfall: 900
-    },
-    {
-        name: "Tea",
-        soil: ["loamy", "laterite", "mountain"], // Needs acidic soil
-        season: ["kharif"], // Main growing season
-        minTemp: 20, maxTemp: 30,
-        minRainfall: 1500, maxRainfall: 2500
-    },
-    {
-        name: "Coffee",
-        soil: ["loamy", "red", "laterite", "mountain"], // Needs acidic soil
-        season: ["kharif"], // Main growing season
-        minTemp: 20, maxTemp: 28,
-        minRainfall: 1500, maxRainfall: 2000
-    }
-];
-
+import axios from 'axios';
+import ReactMarkdown from 'react-markdown'; // <-- This is correct
+import './CropRecommender.css'; 
 
 function CropRecommender() {
-    // --- State for form inputs ---
+    // --- State for form inputs (unchanged) ---
     const [soil, setSoil] = useState('');
     const [season, setSeason] = useState('');
     const [stateName, setStateName] = useState('');
     const [rainfall, setRainfall] = useState('');
     const [temp, setTemp] = useState('');
 
-    // --- State for results ---
-    const [recommendations, setRecommendations] = useState([]);
+    // --- State for results (unchanged) ---
+    const [crops, setCrops] = useState('');
+    const [analysis, setAnalysis] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
-    const handleGetRecommendations = () => {
-        // 1. Clear previous results
+    // --- handleGetRecommendations function is unchanged ---
+    const handleGetRecommendations = async () => {
         setError('');
-        setRecommendations([]);
+        setCrops('');
+        setAnalysis('');
+        setIsLoading(true);
 
-        // 2. Validate inputs
-        if (!soil || !season || !rainfall || !temp) {
-            setError("Please fill in all fields.");
+        if (!soil || !season || !rainfall || !temp || !stateName) {
+            setError("Please fill in all 5 fields.");
+            setIsLoading(false);
             return;
         }
-
-        // 3. Parse numbers
-        const rain = parseFloat(rainfall);
-        const temperature = parseFloat(temp);
-
-        // 4. Filter the database based on the inputs
-        const results = cropDatabase.filter(crop => {
-            const soilMatch = crop.soil.includes(soil);
-            const seasonMatch = crop.season.includes(season);
-            const rainMatch = rain >= crop.minRainfall && rain <= crop.maxRainfall;
-            const tempMatch = temperature >= crop.minTemp && temperature <= crop.maxTemp;
-            
-            // All conditions must be true
-            return soilMatch && seasonMatch && rainMatch && tempMatch;
-        });
-
-        // 5. Display the results
-        if (results.length === 0) {
-            setError("No crops match your exact conditions. Try adjusting the values.");
-        } else {
-            setRecommendations(results);
+        try {
+            const response = await axios.post("http://127.0.0.1:5000/detailed-recommendation", {
+                soil: soil,
+                season: season,
+                stateName: stateName,
+                rainfall: parseFloat(rainfall),
+                temp: parseFloat(temp)
+            });
+            setCrops(response.data.crops);
+            setAnalysis(response.data.analysis);
+        } catch (err) {
+            setError(err.response?.data?.error || "Error connecting to the server.");
+            console.error("Recommendation error:", err);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -198,9 +52,8 @@ function CropRecommender() {
             <h2>Crop Recommendation System</h2>
             <p>Find the best crops for your conditions</p>
 
-            {/* --- THIS IS THE NEW GRID WRAPPER --- */}
+            {/* --- Form grid is unchanged --- */}
             <div className="form-grid">
-                
                 <div className="input-group">
                     <label htmlFor="soil-type">Soil Type</label>
                     <select id="soil-type" value={soil} onChange={e => setSoil(e.target.value)}>
@@ -213,7 +66,6 @@ function CropRecommender() {
                         <option value="mountain">Mountain</option>
                     </select>
                 </div>
-
                 <div className="input-group">
                     <label htmlFor="season">Season</label>
                     <select id="season" value={season} onChange={e => setSeason(e.target.value)}>
@@ -223,63 +75,55 @@ function CropRecommender() {
                         <option value="zaid">Zaid (Summer)</option>
                     </select>
                 </div>
-                
-                {/* --- This class makes the State input span 2 columns --- */}
                 <div className="input-group grid-col-span-2">
                     <label htmlFor="state">State</label>
                     <input 
-                        type="text" 
-                        id="state" 
-                        placeholder="e.g., Maharashtra, Punjab" 
-                        value={stateName}
-                        onChange={e => setStateName(e.target.value)}
+                        type="text" id="state" placeholder="e.g., Maharashtra, Punjab" 
+                        value={stateName} onChange={e => setStateName(e.target.value)}
                     />
                 </div>
-
                 <div className="input-group">
                     <label htmlFor="rainfall">Average Rainfall (mm)</label>
                     <input 
-                        type="number" 
-                        id="rainfall" 
-                        placeholder="e.g., 700" 
-                        value={rainfall}
-                        onChange={e => setRainfall(e.target.value)}
+                        type="number" id="rainfall" placeholder="e.g., 700" 
+                        value={rainfall} onChange={e => setRainfall(e.target.value)}
                     />
                 </div>
-
                 <div className="input-group">
                     <label htmlFor="temperature">Average Temperature (°C)</label>
                     <input 
-                        type="number" 
-                        id="temperature" 
-                        placeholder="e.g., 25" 
-                        value={temp}
-                        onChange={e => setTemp(e.target.value)}
+                        type="number" id="temperature" placeholder="e.g., 25" 
+                        value={temp} onChange={e => setTemp(e.target.value)}
                     />
                 </div>
             </div>
-            {/* --- END OF GRID WRAPPER --- */}
-
-
-            {/* This button uses the new class from your CSS */}
-            <button onClick={handleGetRecommendations} className="btn-full-width">
-                Get Recommendations
+            
+            <button onClick={handleGetRecommendations} className="btn-full-width" disabled={isLoading}>
+                {isLoading ? 'Analyzing...' : 'Get Recommendations'}
             </button>
 
-            <div id="results">
-                {/* --- Display Errors --- */}
-                {error && <p className="error-message">{error}</p>}
 
-                {/* --- Display Results --- */}
-                {recommendations.length > 0 && (
-                    <>
-                        <h3>Recommended Crops:</h3>
-                        <ul>
-                            {recommendations.map(crop => (
-                                <li key={crop.name}>{crop.name}</li>
-                            ))}
-                        </ul>
-                    </>
+            <div id="results">
+                {error && <p className="error-message">{error}</p>}
+                {isLoading && <div className="loader">Analyzing conditions...</div>}
+
+                {crops && (
+                    <div className="results-box">
+                        <h3 className="results-title">Recommended Crops</h3>
+                        {/* --- FIX 1: Wrap in a div with the class --- */}
+                        <div className="crops-list">
+                            <ReactMarkdown>{crops}</ReactMarkdown>
+                        </div>
+                    </div>
+                )}
+                
+                {analysis && (
+                    <div className="results-box">
+                        {/* --- FIX 2: Wrap in a div with the class --- */}
+                        <div className="detailed-analysis">
+                            <ReactMarkdown>{analysis}</ReactMarkdown>
+                        </div>
+                    </div>
                 )}
             </div>
         </div>

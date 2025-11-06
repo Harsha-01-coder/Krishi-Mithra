@@ -1,12 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
-import "./Chatbot.css"; // We will update this file next
+import "./Chatbot.css";
 
 function Chatbot() {
-  // NEW: State to manage if the chatbox is open or closed
   const [isOpen, setIsOpen] = useState(false);
-
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
 
@@ -16,9 +14,11 @@ function Chatbot() {
     return <p>Your browser does not support voice recognition.</p>;
   }
 
-  // --- All your existing functions (sendMessage, handleVoiceInput, etc.) ---
-  // --- can stay exactly the same. No changes needed there.           ---
   const sendMessage = async (text) => {
+    // --- 1. ADD THIS ---
+    // Stop any currently speaking bot
+    window.speechSynthesis.cancel();
+
     if (!text.trim()) return;
     setMessages((prev) => [...prev, { sender: "user", text }]);
     setInput("");
@@ -26,6 +26,8 @@ function Chatbot() {
       const res = await axios.post("http://localhost:5000/chatbot", { query: text });
       const botReply = res.data.answer || "Sorry, I couldn't understand that.";
       setMessages((prev) => [...prev, { sender: "bot", text: botReply }]);
+      
+      // Speak the new reply
       const utterance = new SpeechSynthesisUtterance(botReply);
       window.speechSynthesis.speak(utterance);
     } catch (err) {
@@ -36,33 +38,38 @@ function Chatbot() {
       ]);
     }
   };
+  
   const handleVoiceInput = () => {
+    // --- 2. ADD THIS ---
+    // Stop the bot before the user speaks
+    window.speechSynthesis.cancel();
+
     resetTranscript();
     SpeechRecognition.startListening({ continuous: false });
   };
+  
   const handleVoiceSend = () => {
     sendMessage(transcript);
     SpeechRecognition.stopListening();
     resetTranscript();
   };
-  // ---------------------------------------------------------------------
 
-  // NEW: Function to toggle the chatbox
   const toggleChat = () => {
+    // --- 3. ADD THIS LOGIC ---
+    // If the chat is open and we are about to close it, stop all speech
+    if (isOpen) {
+      window.speechSynthesis.cancel();
+    }
     setIsOpen(!isOpen);
   };
 
   return (
     <>
-      {/* This is the main chatbox window.
-        We add the "open" class only when isOpen is true.
-      */}
       {isOpen && (
         <div className="chatbot-box">
-          
-          {/* NEW: Header with a close button */}
           <div className="chat-header">
             <strong>🤖 AI Chatbot</strong>
+            {/* This button now also stops speech on close */}
             <button className="chat-close-btn" onClick={toggleChat}>✕</button>
           </div>
 
@@ -89,9 +96,7 @@ function Chatbot() {
         </div>
       )}
 
-      {/* This is the floating button that is always visible.
-        It toggles the chatbox open and closed.
-      */}
+      {/* This button now also stops speech on close */}
       <button className="chat-toggle-button" onClick={toggleChat}>
         {isOpen ? "✕" : "💬"}
       </button>

@@ -44,7 +44,7 @@
     font-size: 16px;
 }
 
-/* --- NEW: 2-Column Grid Styles --- */
+/* --- 2-Column Grid Styles --- */
 .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr; /* Two equal columns */
@@ -52,13 +52,11 @@
     margin-bottom: 20px;
 }
 
-/* --- NEW: This makes an item span both columns --- */
 .grid-col-span-2 {
     grid-column: span 2;
 }
 
-/* --- MODIFIED: Button Style --- */
-/* This now targets the button by its new class */
+/* --- Button Style --- */
 .recommender-container .btn-full-width {
     width: 100%;
     padding: 12px;
@@ -82,25 +80,7 @@
     margin-top: 20px;
 }
 
-#results h3 {
-    color: #333;
-}
-
-#results ul {
-    list-style-type: none;
-    padding-left: 0;
-}
-
-#results li {
-    background-color: #e9f5ec;
-    border: 1px solid #c3e6cb;
-    color: #155724;
-    padding: 10px;
-    border-radius: 8px;
-    margin-bottom: 8px;
-    font-weight: 500;
-}
-
+/* --- Error & Loader --- */
 .error-message {
     color: #721c24;
     background-color: #f8d7da;
@@ -108,4 +88,111 @@
     padding: 10px;
     border-radius: 8px;
     text-align: center;
+}
+
+.loader {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #555;
+    padding: 30px;
+}
+
+/* --- AI Result Box --- */
+.results-box {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 20px 24px;
+    border-radius: 8px;
+    margin-top: 20px;
+}
+
+.results-title {
+    font-weight: 700;
+    color: #2e7d32;
+    margin: 0 0 10px 0;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+/* --- Styles for react-markdown --- */
+
+/* This styles the simple crop list */
+.crops-list {
+    font-size: 1.1rem;
+    color: #333;
+    margin: 0;
+}
+.crops-list ul {
+    list-style-type: none;
+    padding-left: 0;
+    margin: 0;
+}
+.crops-list li {
+    font-weight: 500;
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+    color: #333;
+}
+
+
+/* This styles the detailed analysis text */
+.detailed-analysis {
+    font-size: 1rem;
+    color: #555;
+    line-height: 1.6;
+    text-align: left;
+}
+
+.detailed-analysis h1,
+.detailed-analysis h2,
+.detailed-analysis h3,
+.detailed-analysis h4 {
+    color: #333;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.detailed-analysis ul,
+.detailed-analysis ol {
+    padding-left: 20px;
+}
+
+.detailed-analysis li {
+    margin-bottom: 8px;
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    color: #555;
+    font-weight: normal;
+}
+
+.detailed-analysis strong {
+    color: #222;
+    font-weight: 600;
+}
+
+.detailed-analysis table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.detailed-analysis th,
+.detailed-analysis td {
+    border: 1px solid #ddd;
+    padding: 10px 12px;
+    text-align: left;
+}
+
+.detailed-analysis th {
+    background-color: #f4f4f4;
+    font-weight: 600;
+    color: #444;
+}
+
+.detailed-analysis tr:nth-child(even) {
+    background-color: #fcfcfc;
 }
