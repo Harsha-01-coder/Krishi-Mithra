@@ -1,154 +1,321 @@
 .dashboard-container {
-  max-width: 1200px;
-  margin: 20px auto;
-  padding: 0 20px;
-}
-.dashboard-title {
-  font-size: 2.5rem;
-  color: #2e7d32;
-  margin-bottom: 20px;
-}
-.dashboard-loading {
-  font-size: 1.5rem;
-  color: #555;
-  text-align: center;
-  padding: 50px;
-}
-.error-message {
-  color: #721c24;
-  font-weight: 500;
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+    background-color: #f9fdf8;
 }
 
-/* --- Location Widget --- */
-.location-widget {
-  background: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  margin-bottom: 20px;
-}
-.location-widget form {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.location-widget label {
-  font-weight: 600;
-  color: #333;
-}
-.location-widget input {
-  flex-grow: 1;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 1rem;
-}
-.location-widget button {
-  background-color: #28a745;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
+.dashboard-welcome {
+    font-size: 2.5rem;
+    color: #1a531b;
+    margin: 0 0 5px 0;
 }
 
-/* --- Dashboard Grid --- */
+.dashboard-location {
+    font-size: 1.1rem;
+    color: #555;
+    margin-bottom: 2rem;
+}
+
+.change-location-link {
+    margin-left: 10px;
+    font-size: 0.9rem;
+    color: #1a531b;
+    text-decoration: none;
+}
+.change-location-link:hover {
+    text-decoration: underline;
+}
+
+/* --- GRID LAYOUT UPDATE --- */
 .dashboard-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+    display: grid;
+    /* Default to 1 column on mobile */
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
 }
 
-.dashboard-widget {
-  background: #fff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  min-height: 250px;
+/* On screens wider than 900px, go to 2 columns */
+@media (min-width: 900px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr 1fr; /* 2 equal columns */
+    }
 }
-.dashboard-widget h3 {
-  font-size: 1.5rem;
-  color: #333;
-  margin: 0 0 15px 0;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 10px;
+/* --- END GRID UPDATE --- */
+
+
+.dashboard-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    /* This ensures cards in a row stretch to the same height */
+    height: 100%; 
 }
 
-/* Weather Widget */
+.dashboard-card h3 {
+    margin-top: 0;
+    color: #333;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 10px;
+}
+
+/* 1. Weather Card */
+.wide-card {
+    /* This will span both columns */
+    grid-column: 1 / -1; 
+}
+
+.weather-card {
+    background: linear-gradient(135deg, #e9f5e6, #f3fdf3);
+}
 .weather-main {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+.weather-icon {
+    width: 100px;
+    height: 100px;
 }
 .weather-temp {
-  font-size: 3rem;
-  font-weight: 700;
-  color: #2e7d32;
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: #1a531b;
 }
 .weather-condition {
-  text-align: center;
-  font-size: 1.2rem;
-  color: #555;
-  text-transform: capitalize;
-  margin-top: 10px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #333;
+}
+.weather-sub {
+    font-size: 0.9rem;
+    color: #555;
+}
+.advice-section {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #cde5c4;
+}
+.advice-section h3 {
+    border: none;
+    color: #1a531b;
+}
+.advice-list {
+    padding-left: 20px;
+    margin-bottom: 0; /* Remove default margin */
+}
+.advice-list li {
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 10px;
 }
 
-/* Prices Widget */
-.prices ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+/* 2. Quick Actions */
+.actions-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    /* This makes the card content fill the height */
+    flex-grow: 1;
 }
-.prices li {
-  display: flex;
-  justify-content: space-between;
-  padding: 10px 0;
-  border-bottom: 1px solid #f4f4f4;
+.action-button {
+    background-color: #f8fcf8;
+    border: 1px solid #e0e0e0;
+    padding: 1.25rem;
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1a531b;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
-.price-item {
-  font-weight: 500;
-  color: #555;
+.action-button:hover {
+    background-color: #e9f5e6;
+    border-color: #1a531b;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transform: translateY(-4px);
 }
-.price-value {
-  font-weight: 700;
-  color: #28a745;
+.action-icon {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+.action-button span {
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: #555;
 }
 
-/* News Widget */
+
+/* 3. Forecast */
+.forecast-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.forecast-list li {
+    display: grid;
+    grid-template-columns: 40px 1fr 1.5fr 1fr;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+.forecast-list li:last-child {
+    border-bottom: none;
+}
+.forecast-list li img {
+    width: 40px;
+    height: 40px;
+}
+.forecast-list li span {
+    color: #555;
+}
+
+/* 4. My Posts Card */
+.my-posts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    /* This makes the card content fill the height */
+    flex-grow: 1;
+}
+.my-post-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 6px;
+    border: 1px solid #eee;
+}
+.my-post-title a {
+    font-weight: 600;
+    color: #1a531b;
+    text-decoration: none;
+}
+.my-post-title a:hover {
+    text-decoration: underline;
+}
+.my-post-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0; /* Prevents buttons from wrapping */
+}
+.post-action-btn {
+    padding: 4px 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 4px;
+    text-decoration: none;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+.post-action-btn.edit {
+    background-color: #e6f0ff;
+    color: #0056b3;
+    border-color: #b3d1ff;
+}
+.post-action-btn.delete {
+    background-color: #ffe5e5;
+    color: #b00000;
+    border-color: #ffb3b3;
+}
+.no-posts-msg {
+    color: #777;
+    text-align: center;
+    padding: 1rem 0;
+    flex-grow: 1; /* Pushes button to bottom */
+}
+.btn-new-post-dash {
+    margin-top: 1rem;
+    padding: 12px;
+    text-align: center;
+    font-weight: 600;
+    color: #fff;
+    background-color: #1a531b;
+    text-decoration: none;
+    border-radius: 6px;
+    transition: background-color 0.2s;
+}
+.btn-new-post-dash:hover {
+    background-color: #256d1e;
+}
+
+/* 5. News */
 .news-list {
-  list-style: none;
-  padding-left: 0;
+    padding-left: 20px;
+    line-height: 1.7;
+    color: #333;
 }
 .news-list li {
-  position: relative;
-  padding-left: 25px;
-  margin-bottom: 12px;
-  font-size: 1rem;
-  color: #555;
-  line-height: 1.5;
-}
-.news-list li::before {
-  content: '📰';
-  position: absolute;
-  left: 0;
-  top: 0;
+    margin-bottom: 8px;
 }
 
-/* Responsive */
-@media (max-width: 900px) {
-  .dashboard-grid {
-    grid-template-columns: 1fr 1fr;
-  }
+/* --- Other --- */
+.loader {
+    text-align: center;
+    padding: 4rem;
+    font-size: 1.5rem;
+    color: #555;
 }
-@media (max-width: 600px) {
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-  }
-  .location-widget form {
-    flex-direction: column;
-    align-items: stretch;
-  }
+.error-box {
+    background-color: #ffe5e5;
+    color: #b00000;
+    padding: 1.5rem;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+}
+.profile-link {
+    display: block;
+    margin-top: 1rem;
+    font-size: 1rem;
+    padding: 8px 15px;
+    background-color: #1a531b;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    max-width: 200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Responsive Design */
+@media (max-width: 900px) {
+    /* Stack to 1 column on mobile */
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    .weather-main {
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+    }
+}
+
+@media (max-width: 500px) {
+    .actions-grid {
+        /* Stack to 1 column on very small screens */
+        grid-template-columns: 1fr;
+    }
+    .forecast-list li {
+        /* Simplify forecast for small screens */
+        grid-template-columns: 40px 1fr;
+        gap: 15px;
+    }
+    .forecast-list li span {
+        display: none; /* Hide text spans */
+    }
+    .forecast-list li strong {
+        grid-column: 2;
+    }
 }

@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
-import { useAuth } from '../context/AuthContext';
+// import { useAuth } from '../context/AuthContext';
 import './Forum.css'; // We can reuse the same CSS
 
 function PostPage() {
   const { id } = useParams(); // Gets the post ID from the URL
-  const { token } = useAuth();
+  // const { token } = useAuth();
+  const token = localStorage.getItem("token"); // Get token from storage
   
   const [post, setPost] = useState(null);
   const [replies, setReplies] = useState([]);
@@ -17,9 +18,10 @@ function PostPage() {
   const fetchPostAndReplies = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`http://127.0.0.1:5000/forum/post/${id}`);
-      setPost(res.data.post);
-      setReplies(res.data.replies);
+      // --- FIX 1: Changed URL to the correct API route ---
+      const res = await axios.get(`http://127.0.0.1:5000/api/post/${id}`);
+      setPost(res.data);
+      setReplies(res.data.replies || []);
     } catch (err) {
       setError("Error fetching post.");
     } finally {
@@ -36,13 +38,16 @@ function PostPage() {
     if (!newReply.trim()) return;
 
     try {
-      await axios.post(
-        `http://127.0.0.1:5000/forum/create-reply/${id}`, 
-        { body: newReply },
+      const res = await axios.post(
+        // --- FIX 2: Changed URL to the correct API route ---
+        `http://127.0.0.1:5000/api/post/${id}/reply`, 
+        // --- FIX 3: Send 'content' to match API ---
+        { content: newReply },
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
+      // Add new reply to the list instantly
+      setReplies([...replies, res.data]);
       setNewReply('');
-      fetchPostAndReplies(); // Refresh replies after posting
     } catch (err) {
       setError("Failed to post reply. Please log in.");
     }
@@ -56,17 +61,19 @@ function PostPage() {
       {post && (
         <div className="post-full">
           <h2>{post.title}</h2>
-          <p className="post-author">by <strong>{post.username}</strong> on {new Date(post.created_at).toLocaleDateString()}</p>
-          <div className="post-body">{post.body}</div>
+          {/* --- FIX 4: Use variable names from your API --- */}
+          <p className="post-author">by <strong>{post.author_username}</strong> on {new Date(post.createdAt).toLocaleDateString()}</p>
+          <div className="post-body">{post.content}</div>
         </div>
       )}
 
       <div className="replies-section">
-        <h3>Replies</h3>
+        <h3>{replies.length} Replies</h3>
         {replies.map(reply => (
-          <div key={reply.id} className="reply">
-            <p className="reply-body">{reply.body}</p>
-            <p className="reply-author">by <strong>{reply.username}</strong> on {new Date(reply.created_at).toLocaleDateString()}</p>
+          <div key={reply._id} className="reply">
+             {/* --- FIX 5: Use variable names from your API --- */}
+            <p className="reply-body">{reply.content}</p>
+            <p className="reply-author">by <strong>{reply.reply_author_username}</strong> on {new Date(reply.createdAt).toLocaleDateString()}</p>
           </div>
         ))}
       </div>

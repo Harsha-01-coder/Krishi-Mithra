@@ -2,7 +2,7 @@ import React from "react";
 import { Outlet } from "react-router-dom";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
-import Chatbot from "./Chatbot"; // ✅ Import here
+import ChatbotWidget from "./ChatbotWidget"; // Correctly import the widget
 
 function Layout() {
   return (
@@ -24,7 +24,7 @@ function Layout() {
         }}
       >
         <Outlet />
-        <Chatbot /> {/* ✅ Chatbot available on all pages */}
+        <ChatbotWidget /> {/* Chatbot available on all pages */}
       </main>
       <Footer />
     </div>

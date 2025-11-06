@@ -1,39 +1,46 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import './Login.css'; // We can reuse the same CSS as the Login page!
+import { useAuth } from '../context/AuthContext'; // Import useAuth
+import './Login.css'; // Make sure this CSS file contains the .auth-card styles
 
 function Signup() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState(''); // To show a success message
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const auth = useAuth(); // Get the login function from context
 
   const handleSignup = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
-    setSuccess('');
 
     try {
-      // Call your Flask backend's /signup route
-      const response = await axios.post('http://127.0.0.1:5000/signup', {
+      // --- STEP 1: Create the account ---
+      await axios.post('http://127.0.0.1:5000/signup', {
         username: username,
         password: password
       });
 
-      // If signup is successful
-      setSuccess(response.data.message);
+      // --- STEP 2 (The Fix): Log the user in immediately ---
+      console.log("Signup successful! Now logging in...");
+      const loginResponse = await axios.post('http://127.0.0.1:5000/login', {
+        username: username,
+        password: password
+      });
       
-      // Wait 2 seconds, then redirect to the login page
-      setTimeout(() => {
-        navigate('/login');
-      }, 2000);
+      // --- STEP 3: Save the token and redirect to DASHBOARD ---
+      if (loginResponse.data.token) {
+        auth.login(loginResponse.data.token); // Save token
+        navigate('/dashboard'); // Go to the dashboard!
+      } else {
+        setError('Login failed after signup. Please go to the login page.');
+      }
 
     } catch (err) {
-      // If Flask sends an error (like 409 Username exists)
+      // Handle errors (like "Username already exists")
       if (err.response && err.response.data) {
         setError(err.response.data.error || 'Signup failed. Please try again.');
       } else {
@@ -45,6 +52,7 @@ function Signup() {
   };
 
   return (
+    // Uses the CSS classes you just provided
     <div className="auth-container">
       <div className="auth-card">
         <h2>Create Account</h2>
@@ -79,11 +87,9 @@ function Signup() {
             </div>
           )}
 
-          {success && (
-            <div className="success-box">
-              {success} Redirecting to login...
-            </div>
-          )}
+          {/* Note: We don't need the .success-box because we are
+            redirecting to the dashboard immediately on success.
+          */}
           
           <button type="submit" className="submit-button" disabled={isLoading}>
             {isLoading ? 'Creating Account...' : 'Sign Up'}

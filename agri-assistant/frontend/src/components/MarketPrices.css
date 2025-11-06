@@ -58,6 +58,7 @@ body {
 table {
   width: 100%;
   border-collapse: collapse;
+  margin-top: 15px; /* Added margin */
 }
 
 th, td {
@@ -80,31 +81,21 @@ tr:hover {
   color: #1a531b;
 }
 
-.refresh-btn {
-  padding: 6px 12px;
-  border: none;
-  border-radius: 6px;
-  background-color: #1a531b;
-  color: #fff;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
+/* --- NEW: Price Change Colors --- */
+.price-cell.change.positive,
+.price-cell.change-percent.positive {
+  color: #28a745;
+}
+.price-cell.change.negative,
+.price-cell.change-percent.negative {
+  color: #dc3545;
+}
+.price-cell.previous {
+  color: #555;
+  font-weight: 400;
 }
 
-.refresh-btn:hover {
-  background-color: #256d1e;
-}
-
-#status {
-  margin-top: 10px;
-  font-size: 0.9em;
-  color: #444;
-  padding: 5px;
-  background-color: #f9f9f9;
-  border-radius: 4px;
-  text-align: center;
-}
-
+/* --- Search Section (Same) --- */
 .search-section {
   display: flex;
   flex-wrap: wrap;
@@ -131,7 +122,65 @@ select {
   cursor: pointer;
   font-weight: 600;
 }
-
 .search-section button:hover {
   background-color: #256d1e;
+}
+.refresh-btn {
+  background-color: #5a6a7b;
+}
+.refresh-btn:hover {
+  background-color: #4a5a6b;
+}
+
+/* --- NEW: View Toggle Buttons --- */
+.view-toggle-buttons {
+  display: flex;
+  gap: 5px;
+  margin: 20px 0 10px 0;
+  border-bottom: 2px solid #eee;
+}
+.view-toggle-buttons button {
+  padding: 10px 15px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #555;
+  border-bottom: 3px solid transparent;
+  transform: translateY(2px); /* Aligns with the bottom border */
+}
+.view-toggle-buttons button:hover {
+  color: #111;
+}
+.view-toggle-buttons button.active {
+  color: #1a531b;
+  border-bottom-color: #1a531b;
+}
+
+
+/* --- NEW: Status Bar --- */
+#status {
+  margin-top: 10px;
+  font-size: 0.9em;
+  color: #444;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  text-align: center;
+}
+
+/* --- NEW: Charts Container --- */
+.charts-container {
+  display: grid;
+  grid-template-columns: 1fr; /* Single column on mobile */
+  gap: 30px;
+  margin-top: 20px;
+}
+
+/* On wider screens, show two charts side-by-side */
+@media (min-width: 1024px) {
+  .charts-container {
+    grid-template-columns: 1fr 1fr;
+  }
 }

@@ -1,33 +1,37 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useAuth } from '../context/AuthContext';
+// import { useAuth } from '../context/AuthContext'; // Using localStorage for token
 import './Forum.css'; // Reuse CSS
 
 function CreatePost() {
   const [title, setTitle] = useState('');
-  const [body, setBody] = useState('');
+  // --- FIX 1: Changed 'body' to 'content' to match your API ---
+  const [content, setContent] = useState('');
   const [error, setError] = useState('');
-  const { token } = useAuth();
+  // const { token } = useAuth();
+  const token = localStorage.getItem("token"); // Get token from storage
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!title.trim() || !body.trim()) {
-      setError("Please fill in both title and body.");
+    if (!title.trim() || !content.trim()) {
+      setError("Please fill in both title and details.");
       return;
     }
 
     try {
       const res = await axios.post(
-        'http://127.0.0.1:5000/forum/create-post',
-        { title: title, body: body },
+        // --- FIX 2: Changed URL to the correct API route ---
+        'http://127.0.0.1:5000/api/create-post',
+        // --- FIX 3: Send 'content' to match API ---
+        { title: title, content: content },
         { headers: { 'Authorization': `Bearer ${token}` } }
       );
-      // Go to the new post's page
-      navigate(`/forum/post/${res.data.post_id}`);
+      // --- FIX 4: Use 'res.data._id' which your API sends ---
+      navigate(`/forum/post/${res.data._id}`);
     } catch (err) {
-      setError("Failed to create post. Please try again.");
+      setError(err.response?.data?.error || "Failed to create post. Please try again.");
     }
   };
 
@@ -50,8 +54,8 @@ function CreatePost() {
           <textarea
             id="body"
             rows="10"
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
+            value={content} // <-- Bind to 'content'
+            onChange={(e) => setContent(e.target.value)} // <-- Update 'content'
             placeholder="Describe your issue or question in detail..."
           ></textarea>
         </div>

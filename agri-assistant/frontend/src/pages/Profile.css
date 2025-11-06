@@ -1,0 +1,82 @@
+.profile-container {
+    display: flex;
+    justify-content: center;
+    padding: 3rem 1rem;
+    background-color: #f9fdf8;
+    min-height: 80vh;
+}
+
+.profile-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    padding: 2rem 2.5rem;
+    width: 100%;
+    max-width: 600px;
+}
+
+.profile-card h2 {
+    margin-top: 0;
+    color: #1a531b;
+    text-align: center;
+}
+
+.profile-card p {
+    text-align: center;
+    color: #555;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+
+.profile-card label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+    display: block;
+}
+
+.profile-card input {
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-sizing: border-box; /* Important for padding */
+    margin-bottom: 1.5rem;
+}
+
+.save-button {
+    width: 100%;
+    padding: 14px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: white;
+    background-color: #1a531b;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.save-button:hover {
+    background-color: #256d1e;
+}
+
+.message-box {
+    margin-top: 1.5rem;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 500;
+}
+
+.message-box.success {
+    background-color: #e9f5e6;
+    color: #1a531b;
+}
+
+.message-box.error {
+    background-color: #ffe5e5;
+    color: #b00000;
+}

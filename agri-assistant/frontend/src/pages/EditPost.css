@@ -1,0 +1,100 @@
+.edit-post-container {
+    display: flex;
+    justify-content: center;
+    padding: 3rem 1rem;
+    background-color: #f9fdf8;
+    min-height: 80vh;
+}
+
+.edit-post-form {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    padding: 2rem 2.5rem;
+    width: 100%;
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.edit-post-form h2 {
+    margin-top: 0;
+    color: #1a531b;
+    text-align: center;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.form-group input[type="text"],
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+    font-family: "Segoe UI", sans-serif;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-sizing: border-box; 
+    resize: vertical;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.save-btn, .delete-btn {
+    padding: 12px 20px;
+    font-size: 1rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.save-btn {
+    background-color: #1a531b;
+    color: white;
+}
+.save-btn:hover {
+    background-color: #256d1e;
+}
+
+.delete-btn {
+    background-color: #b00000;
+    color: white;
+}
+.delete-btn:hover {
+    background-color: #c80000;
+}
+
+.message-box {
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 500;
+}
+
+.message-box.success {
+    background-color: #e9f5e6;
+    color: #1a531b;
+}
+
+.message-box.error {
+    background-color: #ffe5e5;
+    color: #b00000;
+}

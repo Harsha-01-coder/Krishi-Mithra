@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import './Login.css'; // We will create this file next
+import { useAuth } from '../context/AuthContext'; // 1. Import useAuth
+import './Login.css'; 
 
 function Login() {
   const [username, setUsername] = useState('');
@@ -9,34 +10,33 @@ function Login() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const auth = useAuth(); // 2. Get auth context
 
   const handleLogin = async (e) => {
-    e.preventDefault(); // Prevent the form from reloading the page
+    e.preventDefault(); 
     setIsLoading(true);
     setError('');
 
     try {
-      // Call your Flask backend's /login route
+      // 3. (FIX) Corrected the IP address from 1227.0.0.1
       const response = await axios.post('http://127.0.0.1:5000/login', {
         username: username,
         password: password
       });
 
-      // If login is successful, Flask sends back a token
       if (response.data.token) {
-        // --- THIS IS THE MOST IMPORTANT PART ---
-        // Store the token in localStorage to keep the user logged in
-        localStorage.setItem('token', response.data.token);
+        // 4. (FIX) Use the auth context to save the token
+        auth.login(response.data.token);
         
-        // Redirect to the homepage
-        navigate('/');
+        // 5. (FIX) Redirect to the dashboard
+        navigate('/dashboard');
       }
     } catch (err) {
-      // If Flask sends an error (like 401 Invalid Credentials)
       if (err.response && err.response.data) {
         setError(err.response.data.error || 'Login failed. Please try again.');
       } else {
-        setError('Login failed. Please try again.');
+        // This error will now be accurate (e.g., "Network Error")
+        setError(err.message || 'Login failed. Please try again.');
       }
     } finally {
       setIsLoading(false);
