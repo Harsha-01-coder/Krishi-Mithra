@@ -1,0 +1,130 @@
+/* src/pages/PostDetail.css - Agricultural Theme */
+
+.post-detail-container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 30px; /* Increased padding */
+    background-color: #f1f7ee; /* Lighter, more natural green/off-white background */
+    border-radius: 12px; /* Slightly rounder corners */
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15); /* Stronger shadow for depth */
+}
+
+.error-message {
+    color: #dc3545;
+    font-weight: bold;
+    text-align: center;
+    padding: 20px;
+}
+
+/* --- Main Post Card (Focus: Earth & Soil) --- */
+.main-post-card {
+    background-color: #ffffff;
+    padding: 30px; /* Increased padding */
+    border-radius: 10px;
+    /* Changed accent color to a deeper, richer forest green */
+    border-left: 6px solid #145a32; 
+    margin-bottom: 35px;
+    /* Optional: Add a subtle inner shadow or box-shadow for depth */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08); 
+}
+
+.main-post-card h1 {
+    color: #145a32; /* Match title color to the accent green */
+    margin-top: 0;
+    font-size: 2.2em; /* Slightly larger title */
+    font-weight: 700;
+}
+
+.post-meta {
+    font-size: 1em; /* Slightly larger text */
+    color: #7d8579; /* Soft, earthy gray for meta data */
+    margin-bottom: 20px;
+    font-style: italic;
+}
+
+.post-content {
+    line-height: 1.7;
+    color: #384236; /* Darker, organic text color */
+    white-space: pre-wrap; /* Preserves formatting from the database */
+}
+
+/* --- Replies Section (Focus: Growth & Freshness) --- */
+.replies-section h2 {
+    color: #1e7e34;
+    /* Thicker border, using the primary green accent */
+    border-bottom: 3px solid #145a32; 
+    padding-bottom: 10px;
+    margin-bottom: 25px;
+    font-size: 1.5em;
+}
+
+.reply-list {
+    margin-top: 20px;
+}
+
+.reply-card {
+    /* Color of fresh leaves/new growth */
+    background-color: #f6fff2; 
+    padding: 18px;
+    border-radius: 8px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border: 1px solid #c8e6c9; /* Light green border */
+}
+
+.reply-meta {
+    font-size: 0.9em;
+    color: #5a7060;
+    /* Change separator to subtle leaf green */
+    border-bottom: 1px dashed #b2dfdb; 
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+}
+
+/* --- Reply Form --- */
+.reply-form h3 {
+    margin-top: 0;
+    color: #145a32; /* Match reply form header to deep green */
+}
+
+.reply-form textarea {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    resize: vertical;
+    box-sizing: border-box;
+    /* Font style adjustment for input */
+    font-family: inherit; 
+}
+
+/* Change button to a strong green associated with farming */
+.reply-form button {
+    background-color: #28a745; 
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.reply-form button:hover:not(:disabled) {
+    background-color: #1e7e34; /* Darker green on hover */
+}
+
+.reply-form button:disabled {
+    background-color: #9cd6ab; /* Pale green when disabled */
+    cursor: not-allowed;
+}
+
+.login-prompt {
+    padding: 15px;
+    /* Warm yellow/gold like ripe grain */
+    background-color: #fff8e1; 
+    border: 1px solid #ffecb3;
+    border-radius: 5px;
+    color: #b78c18;
+    text-align: center;
+}

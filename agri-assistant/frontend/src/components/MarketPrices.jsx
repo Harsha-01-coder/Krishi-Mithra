@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
-import './MarketPrices.css'; // This will hold all the CSS from your <style> tag
+// Assuming you have a corresponding CSS file
+import './MarketPrices.css'; 
 
 import {
     Chart as ChartJS,
@@ -10,8 +11,12 @@ import {
     Title,
     Tooltip,
     Legend,
+    LineElement,
+    PointElement,
+    ArcElement,
+    RadialLinearScale
 } from 'chart.js';
-import { Bar } from 'react-chartjs-2';
+import { Bar, Line, PolarArea } from 'react-chartjs-2';
 
 ChartJS.register(
     CategoryScale,
@@ -19,50 +24,58 @@ ChartJS.register(
     BarElement,
     Title,
     Tooltip,
-    Legend
+    Legend,
+    LineElement,
+    PointElement,
+    ArcElement,
+    RadialLinearScale
 );
 
-// --- API Configuration (Keep the larger limit) ---
-const API_KEY = "579b464db66ec23bdd0000018d96f019a8534f75494375ed28255257";
-const DATASET_ID = "9ef84268-d588-465a-a308-a864a43d0070";
-const API_URL = `https://api.data.gov.in/resource/${DATASET_ID}?api-key=${API_KEY}&format=json&limit=5000`;
+// --- MOCK FALLBACK DATA (Still used if backend data lacks 2 dates) ---
+const MOCK_FALLBACK_RECORDS = [
+    { "state": "Maharashtra", "district": "Pune", "market": "Pune (Mandi)", "commodity": "Onion", "modal_price": "2200", "arrival_date": "2025-11-04" },
+    { "state": "Maharashtra", "district": "Pune", "market": "Pune (Mandi)", "commodity": "Potato", "modal_price": "1500", "arrival_date": "2025-11-04" },
+    { "state": "Gujarat", "district": "Ahmedabad", "market": "Ahmedabad (Mandi)", "commodity": "Tomato", "modal_price": "1000", "arrival_date": "2025-11-04" },
+    { "state": "Maharashtra", "district": "Pune", "market": "Pune (Mandi)", "commodity": "Onion", "modal_price": "2300", "arrival_date": "2025-11-06" },
+    { "state": "Maharashtra", "district": "Pune", "market": "Pune (Mandi)", "commodity": "Potato", "modal_price": "1450", "arrival_date": "2025-11-06" },
+    { "state": "Gujarat", "district": "Ahmedabad", "market": "Ahmedabad (Mandi)", "commodity": "Tomato", "modal_price": "1100", "arrival_date": "2025-11-06" },
+];
+
+// --- API_URL FIX ---
+// Calling our own Flask backend
+const API_URL = "http://127.0.0.1:5000/market-prices";
 
 function MarketPrices() {
-    // --- State Variables ---
     const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(null); // For a total fetch failure
+    const [error, setError] = useState(null);
     const [activeView, setActiveView] = useState('changes');
-
-    // --- NEW: Specific error for the comparison feature ---
     const [comparisonError, setComparisonError] = useState(null);
 
-    // Data state
-    const [allPrices, setAllPrices] = useState([]);
-    const [filteredPrices, setFilteredPrices] = useState([]);
+    const [selectedChartType, setSelectedChartType] = useState('bar'); 
+
+    const [allPrices, setAllPrices] = useState([]); 
+    const [filteredPrices, setFilteredPrices] = useState([]); 
     
     const [comparisonData, setComparisonData] = useState([]);
     const [latestDate, setLatestDate] = useState(null);
     const [previousDate, setPreviousDate] = useState(null);
 
-    // Dropdown options state
     const [states, setStates] = useState([]);
     const [districts, setDistricts] = useState([]);
     const [commodities, setCommodities] = useState([]);
     const [stateDistrictMap, setStateDistrictMap] = useState({});
 
-    // Selected filter values state
     const [selectedState, setSelectedState] = useState("");
     const [selectedDistrict, setSelectedDistrict] = useState("");
     const [selectedCommodity, setSelectedCommodity] = useState("");
-
-    // --- Data Processing Function (Same as before) ---
-    const processPriceChanges = (records) => {
+    
+    // Wrapped in useCallback to prevent re-creation
+    const processPriceChanges = useCallback((records) => {
         const allDates = [...new Set(records.map(r => r.arrival_date))].sort().reverse();
         const newLatestDate = allDates[0];
         const newPreviousDate = allDates[1];
 
         if (!newLatestDate || !newPreviousDate) {
-            // This will be caught and set as the comparisonError
             throw new Error("Not enough data to compare (need at least 2 days).");
         }
 
@@ -71,10 +84,13 @@ function MarketPrices() {
 
         const latestPrices = {};
         const previousPrices = {};
+        
         records.forEach(r => {
-            const key = `${r.market}-${r.commodity}`;
-            if (r.arrival_date === newLatestDate) latestPrices[key] = parseFloat(r.modal_price);
-            if (r.arrival_date === newPreviousDate) previousPrices[key] = parseFloat(r.modal_price);
+            if (r.market && r.commodity && r.arrival_date) { 
+                const key = `${r.market}-${r.commodity}`;
+                if (r.arrival_date === newLatestDate) latestPrices[key] = parseFloat(r.modal_price);
+                if (r.arrival_date === newPreviousDate) previousPrices[key] = parseFloat(r.modal_price);
+            }
         });
 
         const comparisons = [];
@@ -88,38 +104,81 @@ function MarketPrices() {
                     const changePercent = (change / previous) * 100;
                     const [market, commodity] = key.split('-');
                     
-                    comparisons.push({
-                        key, market, commodity, latestPrice: latest, previousPrice: previous,
-                        change: change, changePercent: parseFloat(changePercent.toFixed(2)),
-                        ...records.find(r => `${r.market}-${r.commodity}` === key)
-                    });
+                    const originalRecord = records.find(r => r.market === market && r.commodity === commodity);
+                    
+                    if (originalRecord) { 
+                        comparisons.push({
+                            key, market, commodity, latestPrice: latest, previousPrice: previous,
+                            change: change, changePercent: parseFloat(changePercent.toFixed(2)),
+                            ...originalRecord
+                        });
+                    }
                 }
             }
         }
         setComparisonData(comparisons.sort((a, b) => b.changePercent - a.changePercent));
-    };
+    }, []);
 
-    // --- Data Fetching (HEAVILY MODIFIED) ---
-    const fetchPrices = useCallback(async () => {
+    // --- THIS FUNCTION IS NOW MORE ROBUST ---
+    const fetchDropdownData = useCallback(async () => {
         setIsLoading(true);
         setError(null);
-        setComparisonError(null); // Reset errors
-        try {
-            const res = await axios.get(API_URL);
-            if (!res.data.records || res.data.records.length === 0) {
-                throw new Error("No records found from the API. Try again later.");
-            }
-            
-            const records = res.data.records.filter(r => r.modal_price && r.modal_price > 0);
-            setAllPrices(records);
-            setFilteredPrices(records); // Set data for "All Data" tab
+        setComparisonError(null);
+        
+        let apiRecords = []; // Store API results here
 
-            // --- FIX: Build Dropdown Data *IMMEDIATELY* ---
-            // This code now runs *before* the price comparison
+        try {
+            const res = await axios.get(API_URL); 
+            
+            if (res.data && res.data.length > 0) {
+                 apiRecords = res.data.filter(r => r.modal_price && parseFloat(r.modal_price) > 0);
+            }
+
+        } catch (err) {
+            // Set error, but don't return, proceed to fallback
+            if (err.response && err.response.data && err.response.data.error) {
+                setError(err.response.data.error);
+            } else {
+                setError(err.message || "Failed to fetch market prices. Is the backend server running?");
+            }
+        } finally {
+            
+            let recordsToProcess = [];
+            
+            try {
+                // Try to process API data first
+                processPriceChanges(apiRecords);
+                recordsToProcess = apiRecords; // API data is good
+            } catch (e) {
+                // API data is empty or insufficient, merge with mock
+                console.warn("Live data empty or insufficient. Merging with mock data.");
+                recordsToProcess = [...apiRecords, ...MOCK_FALLBACK_RECORDS];
+                try {
+                    // Process merged data
+                    processPriceChanges(recordsToProcess);
+                    // Only show warning if API was empty
+                    if (apiRecords.length === 0) {
+                         setComparisonError("⚠️ No market records found from API. Displaying sample data.");
+                    } else {
+                         setComparisonError("⚠️ Warning: Live data supplemented with sample data.");
+                    }
+                } catch (mergeErr) {
+                    // This is bad, mock data is broken
+                    setError("Fatal Error: Could not process fallback data. " + mergeErr.message);
+                    setIsLoading(false);
+                    return;
+                }
+            }
+
+            // If we're here, recordsToProcess is valid (either API-only or merged)
+            setAllPrices(recordsToProcess); 
+            setFilteredPrices(recordsToProcess); 
+            
+            // Build Dropdown Data
             const stateSet = new Set();
             const commoditySet = new Set();
             const tempMap = {};
-            records.forEach(item => {
+            recordsToProcess.forEach(item => {
                 if (item.state) stateSet.add(item.state);
                 if (item.commodity) commoditySet.add(item.commodity);
                 if (item.state && item.district) {
@@ -130,61 +189,78 @@ function MarketPrices() {
 
             setStates([...stateSet].sort());
             setCommodities([...commoditySet].sort());
-            
             const finalMap = {};
             for (const state in tempMap) {
                 finalMap[state] = [...tempMap[state]].sort();
             }
             setStateDistrictMap(finalMap);
-            // --- END OF DROPDOWN FIX ---
-
-            // --- NEW: Process data for changes in its *own* try/catch ---
-            try {
-                processPriceChanges(records);
-            } catch (comparisonErr) {
-                // If this fails, it only sets the comparison error.
-                // The dropdowns and "All Data" tab will still work.
-                setComparisonError(comparisonErr.message); 
-            }
-
-        } catch (err) {
-            // This catches *only* major fetching errors
-            setError(err.message || "Failed to fetch market prices.");
-        } finally {
+            
             setIsLoading(false);
         }
-    }, []);
+    }, [processPriceChanges]);
+    // --- END OF LOGIC FIX ---
 
-    // Run fetchPrices once on component mount
+
+    // This function now ONLY handles filtering
+    const applyFilters = useCallback(async () => {
+        setIsLoading(true);
+        setError(null);
+        setComparisonError(null);
+        
+        // Filter the *local* data using flexible `includes()` logic
+        const filtered = allPrices.filter(item => {
+            // Add safety checks for items that might not have a state/district/commodity
+            const itemState = (item.state || "").toLowerCase();
+            const itemDistrict = (item.district || "").toLowerCase();
+            const itemCommodity = (item.commodity || "").toLowerCase();
+
+            const filterState = selectedState.toLowerCase();
+            const filterDistrict = selectedDistrict.toLowerCase();
+            const filterCommodity = selectedCommodity.toLowerCase();
+
+            return (
+                (!selectedState || itemState.includes(filterState)) &&
+                (!selectedDistrict || itemDistrict.includes(filterDistrict)) &&
+                (!selectedCommodity || itemCommodity.includes(filterCommodity))
+            );
+        });
+        
+        setFilteredPrices(filtered); // <-- This sets the state for 'All Data' tab
+
+        // Now, try to process *only* the filtered data
+        try {
+            processPriceChanges(filtered);
+        } catch (e) {
+            setComparisonError("Not enough filtered data to show price changes or graphs (need two distinct dates).");
+            setComparisonData([]); // Clear comparison table
+        }
+        
+        setIsLoading(false);
+
+    }, [allPrices, selectedState, selectedDistrict, selectedCommodity, processPriceChanges]);
+
+    // This useEffect now ONLY runs ONCE on mount
     useEffect(() => {
-        fetchPrices();
-    }, [fetchPrices]);
+        fetchDropdownData();
+    }, [fetchDropdownData]); 
 
-    // --- Event Handlers (Same as before) ---
-    const handleStateChange = (e) => {
-        const state = e.target.value;
-        setSelectedState(state);
+    // Input Handlers
+    const handleStateInput = (value) => {
+        setSelectedState(value);
         setSelectedDistrict(""); 
-        setDistricts(state ? (stateDistrictMap[state] || []) : []);
+        const districtOptions = stateDistrictMap[value] || [];
+        setDistricts(districtOptions);
     };
 
-    const applyFilters = () => {
-        const regularFilter = allPrices.filter(item =>
-            (!selectedState || item.state === selectedState) &&
-            (!selectedDistrict || item.district === selectedDistrict) &&
-            (!selectedCommodity || item.commodity === selectedCommodity)
-        );
-        setFilteredPrices(regularFilter);
-
-        const comparisonFilter = comparisonData.filter(item =>
-            (!selectedState || item.state === selectedState) &&
-            (!selectedDistrict || item.district === selectedDistrict) &&
-            (!selectedCommodity || item.commodity === selectedCommodity)
-        );
-        setComparisonData(comparisonFilter);
+    const handleDistrictInput = (value) => {
+        setSelectedDistrict(value);
     };
-    
-    // --- Memoized chart data (Same as before) ---
+
+    const handleCommodityInput = (value) => {
+        setSelectedCommodity(value);
+    };
+
+    // Memoized chart data
     const topMovers = useMemo(() => {
         const sorted = [...comparisonData].sort((a, b) => b.changePercent - a.changePercent);
         return sorted.slice(0, 10);
@@ -195,32 +271,66 @@ function MarketPrices() {
         return sorted.slice(0, 10).filter(item => item.changePercent < 0);
     }, [comparisonData]);
 
-    // --- Render JSX (MODIFIED Error Handling) ---
+    // --- Render JSX ---
     return (
         <div className="prices-container">
             <div className="prices-card">
                 <h2>🌾 India Market Prices</h2>
                 <p>Check latest <b>Agmarknet</b> commodity prices across Indian markets.</p>
 
-                {/* --- Search Section (Works now) --- */}
                 <div className="search-section">
-                    <select value={selectedState} onChange={handleStateChange}>
-                        <option value="">-- Select State --</option>
-                        {states.map(state => <option key={state} value={state}>{state}</option>)}
-                    </select>
-                    <select value={selectedDistrict} onChange={(e) => setSelectedDistrict(e.target.value)}>
-                        <option value="">-- Select District --</option>
-                        {districts.map(dist => <option key={dist} value={dist}>{dist}</option>)}
-                    </select>
-                    <select value={selectedCommodity} onChange={(e) => setSelectedCommodity(e.target.value)}>
-                        <option value="">-- Select Commodity --</option>
-                        {commodities.map(comm => <option key={comm} value={comm}>{comm}</option>)}
-                    </select>
+                    <input 
+                        list="state-list" 
+                        value={selectedState} 
+                        onChange={(e) => handleStateInput(e.target.value)}
+                        placeholder="Type or select State"
+                        className="search-input"
+                    />
+                    <datalist id="state-list">
+                        {states.map(state => <option key={state} value={state} />)}
+                    </datalist>
+
+                    <input 
+                        list="district-list" 
+                        value={selectedDistrict} 
+                        onChange={(e) => handleDistrictInput(e.target.value)}
+                        placeholder="Type or select District"
+                        className="search-input"
+                        disabled={!selectedState || (stateDistrictMap[selectedState]?.length === 0)}
+                    />
+                    <datalist id="district-list">
+                        {districts.map(dist => <option key={dist} value={dist} />)}
+                    </datalist>
+                    
+                    <input 
+                        list="commodity-list" 
+                        value={selectedCommodity} 
+                        onChange={(e) => handleCommodityInput(e.target.value)}
+                        placeholder="Type or select Commodity"
+                        className="search-input"
+                    />
+                    <datalist id="commodity-list">
+                        {commodities.map(comm => <option key={comm} value={comm} />)}
+                    </datalist>
+
+                    {/* Search button now calls the fixed applyFilters */}
                     <button onClick={applyFilters}>🔍 Search</button>
-                    <button className="refresh-btn" onClick={fetchPrices}>🔄 Refresh</button>
+                    <button className="refresh-btn" onClick={() => {
+                        // Reset filters and re-run the *local* filter
+                        setSelectedState("");
+                        setSelectedDistrict("");
+                        setSelectedCommodity("");
+                        setFilteredPrices(allPrices); // Reset view to all data
+                        try {
+                            processPriceChanges(allPrices); // Re-process all data
+                            setComparisonError(null);
+                        } catch (e) {
+                           setComparisonError("Not enough data to compare.");
+                           setComparisonData([]);
+                        }
+                    }}>🔄 Refresh</button>
                 </div>
 
-                {/* --- View Toggle Buttons (Same) --- */}
                 <div className="view-toggle-buttons">
                     <button 
                         className={activeView === 'changes' ? 'active' : ''} 
@@ -242,10 +352,8 @@ function MarketPrices() {
                     </button>
                 </div>
 
-                {/* --- Status/Loader/Error (MODIFIED) --- */}
                 {isLoading && <div className="loader">Loading prices...</div>}
                 
-                {/* This error is for a total API failure */}
                 {error && <div className="error-box">❌ {error}</div>}
                 
                 {!isLoading && !error && latestDate && (
@@ -254,27 +362,56 @@ function MarketPrices() {
                     </div>
                 )}
                 
-                {/* This error is ONLY for the comparison tabs */}
-                {!isLoading && comparisonError && (activeView === 'changes' || activeView === 'graphs') && (
-                     <div className="error-box">❌ {comparisonError}</div>
+                {!isLoading && comparisonError && (
+                    <div className="warning-box">{comparisonError}</div>
                 )}
 
                 {/* --- Conditional Rendering --- */}
 
-                {/* View 1: Price Changes (Shows error if comparisonError exists) */}
-                {activeView === 'changes' && !isLoading && !error && !comparisonError && (
-                    <PriceChangeTable data={comparisonData} />
+                {activeView === 'changes' && !isLoading && !error && (
+                    <PriceChangeTable data={comparisonData} /> 
                 )}
 
-                {/* View 2: Graphs (Shows error if comparisonError exists) */}
-                {activeView === 'graphs' && !isLoading && !error && !comparisonError && (
-                    <div className="charts-container">
-                        <MoversChart title="Top 10 Price Risers (%)" data={topMovers} color="#28a745" />
-                        <MoversChart title="Top 10 Price Fallers (%)" data={bottomMovers.reverse()} color="#dc3545" />
-                    </div>
+                {activeView === 'graphs' && !isLoading && !error && (
+                    comparisonData.length > 0 ? (
+                        <div className="charts-view">
+                            <div className="chart-selector">
+                                <label htmlFor="chartType">Select Chart Type:</label>
+                                <select 
+                                    id="chartType" 
+                                    value={selectedChartType} 
+                                    onChange={(e) => setSelectedChartType(e.target.value)}
+                                >
+                                    <option value="bar">Bar Chart (Horizontal)</option>
+                                    <option value="line">Line Chart</option>
+                                    <option value="polar">Polar Area Chart</option>
+                                </select>
+                            </div>
+
+                            <div className="charts-container">
+                                <MoversChart 
+                                    title="Top 10 Price Risers (%)" 
+                                    data={topMovers} 
+                                    color="#28a745" 
+                                    type={selectedChartType}
+                                />
+                                <MoversChart 
+                                    title="Top 10 Price Fallers (%)" 
+                                    data={bottomMovers.reverse()} 
+                                    color="#dc3545" 
+                                    type={selectedChartType}
+                                />
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="loader"> 
+                            {/* Show nothing if comparisonError is already shown */}
+                            {!comparisonError && "No data to display graphs."}
+                        </div>
+                    )
                 )}
 
-                {/* View 3: All Data (Will always work if fetch was successful) */}
+                {/* This table now correctly uses the filteredPrices state */}
                 {activeView === 'all' && !isLoading && !error && (
                     <AllPricesTable data={filteredPrices} />
                 )}
@@ -283,7 +420,7 @@ function MarketPrices() {
     );
 }
 
-// --- Helper Components (Same as before) ---
+// --- Helper Components ---
 
 function PriceChangeTable({ data }) {
     if (data.length === 0) {
@@ -328,7 +465,7 @@ function AllPricesTable({ data }) {
         return <div className="loader">No results found for the selected filters.</div>;
     }
     return (
-        <table className="prices-table">
+        <table className="prices-table all-data-table">
             <thead>
                 <tr>
                     <th>Commodity</th>
@@ -342,12 +479,12 @@ function AllPricesTable({ data }) {
             <tbody>
                 {data.map((item, index) => (
                     <tr key={`${item.market}-${item.commodity}-${item.arrival_date}-${index}`}>
-                        <td>{item.commodity || "-"}</td>
-                        <td>{item.state || "-"}</td>
-                        <td>{item.district || "-"}</td>
-                        <td>{item.market || "-"}</td>
-                        <td className="price-cell">₹ {item.modal_price || "-"}</td>
-                        <td>{item.arrival_date || "-"}</td>
+                        <td data-label="Commodity">{item.commodity || "-"}</td>
+                        <td data-label="State">{item.state || "-"}</td>
+                        <td data-label="District">{item.district || "-"}</td>
+                        <td data-label="Market">{item.market || "-"}</td>
+                        <td data-label="Price (₹/Quintal)" className="price-cell">₹ {item.modal_price || "-"}</td>
+                        <td data-label="Arrival Date">{item.arrival_date || "-"}</td>
                     </tr>
                 ))}
             </tbody>
@@ -355,26 +492,96 @@ function AllPricesTable({ data }) {
     );
 }
 
-function MoversChart({ title, data, color }) {
+function MoversChart({ title, data, color, type }) {
+    const isPolar = type === 'polar';
+    const isBar = type === 'bar'; // <-- This line was fixed
+    const chartLabels = data.map(item => `${item.commodity} (${item.market})`);
+    
+    const backgroundColors = isPolar 
+        ? data.map((_, i) => `hsl(${i * 45}, 70%, 50%)`) 
+        : color;
+
     const chartData = {
-        labels: data.map(item => `${item.commodity} (${item.market})`),
+        labels: chartLabels,
         datasets: [{
             label: 'Change (%)',
             data: data.map(item => item.changePercent),
-            backgroundColor: color,
-            borderColor: color,
+            backgroundColor: backgroundColors,
+            borderColor: isPolar ? 'white' : color,
             borderWidth: 1,
+            tension: type === 'line' ? 0.4 : 0,
+            fill: false,
         }],
     };
-    const options = {
-        indexAxis: 'y',
+    
+    let options = {
         responsive: true,
         plugins: {
-            legend: { display: false },
+            legend: { display: isPolar ? true : false },
             title: { display: true, text: title, font: { size: 16 }, color: '#333' },
+            tooltip: {
+                callbacks: {
+                    // Tooltip logic (fixed)
+                    label: function(context) {
+                        let label = context.dataset.label || '';
+                        if (label) {
+                            label += ': ';
+                        }
+                        let value = null;
+                        if (context.parsed.r !== undefined) {
+                            value = context.parsed.r; // For Polar
+                        } else if (context.parsed.x !== undefined && options.indexAxis === 'y') {
+                            value = context.parsed.x; // For Horizontal Bar
+                        } else if (context.parsed.y !== undefined) {
+                            value = context.parsed.y; // For Line / Vertical Bar
+                        }
+                        
+                        if (value !== null && !isNaN(value)) {
+                            label += value.toFixed(2) + '%';
+                        }
+                        return label;
+                    }
+                }
+            }
         },
     };
-    return <Bar data={chartData} options={options} />;
+
+    if (isBar) {
+        options.indexAxis = 'y'; // Horizontal bar chart
+    } else if (type === 'line') {
+        options.scales = {
+            x: { grid: { display: false } },
+            y: { beginAtZero: true }
+        };
+    } else if (isPolar) {
+        options.scales = {
+            r: {
+                beginAtZero: true,
+                suggestedMin: 0,
+                grid: { color: 'rgba(0, 0, 0, 0.1)' },
+                angleLines: { color: 'rgba(0, 0, 0, 0.1)' }
+            }
+        };
+    }
+
+    if (type === 'line') {
+        return (
+            <div className="chart-wrapper">
+                 <Line data={chartData} options={options} />
+            </div>
+        );
+    } else if (type === 'polar') {
+        return (
+            <div className="chart-wrapper">
+                <PolarArea data={chartData} options={options} />
+            </div>
+        );
+    }
+    return (
+        <div className="chart-wrapper">
+            <Bar data={chartData} options={options} />
+        </div>
+    );
 }
 
 export default MarketPrices;

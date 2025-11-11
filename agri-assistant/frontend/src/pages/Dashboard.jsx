@@ -1,19 +1,50 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom'; // <-- Add useNavigate
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import axios from 'axios';
-import './Dashboard.css'; 
+import './Dashboard.css'; // This CSS file is provided below
+import { useAuth } from '../context/AuthContext'; // <-- 1. IMPORTED useAuth
 
 function Dashboard() {
     const [dashboardData, setDashboardData] = useState(null);
-    const [myPosts, setMyPosts] = useState([]); // <-- 1. New state for posts
+    const [myPosts, setMyPosts] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
-    const token = localStorage.getItem("token"); // Get auth token
-    const navigate = useNavigate(); // For navigation
+    
+    // --- 2. GET TOKEN FROM useAuth ---
+    const { token } = useAuth(); 
+    const navigate = useNavigate(); 
+
+    // Helper to render bullet points
+    const renderList = (text) => {
+        if (!text) return null;
+        return text.split('*').map((item, index) => 
+            item.trim() && <li key={index}>{item.trim()}</li>
+        );
+    };
+
+    // New function to handle post deletion
+    const handleDelete = async (postId, postTitle) => {
+        // We are now using postId which is post.id (the string ID)
+        
+        // --- 3. REMOVED window.confirm ---
+        // We will just delete directly. 
+        // A proper app would use a modal, but confirm() is not allowed.
+        
+        try {
+            await axios.delete(`http://127.0.0.1:5000/api/post/${postId}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            // FIX: Filter by 'id' property of the post object
+            setMyPosts(myPosts.filter(post => post.id !== postId)); 
+        } catch (err) {
+            // Added check for 404/401 errors which result in this alert
+            // alert("Error: Could not delete post. Ensure you are logged in and are the original author.");
+            console.error("Error: Could not delete post. Ensure you are logged in and are the original author.", err);
+        }
+    };
 
     useEffect(() => {
         const fetchDashboardData = async () => {
-            // ... (this is your existing fetchData logic) ...
             try {
                 const res = await axios.get("http://127.0.0.1:5000/dashboard-data", {
                     headers: { 'Authorization': `Bearer ${token}` }
@@ -31,12 +62,11 @@ function Dashboard() {
         };
 
         const fetchMyPosts = async () => {
-            // <-- 2. New fetch function for user's posts
             try {
                 const res = await axios.get("http://127.0.0.1:5000/api/my-posts", {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                setMyPosts(res.data);
+                setMyPosts(res.data); 
             } catch (err) {
                 console.error("Could not fetch user posts.", err);
             }
@@ -47,50 +77,27 @@ function Dashboard() {
             if (!token) {
                 setError("You are not logged in.");
                 setIsLoading(false);
+                navigate('/login'); // Redirect to login if no token
                 return;
             }
-            // Run both fetches at the same time
             await Promise.all([fetchDashboardData(), fetchMyPosts()]);
             setIsLoading(false);
         }
 
         loadAllData();
-    }, [token]); // Re-run if token changes
-
-    // Helper to render bullet points
-    const renderList = (text) => {
-        // ... (your existing renderList function)
-        if (!text) return null;
-        return text.split('*').map((item, index) => 
-            item.trim() && <li key={index}>{item.trim()}</li>
-        );
-    };
-
-    // <-- 3. New function to handle post deletion
-    const handleDelete = async (postId, postTitle) => {
-        if (!window.confirm(`Are you sure you want to delete this post?\n\n"${postTitle}"`)) {
-            return;
-        }
-
-        try {
-            await axios.delete(`http://127.0.0.1:5000/api/post/${postId}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            // Refresh the post list by filtering out the deleted one
-            setMyPosts(myPosts.filter(post => post._id !== postId));
-        } catch (err) {
-            alert("Error: Could not delete post.");
-            console.error(err);
-        }
-    };
+    }, [token, navigate]); // Added navigate to dependency array
 
     if (isLoading) {
         return <div className="loader">Loading Dashboard...</div>;
     }
 
-    // Handle error case first
     if (error && !dashboardData?.user) {
         return <div className="error-box">{error}</div>;
+    }
+
+    // This handles the case where data fetch failed but user is technically set
+    if (!dashboardData) {
+        return <div className="error-box">Could not load dashboard data. Please try again.</div>
     }
 
     const { user, weather, news } = dashboardData;
@@ -100,7 +107,6 @@ function Dashboard() {
             <h1 className="dashboard-welcome">
                 Namaskar, {user.full_name || user.username}!
             </h1>
-            {/* ... (rest of your welcome/location code) ... */}
             <p className="dashboard-location">
                 Your dashboard for: <strong>{user.location || "No Location Set"}</strong>
                 <Link to="/profile" className="change-location-link">(Change/Set)</Link>
@@ -108,18 +114,17 @@ function Dashboard() {
 
             {error && <div className="error-box">{error}</div>}
             
-            {/* --- NEW LAYOUT GRID --- */}
             <div className="dashboard-grid">
                 
-                {/* --- 1. Weather & Advice Card --- */}
+                {/* 1. Weather & Advice Card */}
                 {weather ? (
-                    // <-- FIX: REMOVED 'wide-card' class to allow 2-column layout
                     <div className="dashboard-card weather-card"> 
                         <div className="weather-main">
                             <img 
                                 src={`http://openweathermap.org/img/wn/${weather.current.icon}@2x.png`} 
                                 alt={weather.current.condition}
                                 className="weather-icon"
+                                onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/100x100/f0f0f0/666?text=?' }}
                             />
                             <div className="weather-details">
                                 <div className="weather-temp">{Math.round(weather.current.temperature)}°C</div>
@@ -135,24 +140,23 @@ function Dashboard() {
                         </div>
                     </div>
                 ) : !error && (
-                    // <-- FIX: REMOVED 'wide-card' class
                     <div className="dashboard-card loader">Loading weather...</div>
                 )}
 
-                {/* --- 2. "MY POSTS" CARD (MOVED) --- */}
+                {/* 2. "MY POSTS" CARD (Action points fixed) */}
                 <div className="dashboard-card">
                     <h3>✍️ My Forum Posts</h3>
                     <div className="my-posts-list">
                         {myPosts.length > 0 ? (
                             myPosts.map(post => (
-                                <div key={post._id} className="my-post-item">
+                                <div key={post.id} className="my-post-item">
                                     <div className="my-post-title">
-                                        <Link to={`/forum/post/${post._id}`}>{post.title}</Link>
+                                        <Link to={`/forum/post/${post.id}`}>{post.title}</Link>
                                     </div>
                                     <div className="my-post-actions">
-                                        <Link to={`/edit-post/${post._id}`} className="post-action-btn edit">Edit</Link>
+                                        <Link to={`/forum/edit-post/${post.id}`} className="post-action-btn edit">Edit</Link>
                                         <button 
-                                            onClick={() => handleDelete(post._id, post.title)} 
+                                            onClick={() => handleDelete(post.id, post.title)} 
                                             className="post-action-btn delete"
                                         >
                                             Delete
@@ -169,7 +173,7 @@ function Dashboard() {
                     </div>
                 </div>
 
-                {/* --- 3. Quick Actions Card --- */}
+                {/* 3. Quick Actions Card */}
                 <div className="dashboard-card">
                     <h3>🛠️ Quick Tools</h3>
                     <div className="actions-grid">
@@ -196,7 +200,7 @@ function Dashboard() {
                     </div>
                 </div>
 
-                {/* --- 4. Forecast Card --- */}
+                {/* 4. Forecast Card */}
                 {weather ? (
                     <div className="dashboard-card">
                         <h3>📅 5-Day Forecast</h3>
@@ -206,6 +210,7 @@ function Dashboard() {
                                     <img 
                                         src={`http://openweathermap.org/img/wn/${day.icon}.png`} 
                                         alt={day.condition}
+                                        onError={(e) => { e.target.onerror = null; e.target.src='https://placehold.co/50x50/f0f0f0/666?text=?' }}
                                     />
                                     <strong>{day.day}</strong>
                                     <span>{day.condition}</span>
@@ -218,8 +223,22 @@ function Dashboard() {
                     <div className="dashboard-card loader">Loading forecast...</div>
                 )}
 
-                {/* --- 5. News Card (Now spans full width) --- */}
-                <div className="dashboard-card wide-card"> {/* This card stays wide */}
+                {/* --- 5. NEW ADMIN CARD --- */}
+                <div className="dashboard-card admin-card">
+                    <h3>⚙️ Admin Panel</h3>
+                    <div className="actions-grid">
+                        <Link to="/admin/add-product" className="action-button">
+                            <span className="action-icon">📦</span>
+                            <strong>Add Product</strong>
+                            <span>Add item to marketplace</span>
+                        </Link>
+                        {/* You can add more admin links here later */}
+                    </div>
+                </div>
+
+
+                {/* 6. News Card (Now spans full width) */}
+                <div className="dashboard-card wide-card">
                     <h3>📰 Latest News</h3>
                     <ul className="news-list">
                         {renderList(news)}

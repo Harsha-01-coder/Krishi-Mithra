@@ -260,12 +260,25 @@
 }
 
 /* --- Other --- */
+
+/* 🚀 UPDATED LOADER STYLE 🚀 */
 .loader {
     text-align: center;
     padding: 4rem;
     font-size: 1.5rem;
-    color: #555;
+    color: #1a531b; /* Use theme green */
+    font-weight: 600;
 }
+
+/* This adds the pulsing sprout above the "Loading..." text */
+.loader::before {
+    content: '🌱';
+    font-size: 3rem;
+    display: block;
+    margin: 0 auto 1rem;
+    animation: pulse-sprout 1.5s infinite ease-in-out;
+}
+
 .error-box {
     background-color: #ffe5e5;
     color: #b00000;
@@ -317,5 +330,21 @@
     }
     .forecast-list li strong {
         grid-column: 2;
+    }
+}
+
+/* 🚀 NEW: Animation for the sprout */
+@keyframes pulse-sprout {
+    0% {
+        transform: scale(1);
+        opacity: 0.7;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 0.7;
     }
 }

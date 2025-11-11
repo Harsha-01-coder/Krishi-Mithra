@@ -1,186 +1,352 @@
-body {
-  font-family: "Segoe UI", sans-serif;
-  background: #f5f8f2;
-  margin: 0;
-  padding: 0;
-  color: #222;
-}
-
+/* Global Reset and Container */
 .prices-container {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 30px;
+    padding: 20px;
+    background-color: #f8fcf8; /* Very light green/off-white background */
+    min-height: 90vh;
+    font-family: Arial, sans-serif;
 }
 
 .prices-card {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  width: 90%;
-  max-width: 1100px;
-  padding: 20px;
-  animation: fadeIn 0.5s ease-in;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+    max-width: 1200px;
+    margin: 0 auto;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
 }
 
 .prices-card h2 {
-  margin-top: 0;
-  color: #1a531b;
+    color: #1a531b; /* Deep green header */
+    font-size: 2.2em;
+    margin-bottom: 5px;
+    border-bottom: 3px solid #1a531b;
+    padding-bottom: 10px;
 }
 
 .prices-card p {
-  color: #555;
-  margin-bottom: 20px;
+    color: #555;
+    margin-bottom: 20px;
 }
 
-.loader {
-  text-align: center;
-  padding: 20px;
-  color: #666;
-  font-size: 1.1rem;
-  font-weight: 500;
-}
-
-.error-box {
-  background: #ffe5e5;
-  color: #b00000;
-  padding: 10px 15px;
-  border-radius: 6px;
-  margin: 10px 0;
-  font-weight: 500;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 15px; /* Added margin */
-}
-
-th, td {
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-  text-align: left;
-}
-
-th {
-  background: #e9f5e6;
-  color: #1a531b;
-}
-
-tr:hover {
-  background: #f3fdf3;
-}
-
-.price-cell {
-  font-weight: 600;
-  color: #1a531b;
-}
-
-/* --- NEW: Price Change Colors --- */
-.price-cell.change.positive,
-.price-cell.change-percent.positive {
-  color: #28a745;
-}
-.price-cell.change.negative,
-.price-cell.change-percent.negative {
-  color: #dc3545;
-}
-.price-cell.previous {
-  color: #555;
-  font-weight: 400;
-}
-
-/* --- Search Section (Same) --- */
+/* --- Search and Controls (FIXED FOR SINGLE LINE ON WIDER SCREENS) --- */
 .search-section {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 15px;
+    display: flex;
+    /* Allows elements to drop only when absolutely necessary (small screens) */
+    flex-wrap: wrap; 
+    gap: 10px;
+    align-items: center;
+    padding: 15px;
+    background-color: #f1f7ee; 
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 1px solid #c8e6c9;
 }
 
-select {
-  flex: 1;
-  min-width: 150px;
-  padding: 8px 10px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 15px;
-  background-color: #fff;
+/* Apply styles to input and select elements */
+.search-section input[type="text"], 
+.search-section select,
+.search-section button {
+    padding: 10px 15px;
+    border-radius: 6px;
+    font-size: 0.95em;
+    border: 1px solid #ced4da;
+    transition: all 0.2s;
+}
+
+.search-section input[type="text"],
+.search-section select {
+    /* CRITICAL: Allows inputs to grow (1) and shrink (1) based on a minimum basis (100px) */
+    flex: 1 1 100px; 
+    min-width: 120px; 
+    background-color: white;
+    cursor: pointer;
+}
+
+.search-section input[type="text"]:disabled {
+    background-color: #f0f0f0;
+    color: #999;
+    cursor: not-allowed;
 }
 
 .search-section button {
-  padding: 8px 12px;
-  background-color: #1a531b;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
+    background-color: #28a745; /* Green submit button */
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    /* CRITICAL: Prevents buttons from ever shrinking or wrapping prematurely */
+    flex-shrink: 0; 
 }
+
 .search-section button:hover {
-  background-color: #256d1e;
-}
-.refresh-btn {
-  background-color: #5a6a7b;
-}
-.refresh-btn:hover {
-  background-color: #4a5a6b;
+    background-color: #1e7e34;
+    transform: translateY(-1px);
 }
 
-/* --- NEW: View Toggle Buttons --- */
+.search-section button.refresh-btn {
+    background-color: #007bff; /* Blue for refresh/action */
+}
+
+.search-section button.refresh-btn:hover {
+    background-color: #0056b3;
+}
+
+/* --- View Toggle Buttons --- */
 .view-toggle-buttons {
-  display: flex;
-  gap: 5px;
-  margin: 20px 0 10px 0;
-  border-bottom: 2px solid #eee;
+    display: flex;
+    gap: 5px;
+    margin-bottom: 25px;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 5px;
 }
+
 .view-toggle-buttons button {
-  padding: 10px 15px;
-  border: none;
-  background-color: transparent;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 600;
-  color: #555;
-  border-bottom: 3px solid transparent;
-  transform: translateY(2px); /* Aligns with the bottom border */
+    padding: 10px 20px;
+    border: none;
+    background-color: transparent;
+    color: #555;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
 }
+
 .view-toggle-buttons button:hover {
-  color: #111;
+    color: #1a531b;
+    border-bottom-color: #a3e3a3;
 }
+
 .view-toggle-buttons button.active {
-  color: #1a531b;
-  border-bottom-color: #1a531b;
+    color: #1a531b;
+    border-bottom-color: #1a531b;
 }
 
-
-/* --- NEW: Status Bar --- */
-#status {
-  margin-top: 10px;
-  font-size: 0.9em;
-  color: #444;
-  padding: 10px;
-  background-color: #f9f9f9;
-  border-radius: 4px;
-  text-align: center;
+/* --- Status, Loader, Error Boxes --- */
+.loader, #status {
+    text-align: center;
+    padding: 15px;
+    font-size: 1.1em;
+    color: #1a531b;
+    background-color: #f1fdf1;
+    border-radius: 8px;
+    margin-bottom: 20px;
 }
 
-/* --- NEW: Charts Container --- */
+.loader {
+    color: #384236;
+}
+
+.error-box {
+    background-color: #f8d7da;
+    color: #721c24;
+    padding: 15px;
+    border: 1px solid #f5c6cb;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+.warning-box {
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 15px;
+    border: 1px solid #ffeeba;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+/* --- Tables --- */
+.prices-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.prices-table th,
+.prices-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.prices-table th {
+    background-color: #e9f5e6; /* Light green header row */
+    color: #1a531b;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.85em;
+}
+
+.prices-table tbody tr:hover {
+    background-color: #f6fff2;
+}
+
+/* Price Cell Styling */
+.price-cell {
+    font-weight: 600;
+}
+
+.price-cell.positive {
+    color: #1a531b; /* Green for gains */
+}
+
+.price-cell.negative {
+    color: #dc3545; /* Red for losses */
+}
+
+.change-percent {
+    font-weight: 700;
+}
+
+/* --- Charts Container and Selector --- */
+
+/* Wrapper for charts and selector */
+.charts-view {
+    padding: 20px 0;
+}
+
+.chart-selector {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 0;
+    margin-bottom: 25px;
+    border-bottom: 1px dashed #ccc;
+    flex-wrap: wrap; 
+}
+
+.chart-selector label {
+    font-weight: 600;
+    color: #1a531b;
+    flex-shrink: 0; 
+}
+
+.chart-selector select {
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    cursor: pointer;
+    background-color: #fff;
+    min-width: 180px;
+    flex-grow: 0.5; 
+}
+
 .charts-container {
-  display: grid;
-  grid-template-columns: 1fr; /* Single column on mobile */
-  gap: 30px;
-  margin-top: 20px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
 }
 
-/* On wider screens, show two charts side-by-side */
-@media (min-width: 1024px) {
-  .charts-container {
-    grid-template-columns: 1fr 1fr;
-  }
+/* Chart aspect ratio fix for non-bar charts */
+.charts-container > div {
+    position: relative;
+    height: 400px; 
+    width: 100%;
+}
+
+@media (min-width: 900px) {
+    .charts-container {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* --- Responsiveness --- */
+@media (max-width: 768px) {
+    .prices-card {
+        padding: 15px;
+    }
+
+    .prices-card h2 {
+        font-size: 1.8em;
+    }
+
+    .search-section input[type="text"],
+    .search-section select {
+        flex: 1 1 100px; 
+    }
+    
+    .chart-selector {
+        flex-direction: row; 
+        align-items: center;
+        justify-content: space-between;
+    }
+    .chart-selector select {
+        width: auto; 
+    }
+    
+    /* Force tables to stack columns on mobile */
+    .prices-table thead {
+        display: none;
+    }
+    .prices-table, .prices-table tbody, .prices-table tr, .prices-table td {
+        display: block;
+        width: 100%;
+    }
+    .prices-table tr {
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+    .prices-table td {
+        text-align: right;
+        padding-left: 50%;
+        position: relative;
+    }
+    .prices-table td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 0;
+        width: 50%;
+        padding-left: 15px;
+        font-weight: bold;
+        text-align: left;
+        color: #1e7e34;
+        font-size: 0.9em;
+    }
+    
+    /* Fix for price change table headers on mobile */
+    .prices-table td:nth-of-type(1)::before { content: "Commodity"; }
+    .prices-table td:nth-of-type(2)::before { content: "Market"; }
+    .prices-table td:nth-of-type(3)::before { content: "State"; }
+    .prices-table td:nth-of-type(4)::before { content: "Latest Price"; }
+    .prices-table td:nth-of-type(5)::before { content: "Previous Price"; }
+    .prices-table td:nth-of-type(6)::before { content: "Change (₹)"; }
+    .prices-table td:nth-of-type(7)::before { content: "Change (%)"; }
+
+    /* Fix for all data table headers on mobile */
+    .prices-table.all-data-table td:nth-of-type(1)::before { content: "Commodity"; }
+    .prices-table.all-data-table td:nth-of-type(2)::before { content: "State"; }
+    .prices-table.all-data-table td:nth-of-type(3)::before { content: "District"; }
+    .prices-table.all-data-table td:nth-of-type(4)::before { content: "Market"; }
+    .prices-table.all-data-table td:nth-of-type(5)::before { content: "Price"; }
+    .prices-table.all-data-table td:nth-of-type(6)::before { content: "Arrival Date"; }
+}
+
+@media (max-width: 500px) {
+    .search-section {
+        flex-direction: column;
+        align-items: stretch;
+        /* Ensure that below 500px, everything stacks to give max width */
+    }
+    /* Force stack on very small devices */
+    .search-section input[type="text"],
+    .search-section select,
+    .search-section button {
+        max-width: none;
+        width: 100%;
+        flex: 1 1 100%; 
+    }
+    /* Ensure chart selector is still readable */
+    .chart-selector {
+        flex-direction: column; 
+        align-items: flex-start;
+        gap: 8px; 
+    }
+    .chart-selector select {
+        width: 100%;
+    }
+    .charts-container > div {
+        height: 300px; /* Make charts slightly smaller on very small screens */
+    }
 }

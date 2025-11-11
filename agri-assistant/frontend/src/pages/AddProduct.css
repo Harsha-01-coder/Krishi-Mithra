@@ -1,0 +1,99 @@
+.add-product-container {
+  max-width: 700px;
+  margin: 20px auto;
+}
+
+.add-product-form {
+  background: #fff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.add-product-form h2 {
+  text-align: center;
+  margin-top: 0;
+  color: #333;
+}
+
+.add-product-form p {
+  text-align: center;
+  color: #666;
+  font-size: 1.1em;
+  margin-bottom: 30px;
+}
+
+.input-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.input-group {
+  margin-bottom: 20px;
+}
+
+.input-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #444;
+}
+
+.input-group input[type="text"],
+.input-group input[type="number"],
+.input-group select,
+.input-group textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1em;
+  box-sizing: border-box; 
+  font-family: inherit;
+}
+
+.input-group textarea {
+  resize: vertical;
+}
+
+.btn-submit-product {
+  width: 100%;
+  padding: 15px;
+  font-size: 1.1em;
+  font-weight: 600;
+  color: #fff;
+  background-color: #056839;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 10px;
+}
+
+.btn-submit-product:disabled {
+  background-color: #999;
+  cursor: not-allowed;
+}
+
+.btn-submit-product:hover:not(:disabled) {
+  background-color: #04502d;
+}
+
+.error-message {
+  color: #D8000C;
+  background-color: #FFD2D2;
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.success-message {
+  color: #056839;
+  background-color: #e6f7ec;
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+  margin-bottom: 20px;
+}

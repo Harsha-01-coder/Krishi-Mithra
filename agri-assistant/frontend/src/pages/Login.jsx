@@ -1,45 +1,41 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { useAuth } from '../context/AuthContext'; // 1. Import useAuth
-import './Login.css'; 
+import { useAuth } from '../context/AuthContext'; // Adjust path if needed
+import { useNavigate, Link } from 'react-router-dom';
+import './Login.css'; // Import your new CSS file
 
 function Login() {
+  // State for form fields
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  
+  // State for handling errors and loading
   const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
-  const auth = useAuth(); // 2. Get auth context
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = async (e) => {
-    e.preventDefault(); 
-    setIsLoading(true);
-    setError('');
+  // Get auth functions and navigation
+  const { login } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // Prevent default form submission
+    setError(''); // Clear any previous errors
+    setLoading(true); // Set loading state to disable the button
 
     try {
-      // 3. (FIX) Corrected the IP address from 1227.0.0.1
-      const response = await axios.post('http://127.0.0.1:5000/login', {
-        username: username,
-        password: password
-      });
+      // Use the login function from your AuthContext
+      const { success, error: authError } = await login(username, password);
 
-      if (response.data.token) {
-        // 4. (FIX) Use the auth context to save the token
-        auth.login(response.data.token);
-        
-        // 5. (FIX) Redirect to the dashboard
-        navigate('/dashboard');
+      if (success) {
+        navigate('/dashboard'); // Redirect to dashboard on success
+      } else {
+        // Show error from auth context or a default message
+        setError(authError || 'Invalid username or password. Please try again.');
       }
     } catch (err) {
-      if (err.response && err.response.data) {
-        setError(err.response.data.error || 'Login failed. Please try again.');
-      } else {
-        // This error will now be accurate (e.g., "Network Error")
-        setError(err.message || 'Login failed. Please try again.');
-      }
+      // Catch any unexpected errors during the login attempt
+      setError('An unexpected error occurred. Please try again.');
     } finally {
-      setIsLoading(false);
+      setLoading(false); // Re-enable the button
     }
   };
 
@@ -47,9 +43,17 @@ function Login() {
     <div className="auth-container">
       <div className="auth-card">
         <h2>Login</h2>
-        <p>Welcome back to Krishi Mithra</p>
-        
-        <form onSubmit={handleLogin}>
+        <p>Welcome back to Krishi Mitra</p>
+
+        <form onSubmit={handleSubmit}>
+          
+          {/* Conditionally render the error box if an error exists */}
+          {error && (
+            <div className="error-box">
+              {error}
+            </div>
+          )}
+
           <div className="form-group">
             <label htmlFor="username">Username</label>
             <input
@@ -58,9 +62,10 @@ function Login() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
+              disabled={loading} // Disable input when loading
             />
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="password">Password</label>
             <input
@@ -69,23 +74,22 @@ function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
+              disabled={loading} // Disable input when loading
             />
           </div>
-          
-          {error && (
-            <div className="error-box">
-              {error}
-            </div>
-          )}
-          
-          <button type="submit" className="submit-button" disabled={isLoading}>
-            {isLoading ? 'Logging in...' : 'Login'}
+
+          <button 
+            type="submit" 
+            className="submit-button" 
+            disabled={loading} // Disable button when loading
+          >
+            {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
-        
-        <p className="switch-auth">
+
+        <div className="switch-auth">
           Don't have an account? <Link to="/signup">Sign up here</Link>
-        </p>
+        </div>
       </div>
     </div>
   );

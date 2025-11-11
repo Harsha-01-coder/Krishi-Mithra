@@ -1,40 +1,41 @@
-/* --- Sticky Footer Layout --- */
+/* =========================================
+   🌿 GLOBAL LAYOUT STYLES (STICKY FOOTER)
+   ========================================= */
+   
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+    "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f4f7f6; /* Default soft background */
+}
 
-/* This class wraps your entire application and is
-   applied to a top-level div in your Layout component.
-   It sets the page height to *at least* the full screen height
-   and uses flexbox to push the footer down.
-*/
+/* Page container wraps everything inside Layout.jsx */
 .page-container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh; /* 100% of the viewport height */
+  min-height: 100vh; /* Makes footer sticky */
 }
 
-/* This class wraps all your content *except* the footer.
-   The 'flex-grow: 1' is the magic. It tells this
-   div to "grow" and take up all available empty space.
-*/
+/* The main page content grows to push footer down */
 .content-wrap {
-  flex-grow: 1;
+  flex: 1;
 }
 
-/* --- Basic Styling for Demo --- */
-/* (This just makes the demo look nice) */
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
+/* =========================================
+   🌐 NAVBAR STYLES
+   ========================================= */
 nav {
   width: 100%;
-  background: #282c34;
+  background: #1d741b; /* Deep green tone (matches theme) */
   padding: 1rem 2rem;
-  box-sizing: border-box; /* Ensures padding doesn't add to width */
+  box-sizing: border-box;
+  position: relative;
+  z-index: 10; /* Keeps above hero overlays */
 }
 
 nav a {
@@ -42,40 +43,56 @@ nav a {
   margin-right: 1.5rem;
   text-decoration: none;
   font-weight: 500;
+  transition: color 0.2s ease;
 }
 
 nav a:hover {
-  color: #61dafb;
+  color: #34c759; /* Bright green hover accent */
 }
 
+/* =========================================
+   ⚓ FOOTER STYLES
+   ========================================= */
 footer {
   width: 100%;
-  background: #333;
+  background: #222; /* Dark neutral tone */
   color: white;
-  padding: 2rem;
+  padding: 2rem 1rem;
   text-align: center;
-  box-sizing: border-box; /* Ensures padding doesn't add to width */
+  box-sizing: border-box;
+  font-size: 0.95rem;
+  line-height: 1.6;
 }
 
-main {
-  padding: 2rem;
+footer a {
+  color: #34c759;
+  text-decoration: none;
 }
 
-/* Styles for a "short" page demo */
+footer a:hover {
+  text-decoration: underline;
+}
+
+/* =========================================
+   🧱 PAGE / DEMO UTILITY STYLES
+   ========================================= */
 .short-page {
-  height: 200px; /* Intentionally short content */
+  height: 200px; /* For demo/testing only */
   border: 2px dashed #ccc;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 8px;
-}
-/* Add this to index.css or App.css */
-html, body, #root {
-  height: 100%;
-  margin: 0;
+  background-color: #fff;
 }
 
-body {
-  background-color: #f4f7f6; /* Or your preferred page background */
-}
+/* =========================================
+   ❌ REMOVED CONFLICTING RULES
+   ========================================= */
+/* 
+ DO NOT apply padding or background directly to <main> globally,
+ it breaks hero sections (like on Home.jsx). 
+*/
+/* main {
+  padding: 2rem;
+} */

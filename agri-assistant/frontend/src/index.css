@@ -1,35 +1,33 @@
 /* --- Global Base Styles --- */
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+}
 
-/* Apply a base font and background color to the entire application */
 body {
   margin: 0;
   padding: 0;
   font-family: 'Arial', sans-serif;
-  background-color: #e8f5e9; /* Your light green background */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: transparent; /* ✅ FIX: Remove global background */
 }
 
-/* A universal reset for easier layout calculations */
-*, *::before, *::after {
-  box-sizing: border-box;
-}
-
-/* Make sure buttons have a consistent font and pointer */
-button {
-  font-family: 'Arial', sans-serif;
-  cursor: pointer;
-}
-/* File: src/index.css */
-
-/* This makes the browser, page, and React app fill the screen */
+/* Make sure everything fills screen properly */
 html, body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
 }
 
-/* A universal reset for easier layout calculations */
+/* Universal reset */
 *, *::before, *::after {
   box-sizing: border-box;
+}
+
+button {
+  font-family: 'Arial', sans-serif;
+  cursor: pointer;
 }

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import ReactMarkdown from 'react-markdown'; // <-- This is correct
-import './CropRecommender.css'; 
+import ReactMarkdown from 'react-markdown';
+import './CropRecommender.css';
 
 function CropRecommender() {
     // --- State for form inputs (unchanged) ---
@@ -17,7 +17,7 @@ function CropRecommender() {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
-    // --- handleGetRecommendations function is unchanged ---
+    // --- handleGetRecommendations function ---
     const handleGetRecommendations = async () => {
         setError('');
         setCrops('');
@@ -37,8 +37,12 @@ function CropRecommender() {
                 rainfall: parseFloat(rainfall),
                 temp: parseFloat(temp)
             });
-            setCrops(response.data.crops);
+
+            // --- FIX 1: REMOVED CLEANUP LOGIC ---
+            // We removed the 'cleanedCrops' line, as the backend now sends clean data.
+            setCrops(response.data.crops); // Use the direct response
             setAnalysis(response.data.analysis);
+
         } catch (err) {
             setError(err.response?.data?.error || "Error connecting to the server.");
             console.error("Recommendation error:", err);
@@ -77,27 +81,27 @@ function CropRecommender() {
                 </div>
                 <div className="input-group grid-col-span-2">
                     <label htmlFor="state">State</label>
-                    <input 
-                        type="text" id="state" placeholder="e.g., Maharashtra, Punjab" 
+                    <input
+                        type="text" id="state" placeholder="e.g., Maharashtra, Punjab"
                         value={stateName} onChange={e => setStateName(e.target.value)}
                     />
                 </div>
                 <div className="input-group">
                     <label htmlFor="rainfall">Average Rainfall (mm)</label>
-                    <input 
-                        type="number" id="rainfall" placeholder="e.g., 700" 
+                    <input
+                        type="number" id="rainfall" placeholder="e.g., 700"
                         value={rainfall} onChange={e => setRainfall(e.target.value)}
                     />
                 </div>
                 <div className="input-group">
                     <label htmlFor="temperature">Average Temperature (°C)</label>
-                    <input 
-                        type="number" id="temperature" placeholder="e.g., 25" 
+                    <input
+                        type="number" id="temperature" placeholder="e.g., 25"
                         value={temp} onChange={e => setTemp(e.target.value)}
                     />
                 </div>
             </div>
-            
+
             <button onClick={handleGetRecommendations} className="btn-full-width" disabled={isLoading}>
                 {isLoading ? 'Analyzing...' : 'Get Recommendations'}
             </button>
@@ -109,17 +113,18 @@ function CropRecommender() {
 
                 {crops && (
                     <div className="results-box">
+                    
+                        {/* --- FIX 2: ADDED HEADING BACK --- */}
                         <h3 className="results-title">Recommended Crops</h3>
-                        {/* --- FIX 1: Wrap in a div with the class --- */}
+                        
                         <div className="crops-list">
                             <ReactMarkdown>{crops}</ReactMarkdown>
                         </div>
                     </div>
                 )}
-                
+
                 {analysis && (
                     <div className="results-box">
-                        {/* --- FIX 2: Wrap in a div with the class --- */}
                         <div className="detailed-analysis">
                             <ReactMarkdown>{analysis}</ReactMarkdown>
                         </div>

@@ -10,7 +10,7 @@ export default function Contact() {
         minHeight: "80vh",
       }}
     >
-      <h1 style={{ color: "#2e7d32;", marginBottom: "20px" }}>Contact Us</h1>
+      <h1 style={{ color: "#2e7d32", marginBottom: "20px" }}>Contact Us</h1>
       <p style={{ fontSize: "18px", color: "#555" }}>
         Have questions or feedback? We’d love to hear from you!
       </p>
@@ -72,7 +72,7 @@ export default function Contact() {
         <button
           type="submit"
           style={{
-            backgroundColor: "#2e7d32;",
+            backgroundColor: "#2e7d32",
             color: "white",
             padding: "12px",
             border: "none",

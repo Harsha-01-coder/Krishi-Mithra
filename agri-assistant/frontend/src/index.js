@@ -1,13 +1,14 @@
+// src/index.js
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
-import { AuthProvider } from './context/AuthContext'; // <-- 1. IMPORT THIS
+import { AuthProvider } from './context/AuthContext'; // <-- GOOD!
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    {/* 2. WRAP YOUR APP WITH THE PROVIDER */}
+    {/* This is the correct place for the provider */}
     <AuthProvider>
       <App />
     </AuthProvider>

@@ -1,141 +1,136 @@
+/* --- Main Forum Layout --- */
 .forum-container {
-  max-width: 900px;
-  margin: 20px auto;
+  max-width: 800px; /* A bit narrower for a feed-like feel */
+  margin: 30px auto;
   padding: 20px;
-  background-color: #fff;
-  border-radius: 8px;
 }
 
+/* --- Header (Same as before, but good to confirm) --- */
 .forum-header {
   text-align: center;
-  border-bottom: 2px solid #f4f4f4;
-  padding-bottom: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 .forum-header h1 {
-  color: #2e7d32;
-  margin: 0;
+  color: #333;
+  margin-bottom: 10px;
 }
 .forum-header p {
-  font-size: 1.1rem;
-  color: #555;
+  color: #666;
+  font-size: 1.1em;
+}
+.forum-login-prompt {
+  margin-top: 15px;
 }
 .btn-new-post {
-  background-color: #28a745;
-  color: white;
-  padding: 10px 20px;
-  text-decoration: none;
-  border-radius: 6px;
-  font-weight: 600;
   display: inline-block;
-  margin-top: 10px;
-  border: none;
-  font-size: 1rem;
-  cursor: pointer;
+  margin-top: 20px;
+  padding: 12px 25px;
+  background-color: #056839;
+  color: #ffffff;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 1em;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 .btn-new-post:hover {
-  background-color: #218838;
+  background-color: #04502d;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+/* --- End Header Styles --- */
+
+
+/* --- Post List --- */
+.post-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Tighter spacing between posts */
 }
 
-.post-list .post-summary {
-  background: #f9f9f9;
-  border: 1px solid #eee;
-  padding: 15px 20px;
-  border-radius: 6px;
-  margin-bottom: 10px;
-  cursor: pointer;
-  transition: box-shadow 0.2s ease;
-}
-.post-list .post-summary:hover {
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-}
-.post-list .post-summary h3 {
-  margin: 0 0 5px 0;
-  color: #333;
-}
-.post-list .post-summary p {
-  margin: 0;
-  color: #777;
-  font-size: 0.9rem;
-}
-
-/* Post Page */
-.post-full {
-  border-bottom: 2px solid #f4f4f4;
-  padding-bottom: 15px;
-}
-.post-full h2 {
-  font-size: 2rem;
-  color: #333;
-  margin: 0 0 10px 0;
-}
-.post-full .post-author {
-  font-size: 0.9rem;
-  color: #777;
-  margin-bottom: 20px;
-}
-.post-full .post-body {
-  font-size: 1.1rem;
-  line-height: 1.7;
-  color: #444;
-  white-space: pre-wrap; /* Preserves line breaks */
-}
-
-.replies-section {
-  margin-top: 20px;
-}
-.replies-section h3 {
-  color: #333;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 10px;
-}
-.reply {
-  background: #fdfdfd;
-  border: 1px solid #eee;
-  padding: 15px;
-  border-radius: 6px;
-  margin-bottom: 10px;
-}
-.reply-body {
-  font-size: 1rem;
-  color: #555;
-  margin: 0 0 10px 0;
-  white-space: pre-wrap;
-}
-.reply-author {
-  font-size: 0.9rem;
-  color: #777;
-  margin: 0;
-  text-align: right;
-}
-
-/* Forms (Reply & Create Post) */
-.reply-form, .post-form {
-  margin-top: 20px;
-  background: #f9f9f9;
+/* --- NEW "Twitter/Instagram" Style Post Card --- */
+.post-card {
+  display: flex;
+  align-items: flex-start; /* Aligns avatar to the top */
   padding: 20px;
-  border-radius: 8px;
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
 }
-.form-group {
-  margin-bottom: 15px;
+
+.post-card:hover {
+  background-color: #f9f9f9;
 }
-.form-group label {
-  display: block;
+
+/* --- NEW Avatar Style --- */
+.post-avatar {
+  flex-shrink: 0;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background-color: #056839; /* Krishi Mitra main green */
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4em;
+  font-weight: bold;
+  margin-right: 15px;
+}
+
+/* --- Main Content (Title/Meta) --- */
+.post-card-main {
+  flex-grow: 1; /* This makes it take up the available space */
+}
+
+.post-card-main h3 {
+  margin: 0 0 5px 0;
+  color: #111; /* Darker for more contrast */
+  font-size: 1.3em;
   font-weight: 600;
-  margin-bottom: 5px;
-  color: #444;
 }
-.form-group input, .form-group textarea,
-.reply-form textarea {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 1rem;
-  font-family: inherit;
-  box-sizing: border-box; /* Fixes padding issue */
+
+.post-card-meta {
+  margin: 0;
+  font-size: 0.95em;
+  color: #555;
 }
-.error-message {
-  color: #721c24;
-  font-weight: 500;
+
+.post-card-meta strong {
+  color: #000;
+  margin-right: 8px;
+}
+
+.post-card-time {
+  color: #777;
+}
+
+/* --- NEW Icon-based Stats --- */
+.post-card-stats {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Space between icon and number */
+  padding-left: 20px;
+  margin-top: 2px;
+  color: #555;
+  font-size: 1.1em;
+  font-weight: 600;
+}
+
+.post-card-icon {
+  font-size: 1.3em;
+}
+
+/* --- Empty State Card --- */
+.no-posts-card {
+  text-align: center;
+  padding: 40px;
+  background: #fafafa;
+  border-radius: 12px;
+  border: 1px dashed #d0d0d0;
+  color: #777;
 }

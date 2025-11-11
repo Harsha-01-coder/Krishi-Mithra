@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext'; // Import useAuth
-import './Login.css'; // Make sure this CSS file contains the .auth-card styles
+import './Login.css'; // Your styles
 
 function Signup() {
   const [username, setUsername] = useState('');
@@ -10,7 +10,7 @@ function Signup() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const auth = useAuth(); // Get the login function from context
+  const auth = useAuth(); // Get the auth context
 
   const handleSignup = async (e) => {
     e.preventDefault();
@@ -19,24 +19,25 @@ function Signup() {
 
     try {
       // --- STEP 1: Create the account ---
+      // This part remains the same
       await axios.post('http://127.0.0.1:5000/signup', {
         username: username,
         password: password
       });
 
-      // --- STEP 2 (The Fix): Log the user in immediately ---
+      // --- STEP 2 (The Fix): Log the user in ---
       console.log("Signup successful! Now logging in...");
-      const loginResponse = await axios.post('http://127.0.0.1:5000/login', {
-        username: username,
-        password: password
-      });
+
+      // Call the login function FROM YOUR CONTEXT.
+      // It will handle the API call and token saving.
+      const { success, error: loginError } = await auth.login(username, password);
       
-      // --- STEP 3: Save the token and redirect to DASHBOARD ---
-      if (loginResponse.data.token) {
-        auth.login(loginResponse.data.token); // Save token
+      // --- STEP 3: Redirect to DASHBOARD ---
+      if (success) {
         navigate('/dashboard'); // Go to the dashboard!
       } else {
-        setError('Login failed after signup. Please go to the login page.');
+        // This would happen if login (post-signup) failed
+        setError(loginError || 'Login failed after signup. Please go to the login page.');
       }
 
     } catch (err) {
@@ -52,7 +53,6 @@ function Signup() {
   };
 
   return (
-    // Uses the CSS classes you just provided
     <div className="auth-container">
       <div className="auth-card">
         <h2>Create Account</h2>
@@ -86,10 +86,6 @@ function Signup() {
               {error}
             </div>
           )}
-
-          {/* Note: We don't need the .success-box because we are
-            redirecting to the dashboard immediately on success.
-          */}
           
           <button type="submit" className="submit-button" disabled={isLoading}>
             {isLoading ? 'Creating Account...' : 'Sign Up'}
