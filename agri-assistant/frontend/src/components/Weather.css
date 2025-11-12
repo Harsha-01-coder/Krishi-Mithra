@@ -217,3 +217,53 @@
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+.advice-section {
+  margin-top: 2rem;
+  text-align: left;
+}
+
+.advice-section h4 {
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+  color: #2c3e50;
+}
+
+.advice-list {
+  display: grid;
+  gap: 1rem;
+}
+
+.advice-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+  background: #f8f9fa;
+  border-left: 5px solid #4dabf7;
+  padding: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.advice-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.1);
+}
+
+.advice-icon {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+}
+
+.advice-icon.blue { color: #0077b6; }
+.advice-icon.green { color: #2ecc71; }
+.advice-icon.orange { color: #e67e22; }
+.advice-icon.brown { color: #8d6e63; }
+.advice-icon.gray { color: #7f8c8d; }
+
+.advice-card p {
+  font-size: 0.95rem;
+  color: #34495e;
+  margin: 0;
+}

@@ -933,115 +933,488 @@ def get_market_prices():
 
 
 
+# ===================================================================
+# 🌿 ROUTE 1: AI-Powered DETAILED RECOMMENDATION
+# ===================================================================
+
 @app.route("/detailed-recommendation", methods=["POST"])
 def detailed_recommendation():
-    # This route is unchanged for now
-    data = request.get_json()
-    soil = data.get("soil")
-    season = data.get("season")
-    state = data.get("stateName")
+    """AI-based agronomic recommendation route"""
     try:
-        rainfall = float(data.get("rainfall"))
-        temp = float(data.get("temp"))
-    except (ValueError, TypeError):
-        return jsonify({"error": "Rainfall and Temperature must be numbers."}), 400
-        
-    if not all([soil, season, state, data.get("rainfall"), data.get("temp")]):
-        return jsonify({"error": "All fields are required."}), 400
-    if not model:
-        return jsonify({"error": "AI model is not configured."}), 500
-        
-    try:
-        prompt = (
-            f"You are an expert Indian agronomist. A farmer from {state} has provided their field conditions: "
-            f"Soil Type: {soil}, Season: {season}, Avg Rainfall: {rainfall}mm, Avg Temp: {temp}°C.\n\n"
-            f"Please provide a detailed recommendation. Follow this exact format:\n"
-            f"1.  **Recommended Crops:** List the top 3-5 suitable crops as a simple list (e.g., 'Cucumber, Bottle Gourd, Okra').\n"
-            f"2.  Then, write '---ANALYSIS---' as a separator on its own line.\n"
-            f"3.  After the separator, write '### Detailed Analysis & Recommendations'.\n"
-            f"4.  **Critical Analysis:** First, analyze the inputs. If any value is extreme or unlikely (like 55°C or 3mm rain), point it out politely, explain why it's a problem, and state that you are proceeding with a more realistic assumption (e.g., assuming 35°C or that irrigation is 100% required).\n"
-            f"5.  **Suitability Analysis:** Explain *why* the recommended crops are a good fit (heat tolerance, soil adaptability, etc.).\n"
-            f"6.  **Market & Yield Potential:** Briefly mention the market demand and expected yield for these crops in the {state} region.\n"
-            f"7.  **Growing Tips:** Provide a numbered list of 3-5 essential growing tips for these crops under the given {soil} soil and {season} season conditions (e.g., irrigation, mulching, soil management)."
-        )
-        
+        data = request.get_json(force=True)
+        soil = (data.get("soil") or "").strip()
+        season = (data.get("season") or "").strip()
+        state = (data.get("stateName") or "").strip()
+        crop_pref = data.get("cropPreference")
+        rainfall = data.get("rainfall")
+        temp = data.get("temp")
+
+        # --- Validation ---
+        if not soil or not season or not state:
+            return jsonify({"error": "Soil, season, and state are required."}), 400
+
+        try:
+            rainfall = float(rainfall)
+            temp = float(temp)
+        except (ValueError, TypeError):
+            return jsonify({"error": "Rainfall and Temperature must be numeric values."}), 400
+
+        if not model:
+            return jsonify({"error": "AI model not configured on the server."}), 500
+
+        # --- Sanity checks ---
+        remarks = []
+        if temp > 50:
+            remarks.append("⚠️ Temperature too high; assuming 35°C for analysis.")
+            temp = 35
+        elif temp < 5:
+            remarks.append("⚠️ Temperature too low; assuming 20°C for analysis.")
+            temp = 20
+
+        if rainfall < 10:
+            remarks.append("⚠️ Very low rainfall; irrigation required.")
+        elif rainfall > 3000:
+            remarks.append("⚠️ Excess rainfall; drainage essential.")
+
+        # --- Soil & Season Knowledge ---
+        soil_hints = {
+            "sandy": "low nutrient and water retention; choose short-duration or drought-tolerant crops.",
+            "loamy": "well-balanced soil; supports most cereals, pulses, and vegetables.",
+            "clay": "nutrient-rich but poorly drained; prefer paddy, sugarcane, or wetland crops.",
+            "black": "ideal for cotton, soybean, and cereals.",
+            "red": "needs frequent fertilization; suitable for pulses, millets, groundnut."
+        }
+        season_hint = {
+            "kharif": "monsoon crops sown around June–July; focus on rainfed varieties.",
+            "rabi": "winter crops; irrigation and frost resistance matter.",
+            "summer": "short-season, high-temperature crops perform best."
+        }
+
+        soil_summary = soil_hints.get(soil.lower(), "typical soil profile")
+        season_summary = season_hint.get(season.lower(), "general cropping season")
+
+        # --- Build AI Prompt ---
+        prompt = f"""
+You are an expert Indian agronomist.
+A farmer from {state} has provided:
+
+🌱 Soil Type: {soil} ({soil_summary})
+🌤️ Season: {season} ({season_summary})
+🌧️ Rainfall: {rainfall} mm
+🌡️ Temperature: {temp} °C
+Preferred Crop: {crop_pref or "None"}
+
+Please give a detailed agronomic recommendation in this format:
+
+1. **Recommended Crops:** List 4–6 suitable crops (with emojis).
+
+---ANALYSIS---
+
+### Detailed Agronomic Analysis
+
+**Environmental Check:** Comment on weather & soil suitability.
+
+**Crop Suitability Reasoning:** Explain why each crop fits the conditions.
+
+**Fertilizer & Nutrient Advisory:** Suggest NPK (kg/ha) for top 2 crops + micronutrients (ZnSO₄, SSP, Gypsum).
+
+**Water Management:** Brief irrigation/drainage advice.
+
+**Market & Yield Outlook:** Typical yield & demand in {state}.
+
+**Management Tips:** 5 practical steps for farmers (intercropping, mulching, pest care).
+"""
+
         response = generate_content_with_backoff(model, prompt)
-        full_text = response.text.strip()
-        
-        crops_list = ""
-        analysis_text = ""
-        if "---ANALYSIS---" in full_text:
-            parts = full_text.split("---ANALYSIS---", 1)
-            crops_list = parts[0].strip()
-            analysis_text = parts[1].strip()
-        elif "Recommended Crops:" in full_text:
-            crops_list = full_text
-            analysis_text = "" 
+        text = getattr(response, "text", "").strip()
+
+        crops, analysis = "", ""
+        if "---ANALYSIS---" in text:
+            parts = text.split("---ANALYSIS---", 1)
+            crops, analysis = parts[0].strip(), parts[1].strip()
         else:
-            crops_list = full_text 
-            analysis_text = "" 
-        
-        analysis_text = analysis_text.replace("---ANALYSIS---", "").strip()
-        crops_list = crops_list.replace("Recommended Crops:", "").strip()
-        crops_list = crops_list.replace("1.", "").strip() 
-        crops_list = crops_list.replace("**", "").strip() 
+            crops = text.strip()
+
+        crops = crops.replace("**Recommended Crops:**", "").replace("**", "").strip()
 
         return jsonify({
-            "crops": crops_list,
-            "analysis": analysis_text
+            "remarks": remarks,
+            "crops": crops,
+            "analysis": analysis
         })
-        
-    except Exception as e:
-        print(f"Gemini AI error in /detailed-recommendation: {e}")
-        return jsonify({"error": f"AI generation error: {e}"}), 500
 
+    except Exception as e:
+        print(f"💥 Error in /detailed-recommendation: {e}")
+        return jsonify({"error": f"Internal server error: {e}"}), 500
+
+
+# ===================================================================
+# 🌾 ROUTE 2: SMART FERTILIZER CALCULATOR (FINAL STABLE VERSION)
+# ===================================================================
+
+@app.route("/smart-fertilizer", methods=["POST"])
+def smart_fertilizer():
+    """
+    Smart Fertilizer Calculator (Hybrid Version)
+    Supports fixed crops + Gemini AI for any other crop.
+    """
+    try:
+        data = request.get_json(force=True)
+        crop = (data.get("crop") or "").strip().lower()
+
+        if not crop:
+            return jsonify({"error": "Crop name is required."}), 400
+
+        # Base dataset (for known crops)
+        CROP_DATA = {
+            "rice": {"N": 100, "P2O5": 50, "K2O": 50},
+            "wheat": {"N": 120, "P2O5": 60, "K2O": 40},
+            "maize": {"N": 150, "P2O5": 75, "K2O": 50},
+            "sugarcane": {"N": 250, "P2O5": 115, "K2O": 120},
+            "cotton": {"N": 110, "P2O5": 15, "K2O": 35},
+            "potato": {"N": 180, "P2O5": 90, "K2O": 120},
+        }
+
+        # --- If crop is known: Use your logic directly ---
+        if crop in CROP_DATA:
+            has_soil = all(k in data and data[k] is not None for k in ["n", "p", "k"])
+
+            if has_soil:
+                n, p, k = float(data.get("n", 0)), float(data.get("p", 0)), float(data.get("k", 0))
+                base = CROP_DATA[crop]
+                n_req, p_req, k_req = base["N"], base["P2O5"], base["K2O"]
+
+                def adjust(value, low, high, name):
+                    if value < low:
+                        return 1.2, f"{name} low → increase by 20%."
+                    elif value > high:
+                        return 0.8, f"{name} high → reduce by 20%."
+                    return 1.0, f"{name} adequate."
+
+                n_fac, n_msg = adjust(n, 50, 120, "Nitrogen")
+                p_fac, p_msg = adjust(p, 20, 60, "Phosphorus")
+                k_fac, k_msg = adjust(k, 100, 250, "Potassium")
+
+                n_req *= n_fac
+                p_req *= p_fac
+                k_req *= k_fac
+
+                recs = [
+                    f"Adjusted NPK ≈ {int(n_req)}-{int(p_req)}-{int(k_req)} kg/ha.",
+                    n_msg, p_msg, k_msg,
+                    "Split N into 3–4 doses for better uptake."
+                ]
+
+            else:
+                yield_target = float(re.findall(r"[\d.]+", str(data.get("yield_target", 20)))[0])
+                irrigation = (data.get("irrigation") or "irrigated").lower()
+                base = CROP_DATA[crop]
+                scale = yield_target / 20
+                n_req, p_req, k_req = base["N"] * scale, base["P2O5"] * scale, base["K2O"] * scale
+
+                if irrigation == "rainfed":
+                    n_req *= 0.85
+                    k_req *= 0.9
+
+                recs = [
+                    f"For {crop.capitalize()} ({irrigation}), target yield {yield_target} q/ha:",
+                    f"Estimated NPK ≈ {int(n_req)}-{int(p_req)}-{int(k_req)} kg/ha.",
+                    "Apply all P basally; split N & K into 3 stages.",
+                    "Add FYM or compost for organic matter."
+                ]
+
+        # --- Else: Unknown crop → Ask Gemini for help ---
+        else:
+            yield_target = data.get("yield_target", 20)
+            irrigation = (data.get("irrigation") or "irrigated").lower()
+
+            prompt = f"""
+            You are an Indian agronomist. Estimate fertilizer recommendations for the crop '{crop}'.
+            Context:
+            - Yield Target: {yield_target} q/ha
+            - Irrigation: {irrigation}
+            - Soil nutrients: N={data.get('n')}, P={data.get('p')}, K={data.get('k')}
+            
+            Respond only as a JSON with these keys:
+            {{
+              "urea_kg": <number>,
+              "dap_kg": <number>,
+              "mop_kg": <number>,
+              "recommendations": [
+                "short agronomic tips, like irrigation frequency, fertilizer split, and soil management"
+              ]
+            }}
+            """
+
+            model = genai.GenerativeModel("gemini-2.0-flash")
+            ai_response = model.generate_content(prompt)
+            text = ai_response.text.strip()
+
+            try:
+                ai_data = json.loads(text)
+            except Exception:
+                ai_data = {
+                    "urea_kg": 150,
+                    "dap_kg": 100,
+                    "mop_kg": 60,
+                    "recommendations": [
+                        f"Estimated fertilizer plan for {crop.capitalize()} based on regional norms.",
+                        "Split nitrogen into 3 doses.",
+                        "Apply micronutrients like ZnSO₄ and Boron as per need."
+                    ]
+                }
+
+            return jsonify(ai_data), 200
+
+        # --- Convert to fertilizer quantities ---
+        dap_kg = p_req / 0.46
+        dap_n = dap_kg * 0.18
+        urea_kg = max((n_req - dap_n) / 0.46, 0)
+        mop_kg = k_req / 0.60
+        urea_kg, dap_kg, mop_kg = round(urea_kg, 1), round(dap_kg, 1), round(mop_kg, 1)
+
+        recs.append(f"Use ~{urea_kg} kg Urea, {dap_kg} kg DAP, {mop_kg} kg MOP per hectare.")
+        recs.append("Consider ZnSO₄ @ 25 kg/ha every 2 years.")
+
+        total_cost = round(urea_kg*6 + dap_kg*25 + mop_kg*20, 0)
+
+        return jsonify({
+            "urea_kg": urea_kg,
+            "dap_kg": dap_kg,
+            "mop_kg": mop_kg,
+            "estimated_cost_rs": total_cost,
+            "recommendations": recs
+        }), 200
+
+    except Exception as e:
+        print(f"💥 Error in /smart-fertilizer: {e}")
+        return jsonify({"error": str(e)}), 500
+    
+    
 # ---------------- Local Helper Functions (Unchanged) ----------------
 
+# --- Utility: classify nutrients ---
 def analyze_fertility(n, p, k, ph):
     """Simple soil analysis logic."""
     levels, recommendations = {}, []
-    if ph < 5.5: levels["ph_level"] = "Acidic"; recommendations.append("Apply lime.")
-    else: levels["ph_level"] = "Neutral"
-    if n < 100: levels["n_level"] = "Low"; recommendations.append("Apply Nitrogen fertilizer.")
-    else: levels["n_level"] = "Medium"
-    if p < 20: levels["p_level"] = "Low"; recommendations.append("Apply Phosphorus fertilizer.")
-    else: levels["p_level"] = "Medium"
-    if k < 100: levels["k_level"] = "Low"; recommendations.append("Apply Potassium fertilizer.")
-    else: levels["k_level"] = "Medium"
+
+    # pH Level
+    if ph < 5.5:
+        levels["ph_level"] = "Low"
+        recommendations.append("Soil is acidic — apply lime or dolomite to increase pH.")
+    elif ph > 8.0:
+        levels["ph_level"] = "High"
+        recommendations.append("Soil is alkaline — apply gypsum or sulfur-based amendments.")
+    else:
+        levels["ph_level"] = "Medium"
+        recommendations.append("pH is suitable for most crops.")
+
+    # Nitrogen
+    if n < 100:
+        levels["n_level"] = "Low"
+        recommendations.append("Apply Nitrogen fertilizer (e.g. Urea, Ammonium Nitrate).")
+    else:
+        levels["n_level"] = "Medium"
+
+    # Phosphorus
+    if p < 20:
+        levels["p_level"] = "Low"
+        recommendations.append("Apply Phosphorus fertilizer (e.g. DAP, Single Super Phosphate).")
+    else:
+        levels["p_level"] = "Medium"
+
+    # Potassium
+    if k < 100:
+        levels["k_level"] = "Low"
+        recommendations.append("Apply Potassium fertilizer (e.g. MOP or Potassium Nitrate).")
+    else:
+        levels["k_level"] = "Medium"
+
     return levels, recommendations
 
+
+# --- Utility: fertilizer recommendation for crops ---
 def get_fertilizer_recommendation(n, p, k, crop):
-    """Simple fertilizer calculation logic."""
     CROP_DATA = {
-        "rice": {"N": 120, "P": 60, "K": 60}, "wheat": {"N": 150, "P": 60, "K": 40},
-        "maize": {"N": 180, "P": 80, "K": 50}, "sugarcane": {"N": 250, "P": 80, "K": 120},
-        "cotton": {"N": 160, "P": 70, "K": 80}, "potato": {"N": 180, "P": 100, "K": 120}
+        "rice": {"N": 120, "P": 60, "K": 60},
+        "wheat": {"N": 150, "P": 60, "K": 40},
+        "maize": {"N": 180, "P": 80, "K": 50},
+        "sugarcane": {"N": 250, "P": 80, "K": 120},
+        "cotton": {"N": 160, "P": 70, "K": 80},
+        "potato": {"N": 180, "P": 100, "K": 120},
     }
+
     FERTILIZER_DATA = {
-        "urea": {"N": 0.46, "P": 0, "K": 0}, "dap": {"N": 0.18, "P": 0.46, "K": 0},
-        "mop": {"N": 0, "P": 0, "K": 0.60}
+        "urea": {"N": 0.46, "P": 0, "K": 0},
+        "dap": {"N": 0.18, "P": 0.46, "K": 0},
+        "mop": {"N": 0, "P": 0, "K": 0.60},
     }
+
     target_crop = CROP_DATA.get(crop.lower())
     if not target_crop:
-        return {"error": "Crop not found in our database."}
+        return {"error": f"Crop '{crop}' not found in database."}
 
+    # Calculate nutrient gaps
     n_gap = max(0, target_crop["N"] - n)
     p_gap = max(0, target_crop["P"] - p)
     k_gap = max(0, target_crop["K"] - k)
 
+    # Calculate fertilizer requirements
     kg_mop = k_gap / FERTILIZER_DATA["mop"]["K"] if k_gap > 0 else 0
     kg_dap = p_gap / FERTILIZER_DATA["dap"]["P"] if p_gap > 0 else 0
     n_from_dap = kg_dap * FERTILIZER_DATA["dap"]["N"]
     n_still_needed = max(0, n_gap - n_from_dap)
     kg_urea = n_still_needed / FERTILIZER_DATA["urea"]["N"] if n_still_needed > 0 else 0
 
+    recommendations = [
+        f"For {crop.title()}, you need to add {round(n_gap)} kg/ha N, {round(p_gap)} kg/ha P, {round(k_gap)} kg/ha K.",
+        f"Use approximately {round(kg_urea, 1)} kg Urea, {round(kg_dap, 1)} kg DAP, and {round(kg_mop, 1)} kg MOP.",
+        "Apply fertilizers in split doses following crop growth stages."
+    ]
+
     return {
-        "urea_kg": round(kg_urea, 2), "dap_kg": round(kg_dap, 2), "mop_kg": round(kg_mop, 2),
-        "recommendations": [
-            f"For your {crop.title()}, you need to add {n_gap} kg/ha of Nitrogen, {p_gap} kg/ha of Phosphorus, and {k_gap} kg/ha of Potassium.",
-            "Apply in split doses as per local agricultural guidelines."
-        ]
+        "urea_kg": round(kg_urea, 1),
+        "dap_kg": round(kg_dap, 1),
+        "mop_kg": round(kg_mop, 1),
+        "recommendations": recommendations,
     }
+
+
+# --- Main Route ---
+@app.route("/analyze-fertility", methods=["POST"])
+def analyze_fertility_route():
+    try:
+        data = request.get_json()
+        n = float(data.get("n", 0))
+        p = float(data.get("p", 0))
+        k = float(data.get("k", 0))
+        ph = float(data.get("ph", 0))
+        organic = float(data.get("organic_matter", 0))
+        location = data.get("location", "Unknown")
+        crop = data.get("crop", "rice")
+
+        # Step 1: Base nutrient analysis
+        levels, base_recs = analyze_fertility(n, p, k, ph)
+
+        # Step 2: Weather info
+        try:
+            city = location.split(",")[0]
+            weather_url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={WEATHER_API_KEY}&units=metric"
+            res = requests.get(weather_url, timeout=3)
+            w = res.json()
+            weather = {
+                "temperature": round(w["main"]["temp"], 1),
+                "condition": w["weather"][0]["main"],
+            }
+        except Exception:
+            weather = {
+                "temperature": round(random.uniform(20, 35), 1),
+                "condition": random.choice(["Sunny", "Cloudy", "Rainy"]),
+            }
+
+        # Step 3: Fertilizer recommendation
+        fert = get_fertilizer_recommendation(n, p, k, crop)
+
+        # Combine recommendations
+        recs = base_recs + fert["recommendations"]
+        if organic < 1:
+            recs.append("Organic matter is low; add compost or manure to improve soil structure.")
+
+        # Step 4: Construct response
+        return jsonify({
+            "location": location,
+            "weather": weather,
+            "levels": levels,
+            "fertilizer_plan": {
+                "urea_kg": fert["urea_kg"],
+                "dap_kg": fert["dap_kg"],
+                "mop_kg": fert["mop_kg"]
+            },
+            "recommendations": recs
+        }), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@app.route("/crop-summary", methods=["POST"])
+def crop_summary():
+    try:
+        data = request.get_json()
+        crop = data.get("crop", "").strip().lower()
+
+        if not crop:
+            return jsonify({"error": "Crop name missing"}), 400
+
+        # Configure Gemini
+        genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+        model = genai.GenerativeModel("gemini-2.0-flash")
+
+        # 🔹 AI prompt for structured JSON
+        prompt = f"""
+        You are an Indian agricultural expert.
+        Generate a short, structured JSON summary for the crop '{crop}'.
+
+        Include exactly these 4 fields:
+        {{
+          "summary": "Short 1–2 sentence overview about its ideal climate and practices.",
+          "soil": "Ideal soil type (2–3 words)",
+          "duration": "Growing period (like 90–110 days)",
+          "market": "Market demand (Low / Medium / High / Very High)"
+        }}
+
+        Output only valid JSON, without any explanation.
+        """
+
+        response = model.generate_content(prompt)
+        text = response.text.strip()
+
+        print(f"🌿 Raw Gemini output for '{crop}':", text)
+
+        # --- JSON extraction with safety fallback ---
+        try:
+            # Find the first { ... } JSON object
+            match = re.search(r"\{[\s\S]*\}", text)
+            if not match:
+                raise ValueError("No JSON found in Gemini output.")
+            json_str = match.group()
+            result = json.loads(json_str)
+
+            # Ensure all keys exist
+            for key in ["summary", "soil", "duration", "market"]:
+                if key not in result:
+                    result[key] = "N/A"
+
+        except Exception as e:
+            print("⚠️ JSON parse error:", e)
+            result = {
+                "summary": f"{crop.title()} grows best in suitable Indian agro-climatic regions with good management.",
+                "soil": "Loamy",
+                "duration": "Approx. 100–120 days",
+                "market": "High"
+            }
+
+        return jsonify(result)
+
+    except Exception as e:
+        print("❌ /crop-summary Fatal Error:", e)
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/auto-soil", methods=["POST"])
+def auto_soil():
+    data = request.get_json()
+    location = data.get("location", "")
+    soil_type = data.get("soil_type", "")
+    prompt = f"Estimate approximate N, P, K, pH and organic matter levels for {soil_type} soil in {location}, India."
+    model = genai.GenerativeModel("gemini-2.0-flash")
+    res = model.generate_content(prompt)
+    text = res.text.strip()
+
+    try:
+        parsed = json.loads(text)
+    except:
+        parsed = {"n": "medium", "p": "medium", "k": "medium", "ph_level": "neutral", "organic_matter": 1.2}
+
+    return jsonify(parsed)
 
 # ---------------- Run Flask ----------------
 if __name__ == "__main__":

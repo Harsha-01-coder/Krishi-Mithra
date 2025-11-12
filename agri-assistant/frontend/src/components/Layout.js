@@ -2,18 +2,20 @@ import React from "react";
 import { Outlet } from "react-router-dom";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
+import "../App.css"; // Ensures .page-container and .content-wrap styles are applied
 
 function Layout() {
   return (
-    // Use the className from App.css for the sticky footer layout
     <div className="page-container">
+      {/* 🌿 Navbar always visible */}
       <Navbar />
 
-      {/* Use the className from App.css to wrap the main content */}
+      {/* 📄 Main content for all routed pages */}
       <main className="content-wrap">
         <Outlet />
       </main>
 
+      {/* 🌱 Footer always visible */}
       <Footer />
     </div>
   );

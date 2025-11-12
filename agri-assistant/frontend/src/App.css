@@ -1,7 +1,7 @@
 /* =========================================
    🌿 GLOBAL LAYOUT STYLES (STICKY FOOTER)
    ========================================= */
-   
+
 html, body, #root {
   height: 100%;
   margin: 0;
@@ -12,18 +12,22 @@ html, body, #root {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: #f4f7f6; /* Default soft background */
+  overflow-x: hidden; /* Prevent unwanted horizontal scrolling */
+  overflow-y: auto;   /* Ensure vertical scroll always works */
 }
 
 /* Page container wraps everything inside Layout.jsx */
 .page-container {
   display: flex;
   flex-direction: column;
-  min-height: 100vh; /* Makes footer sticky */
+  min-height: 100vh; /* Keeps footer at the bottom */
+  overflow: visible; /* ✅ Prevents clipping of Home content */
 }
 
 /* The main page content grows to push footer down */
 .content-wrap {
   flex: 1;
+  overflow: visible; /* ✅ Allows hero sections & grids to extend fully */
 }
 
 /* =========================================
@@ -31,11 +35,13 @@ html, body, #root {
    ========================================= */
 nav {
   width: 100%;
-  background: #1d741b; /* Deep green tone (matches theme) */
+  background: linear-gradient(90deg, #4caf50, #2e7d32); /* Matches theme */
   padding: 1rem 2rem;
   box-sizing: border-box;
-  position: relative;
-  z-index: 10; /* Keeps above hero overlays */
+  position: sticky;
+  top: 0;
+  z-index: 10; /* Keeps navbar above hero or grid sections */
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
 }
 
 nav a {
@@ -47,7 +53,7 @@ nav a {
 }
 
 nav a:hover {
-  color: #34c759; /* Bright green hover accent */
+  color: #c8facc; /* Bright hover accent */
 }
 
 /* =========================================
@@ -55,15 +61,18 @@ nav a:hover {
    ========================================= */
 footer {
   width: 100%;
-  background: #222; /* Dark neutral tone */
+  background: #222; /* Neutral dark footer */
   color: white;
   padding: 2rem 1rem;
   text-align: center;
   box-sizing: border-box;
   font-size: 0.95rem;
   line-height: 1.6;
+  border-top: 3px solid #4caf50; /* Matches theme */
+  animation: slideUpFromBottom 0.7s ease-out;
 }
 
+/* Footer links */
 footer a {
   color: #34c759;
   text-decoration: none;
@@ -74,10 +83,24 @@ footer a:hover {
 }
 
 /* =========================================
+   🌾 ANIMATIONS
+   ========================================= */
+@keyframes slideUpFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================================
    🧱 PAGE / DEMO UTILITY STYLES
    ========================================= */
 .short-page {
-  height: 200px; /* For demo/testing only */
+  height: 200px;
   border: 2px dashed #ccc;
   display: flex;
   align-items: center;
@@ -87,12 +110,13 @@ footer a:hover {
 }
 
 /* =========================================
-   ❌ REMOVED CONFLICTING RULES
+   ❌ AVOID CONFLICTS WITH HERO SECTIONS
    ========================================= */
-/* 
+/*
  DO NOT apply padding or background directly to <main> globally,
- it breaks hero sections (like on Home.jsx). 
+ it breaks hero sections (like on Home.jsx).
 */
+
 /* main {
   padding: 2rem;
 } */

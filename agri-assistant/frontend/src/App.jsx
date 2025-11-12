@@ -41,7 +41,6 @@ import AddProduct from "./pages/AddProduct"; // The admin page
 function App() {
   return (
     <Router>
-      <AuthProvider>
         <Routes>
           <Route path="/" element={<Layout />}>
             {/* --- Home Page --- */}
@@ -83,7 +82,6 @@ function App() {
             <Route path="admin/add-product" element={<AddProduct />} />
           </Route>
         </Routes>
-      </AuthProvider>
     </Router>
   );
 }

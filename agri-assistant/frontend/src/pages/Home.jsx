@@ -1,181 +1,136 @@
-import React from "react";
-import { Link } from "react-router-dom";
+import React, { useRef } from "react";
+import { motion, useInView } from "framer-motion";
+import "./Home.css";
 
-function Home() {
-  console.log("✅ Home: Final Guaranteed Version Rendering");
+ function Home() {
+  const featuresRef = useRef(null);
+  const isInView = useInView(featuresRef, { once: true });
 
-  const features = [
-    {
-      title: "🌦️ Weather Forecast",
-      desc: "Get accurate, location-based forecasts to plan your irrigation and protect your crops.",
-    },
-    {
-      title: "🧪 Soil Fertility",
-      desc: "Analyze your soil health instantly and receive personalized fertilizer recommendations.",
-    },
-    {
-      title: "🐞 Pest Detection",
-      desc: "Use AI to identify crop diseases and pests from photos — fast and reliable.",
-    },
-    {
-      title: "💹 Market Prices",
-      desc: "Stay updated with real-time mandi prices and sell at the most profitable time.",
-    },
+  const prices = [
+    { crop: "Wheat", price: "₹22/kg" },
+    { crop: "Rice", price: "₹30/kg" },
+    { crop: "Maize", price: "₹18/kg" },
   ];
 
+  const soil = {
+    score: 88,
+    crops: ["Paddy", "Banana"],
+    note: "Moist, nitrogen-rich soil",
+  };
+
   return (
-    <div
-      style={{
-        position: "relative",
-        zIndex: 1,
-        width: "100%",
-        background: "linear-gradient(to bottom, #e8f5e9, #ffffff)",
-        padding: "6rem 1.5rem 4rem",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        overflow: "visible", // ✅ ensures nothing gets clipped
-      }}
-    >
-      {/* ✅ Hero Section */}
-      <h1
-        style={{
-          fontFamily: "Poppins, sans-serif",
-          fontSize: "2.8rem",
-          color: "#1b5e20",
-          fontWeight: "700",
-          marginBottom: "1rem",
-          textAlign: "center",
-        }}
-      >
-        🌾 Welcome to Krishi Mithra
-      </h1>
-
-      <p
-        style={{
-          color: "#333",
-          fontSize: "1.2rem",
-          maxWidth: "700px",
-          marginBottom: "2.5rem",
-          textAlign: "center",
-          lineHeight: "1.6",
-        }}
-      >
-        Empowering Indian farmers with AI insights, weather forecasts, and
-        market data — all in one place.
-      </p>
-
-      {/* ✅ Action Buttons */}
-      <div
-        style={{
-          marginBottom: "4rem",
-          display: "flex",
-          flexWrap: "wrap",
-          justifyContent: "center",
-          gap: "1rem",
-        }}
-      >
-        <Link
-          to="/dashboard"
-          style={{
-            background: "#2e7d32",
-            color: "#fff",
-            padding: "12px 28px",
-            borderRadius: "8px",
-            textDecoration: "none",
-            fontWeight: "600",
-            boxShadow: "0 4px 10px rgba(0,0,0,0.15)",
-          }}
+    <div className="home-nature">
+      {/* HERO SECTION */}
+      <section className="hero-nature">
+        <div className="hero-overlay"></div>
+        <motion.div
+          className="hero-content"
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1.2 }}
         >
-          🚀 Explore Tools
-        </Link>
-        <Link
-          to="/chatbot"
-          style={{
-            background: "#fff",
-            color: "#2e7d32",
-            border: "2px solid #2e7d32",
-            padding: "12px 28px",
-            borderRadius: "8px",
-            textDecoration: "none",
-            fontWeight: "600",
-            boxShadow: "0 4px 10px rgba(0,0,0,0.08)",
-          }}
-        >
-          💬 Ask Our AI
-        </Link>
-      </div>
-
-      {/* ✅ Features Grid */}
-      <section
-        style={{
-          width: "100%",
-          maxWidth: "1100px",
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-          gap: "2rem",
-          justifyContent: "center",
-          alignItems: "stretch",
-          marginBottom: "4rem",
-        }}
-      >
-        {features.map((f, i) => (
-          <div
-            key={i}
-            style={{
-              background: "#ffffff",
-              padding: "2rem 1.5rem",
-              borderRadius: "15px",
-              boxShadow: "0 6px 18px rgba(0,0,0,0.1)",
-              transition: "all 0.3s ease",
-              textAlign: "center",
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = "translateY(-10px)";
-              e.currentTarget.style.boxShadow =
-                "0 12px 28px rgba(0,0,0,0.15)";
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow =
-                "0 6px 18px rgba(0,0,0,0.1)";
-            }}
-          >
-            <h3
-              style={{
-                color: "#1b5e20",
-                fontSize: "1.4rem",
-                marginBottom: "0.8rem",
-              }}
+          <h1>Nature and Innovation in Perfect Harmony</h1>
+          <p>
+            Breathe life into farming with sunlight, soil, and smart technology.
+          </p>
+          <div className="hero-buttons">
+            <motion.a
+              href="/dashboard"
+              whileHover={{ scale: 1.05 }}
+              className="btn-hero primary"
             >
-              {f.title}
-            </h3>
-            <p
-              style={{
-                color: "#555",
-                lineHeight: "1.5",
-                fontSize: "1rem",
-              }}
+              Explore
+            </motion.a>
+            <motion.a
+              href="/chatbot"
+              whileHover={{ scale: 1.05 }}
+              className="btn-hero secondary"
             >
-              {f.desc}
-            </p>
+              Chat with AI
+            </motion.a>
           </div>
-        ))}
+        </motion.div>
+        <div className="sunlight"></div>
       </section>
 
-      {/* ✅ Footer Line */}
-      <p
-        style={{
-          fontSize: "0.95rem",
-          color: "#555",
-          textAlign: "center",
-          marginTop: "2rem",
-        }}
-      >
-        🌱 Growing with innovation — powered by <strong>Krishi Mithra</strong>.
-      </p>
+      {/* FEATURES SECTION */}
+      <section ref={featuresRef} className="features-nature">
+        <motion.h2
+          className="section-title"
+          initial={{ opacity: 0, y: 30 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.8 }}
+        >
+          Rooted in Nature, Powered by Data
+        </motion.h2>
+
+        <div className="feature-cards">
+          {[
+            {
+              title: "Weather Insights",
+              desc: "Naturally-inspired intelligence helping farmers make sustainable decisions.",
+              img: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=800&q=80",
+            },
+            {
+              title: "Soil Fertility AI",
+              desc: "AI-powered recommendations to enhance soil health and yield.",
+              img: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=800&q=80",
+            },
+            {
+              title: "Market Forecasts",
+              desc: "Track live mandi trends and sell your produce at the best prices.",
+              img: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=80",
+            },
+          ].map((f, i) => (
+            <motion.div
+              key={i}
+              className="feature-card"
+              initial={{ opacity: 0, y: 20 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: i * 0.2, duration: 0.6 }}
+            >
+              <div
+                className="feature-img"
+                style={{ backgroundImage: `url(${f.img})` }}
+              ></div>
+              <h3>{f.title}</h3>
+              <p>{f.desc}</p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* MARKET SECTION */}
+      <section className="market-nature">
+        <div className="market-overlay"></div>
+        <motion.div
+          className="market-content"
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+        >
+          <h2>Live Market & Soil Insights</h2>
+          <div className="market-grid">
+            <div className="market-card">
+              <h3>Market Prices</h3>
+              {prices.map((p, i) => (
+                <p key={i}>
+                  {p.crop}: <strong>{p.price}</strong>
+                </p>
+              ))}
+            </div>
+            <div className="market-card">
+              <h3>Soil Health</h3>
+              <p>Score: {soil.score}</p>
+              <p>Best Crops: {soil.crops.join(", ")}</p>
+              <p className="note">{soil.note}</p>
+            </div>
+          </div>
+        </motion.div>
+      </section>
     </div>
   );
 }
+
 
 export default Home;

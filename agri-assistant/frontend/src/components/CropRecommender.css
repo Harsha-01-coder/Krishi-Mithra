@@ -1,198 +1,414 @@
-/* --- This centers the component in the middle --- */
+/* ============================== */
+/* 🌾 Crop Recommendation System */
+/* ============================== */
+
 .recommender-container {
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    padding: 24px 32px;
-    width: 100%;
-    max-width: 600px; /* Increased width for the grid */
-    margin: 40px auto; /* This centers it vertically and horizontally */
+  display: flex;
+  justify-content: center;
+  padding: 40px 16px;
+  background: linear-gradient(180deg, #f9fff9 0%, #f3fff5 100%);
+  width: 100%;
 }
 
-/* --- Basic Styles --- */
-.recommender-container h2 {
-    text-align: center;
-    color: #333;
-    margin-top: 0;
+.recommender-card {
+  background: #ffffff;
+  padding: 2rem 2.5rem;
+  border-radius: 18px;
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 750px;
+  transition: all 0.3s ease;
 }
 
-.recommender-container p {
-    text-align: center;
-    color: #666;
-    margin-bottom: 24px;
+.recommender-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.1);
 }
 
-/* --- Form Input Group --- */
-.input-group {
-    margin-bottom: 16px; /* This provides spacing in case grid isn't active */
+/* 🌿 Header Section */
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.header h2 {
+  font-size: 26px;
+  color: #2e7d32;
+  margin-bottom: 6px;
+}
+
+.header p {
+  color: #555;
+  font-size: 15px;
+}
+
+/* 📋 Form Grid */
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
 }
 
 .input-group label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 6px;
-    color: #444;
+  font-weight: 600;
+  color: #333;
+  display: block;
+  margin-bottom: 6px;
 }
 
 .input-group input,
 .input-group select {
-    width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-sizing: border-box; 
-    font-size: 16px;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 15px;
+  transition: 0.2s ease;
 }
 
-/* --- 2-Column Grid Styles --- */
-.form-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr; /* Two equal columns */
-    gap: 16px; /* Space between the inputs */
-    margin-bottom: 20px;
+.input-group input:focus,
+.input-group select:focus {
+  border-color: #4caf50;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.15);
+  outline: none;
 }
 
-.grid-col-span-2 {
-    grid-column: span 2;
+.full-width {
+  grid-column: span 2;
 }
 
-/* --- Button Style --- */
-.recommender-container .btn-full-width {
-    width: 100%;
-    padding: 12px;
-    background-color: #28a745;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-    margin-top: 10px;
+/* 🌱 Button */
+.btn-primary {
+  width: 100%;
+  background: #43a047;
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: background 0.25s ease;
 }
 
-.recommender-container .btn-full-width:hover {
-    background-color: #218838;
+.btn-primary:hover {
+  background: #2e7d32;
 }
 
-/* --- Results Styles --- */
-#results {
-    margin-top: 20px;
+.btn-primary:disabled {
+  background: #a5d6a7;
+  cursor: not-allowed;
 }
 
-/* --- Error & Loader --- */
-.error-message {
-    color: #721c24;
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
-    padding: 10px;
-    border-radius: 8px;
-    text-align: center;
+/* 📊 Results Section */
+.results-area {
+  margin-top: 30px;
+}
+
+.results-box.enhanced {
+  background: #ffffff;
+  border: 1px solid #e2f4e2;
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 1.2rem;
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.05);
+  animation: fadeInUp 0.6s ease;
+}
+
+.section-title {
+  color: #226b37;
+  font-weight: 700;
+  font-size: 1.2rem;
+  border-bottom: 2px solid #e0f2e9;
+  padding-bottom: 8px;
+  margin-bottom: 1rem;
+}
+
+/* ========================== */
+/* 🌾 Crop Cards Grid Layout */
+/* ========================== */
+.crop-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+  margin-top: 1rem;
+}
+
+.crop-card-animated {
+  position: relative;
+  background: #ffffff;
+  border-left: 5px solid #81c784;
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.crop-card-animated:hover {
+  background: #f6fff6;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 18px rgba(76, 175, 80, 0.2);
+}
+
+/* 🌿 Emoji Animation */
+.crop-emoji {
+  font-size: 1.8rem;
+  animation: pulseEmoji 1.6s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+/* 🪴 Crop Info Section */
+.crop-info .crop-name {
+  font-weight: 700;
+  color: #1b5e20;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+/* ✨ Info Tooltip Hover */
+.crop-card-animated:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 115%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(46, 125, 50, 0.95);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  white-space: nowrap;
+  font-size: 0.85rem;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+  animation: fadeIn 0.3s ease;
+  z-index: 10;
+}
+
+/* ========================== */
+/* 🌈 Dynamic Suitability Bar */
+/* ========================== */
+.suitability-bar {
+  background: #e8f5e9;
+  border-radius: 10px;
+  height: 10px;
+  overflow: hidden;
+  margin-top: 5px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.suitability-fill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 1s ease-in-out, background-color 0.8s ease;
+}
+
+.suitability-text {
+  font-size: 0.9rem;
+  color: #2e7d32;
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+/* ========================== */
+/* 🌟 Animated Info Icon */
+/* ========================== */
+.info-icon {
+  color: #81c784;
+  cursor: pointer;
+  transition: transform 0.3s ease, color 0.3s;
+}
+
+.info-icon:hover {
+  color: #4caf50;
+  transform: scale(1.3) rotate(15deg);
+}
+
+/* ========================== */
+/* 🌿 Misc UI Enhancements */
+/* ========================== */
+.error-box {
+  background: #ffeaea;
+  color: #a94442;
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 600;
 }
 
 .loader {
-    text-align: center;
-    font-size: 1.1rem;
-    color: #555;
-    padding: 30px;
+  text-align: center;
+  color: #2e7d32;
+  font-weight: 600;
+  margin-top: 20px;
+}
+.crop-popup {
+  position: absolute;
+  top: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffffff;
+  border: 1px solid #cde8cd;
+  border-radius: 10px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  color: #2e7d32;
+  width: 220px;
+  text-align: left;
+  line-height: 1.4;
+  animation: fadeIn 0.4s ease;
+  z-index: 100;
+}
+/* 🧈 Smooth suitability transition */
+.suitability-fill {
+  transition: width 0.7s cubic-bezier(0.25, 1, 0.5, 1), background-color 0.5s ease;
 }
 
-/* --- AI Result Box --- */
-.results-box {
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    padding: 20px 24px;
-    border-radius: 8px;
-    margin-top: 20px;
+/* 🌿 Popup Crop Summary Card */
+.crop-popup {
+  position: absolute;
+  top: -10px;
+  left: 105%;
+  width: 220px;
+  background: #ffffff;
+  border: 1px solid #e0f2e9;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  padding: 0.8rem 1rem;
+  font-size: 0.85rem;
+  color: #2e7d32;
+  animation: fadeIn 0.3s ease forwards;
+  z-index: 20;
 }
 
-.results-title {
-    font-weight: 700;
-    color: #2e7d32;
-    margin: 0 0 10px 0;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 10px;
+.popup-summary {
+  font-weight: 500;
+  margin-bottom: 0.6rem;
 }
 
-/* --- Styles for react-markdown --- */
-
-/* This styles the simple crop list */
-.crops-list {
-    font-size: 1.1rem;
-    color: #333;
-    margin: 0;
-}
-.crops-list ul {
-    list-style-type: none;
-    padding-left: 0;
-    margin: 0;
-}
-.crops-list li {
-    font-weight: 500;
-    background-color: transparent;
-    border: none;
-    padding: 0;
-    margin: 0;
-    color: #333;
+.popup-details p {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 3px 0;
+  color: #3a573a;
 }
 
-
-/* This styles the detailed analysis text */
-.detailed-analysis {
-    font-size: 1rem;
-    color: #555;
-    line-height: 1.6;
-    text-align: left;
+.popup-details svg {
+  color: #4caf50;
+}
+/* 🌾 Futuristic AI Loader */
+.loader-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  color: #2e7d32;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  margin-top: 1.5rem;
+  position: relative;
 }
 
-.detailed-analysis h1,
-.detailed-analysis h2,
-.detailed-analysis h3,
-.detailed-analysis h4 {
-    color: #333;
-    margin-top: 20px;
-    margin-bottom: 10px;
+.loader-ring {
+  width: 65px;
+  height: 65px;
+  border: 4px solid rgba(76, 175, 80, 0.2);
+  border-top-color: #4caf50;
+  border-radius: 50%;
+  margin-bottom: 1rem;
+  box-shadow: 0 0 18px rgba(76, 175, 80, 0.5);
 }
 
-.detailed-analysis ul,
-.detailed-analysis ol {
-    padding-left: 20px;
+.loader-text {
+  font-size: 1.05rem;
+  color: #1b5e20;
+  animation: fadeInText 1.5s ease-in-out infinite alternate;
+}
+.loader-ring::before {
+  content: "";
+  position: absolute;
+  width: 85px;
+  height: 85px;
+  border: 3px solid rgba(139, 195, 74, 0.2);
+  border-radius: 50%;
+  animation: pulseGlow 2s ease-in-out infinite;
 }
 
-.detailed-analysis li {
-    margin-bottom: 8px;
-    background-color: transparent;
-    border: none;
-    padding: 0;
-    color: #555;
-    font-weight: normal;
+@keyframes pulseGlow {
+  0%, 100% { transform: scale(0.95); opacity: 0.6; }
+  50% { transform: scale(1.05); opacity: 1; }
 }
 
-.detailed-analysis strong {
-    color: #222;
-    font-weight: 600;
+@keyframes fadeInText {
+  from { opacity: 0.7; }
+  to { opacity: 1; }
 }
 
-.detailed-analysis table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 20px 0;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.detailed-analysis th,
-.detailed-analysis td {
-    border: 1px solid #ddd;
-    padding: 10px 12px;
-    text-align: left;
+/* ========================== */
+/* 🌾 Animations */
+/* ========================== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.detailed-analysis th {
-    background-color: #f4f4f4;
-    font-weight: 600;
-    color: #444;
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.detailed-analysis tr:nth-child(even) {
-    background-color: #fcfcfc;
+@keyframes pulseEmoji {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+/* ========================== */
+/* 📱 Responsive Design */
+/* ========================== */
+@media (max-width: 600px) {
+  .recommender-card {
+    padding: 1.5rem;
+  }
+
+  .crop-cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .crop-card-animated {
+    padding: 0.8rem;
+  }
+
+  .crop-emoji {
+    font-size: 1.6rem;
+  }
+
+  .crop-info .crop-name {
+    font-size: 0.95rem;
+  }
 }
