@@ -69,17 +69,17 @@ import "./Home.css";
             {
               title: "Weather Insights",
               desc: "Naturally-inspired intelligence helping farmers make sustainable decisions.",
-              img: "https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=800&q=80",
+              img: "https://thingsingoa.com/wp-content/uploads/2023/06/Goa-Weather-cover-1024x683.jpg",
             },
             {
               title: "Soil Fertility AI",
               desc: "AI-powered recommendations to enhance soil health and yield.",
-              img: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=800&q=80",
+              img: "https://tse2.mm.bing.net/th/id/OIP.o7Co5u3QmU-K4LFPed3zZAHaE8?cb=ucfimgc2&rs=1&pid=ImgDetMain&o=7&rm=3",
             },
             {
               title: "Market Forecasts",
               desc: "Track live mandi trends and sell your produce at the best prices.",
-              img: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=80",
+              img: "https://img.freepik.com/premium-photo/market-forecast-projections_674594-33008.jpg",
             },
           ].map((f, i) => (
             <motion.div

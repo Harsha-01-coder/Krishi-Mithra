@@ -64,7 +64,7 @@ DATA_GOV_API_KEY = os.getenv("DATA_GOV_API_KEY")
 
 app = Flask(__name__)
 
-
+CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "http://127.0.0.1:3000"]}})
 # --- Configure Cache ---
 app.config["CACHE_TYPE"] = "SimpleCache"
 app.config["CACHE_DEFAULT_TIMEOUT"] = 900  # 15 minutes default
@@ -72,63 +72,113 @@ cache = Cache(app)
 # --- End Cache Config ---
 @app.route("/google-login", methods=["POST"])
 def google_login():
+    """
+    Handles Google OAuth2 Login.
+    1. Verifies the Google ID token.
+    2. Creates a user if they don't exist.
+    3. Returns a JWT for session authentication.
+    """
     try:
         data = request.get_json()
         token = data.get("token")
 
-        # Verify the token using Google’s public keys
-        idinfo = id_token.verify_oauth2_token(
-            token, grequests.Request(), "<YOUR_GOOGLE_CLIENT_ID>"
-        )
+        if not token:
+            return jsonify({"error": "Missing Google token"}), 400
+
+        # ✅ Load Google Client ID from .env
+        GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+        if not GOOGLE_CLIENT_ID:
+            return jsonify({"error": "Server missing Google Client ID"}), 500
+
+        # ✅ Verify the token using Google's public keys
+        idinfo = id_token.verify_oauth2_token(token, grequests.Request(), GOOGLE_CLIENT_ID)
 
         email = idinfo.get("email")
-        name = idinfo.get("name")
+        name = idinfo.get("name", "Farmer")
 
+        if not email:
+            return jsonify({"error": "No email returned by Google."}), 401
+
+        # ✅ Check or create the user
         user = db.users.find_one({"username": email})
         if not user:
             user_data = {
                 "username": email,
                 "password": None,
                 "full_name": name,
-                "default_location": None
+                "default_location": None,
+                "createdAt": datetime.now(timezone.utc)
             }
             result = db.users.insert_one(user_data)
             user = db.users.find_one({"_id": result.inserted_id})
 
-        # Issue a JWT token
+        # ✅ Issue JWT token for the frontend
         jwt_token = jwt.encode(
             {"id": str(user["_id"]), "exp": datetime.now(timezone.utc) + timedelta(hours=5)},
-            JWT_SECRET, algorithm="HS256"
+            JWT_SECRET,
+            algorithm="HS256"
         )
-        return jsonify({"token": jwt_token})
+
+        print(f"✅ Google login successful for {email}")
+        return jsonify({"token": jwt_token}), 200
+
+    except ValueError as e:
+        # Token invalid or for wrong client
+        print("⚠️ Invalid Google token:", e)
+        return jsonify({"error": "Invalid or expired Google token."}), 401
+
     except Exception as e:
-        print("Google login error:", e)
-        return jsonify({"error": "Invalid Google token"}), 401
-# --- Configure CORS ---
-CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "http://localhost:3001"]}})
+        print("❌ Unexpected Google login error:", e)
+        return jsonify({"error": "Server error during Google login."}), 500
+
 
 @app.route("/forgot-password", methods=["POST"])
 def forgot_password():
-    data = request.get_json()
-    email = data.get("email")
-    user = db.users.find_one({"username": email})
-    if not user:
-        return jsonify({"error": "No account found with that email."}), 404
+    try:
+        data = request.get_json()
+        email = data.get("email", "").strip().lower()
 
-    token = serializer.dumps(email, salt="password-reset")
-    reset_link = f"http://localhost:3000/reset-password/{token}"
+        if not email:
+            return jsonify({"error": "Email is required."}), 400
 
-    msg = MIMEText(f"Namaste Kisan Bhai,\n\nClick below to reset your password:\n{reset_link}\n\nKrishi Mitra Team 🌾")
-    msg["Subject"] = "Reset Your Krishi Mitra Password"
-    msg["From"] = "your_email@gmail.com"
-    msg["To"] = email
+        user = db.users.find_one({"username": email})
+        if not user:
+            return jsonify({"error": "No account found with that email."}), 404
 
-    with smtplib.SMTP("smtp.gmail.com", 587) as server:
-        server.starttls()
-        server.login("your_email@gmail.com", "YOUR_APP_PASSWORD")
-        server.send_message(msg)
+        token = serializer.dumps(email, salt="password-reset")
+        reset_link = f"http://localhost:3000/reset-password/{token}"
 
-    return jsonify({"message": "Password reset link sent successfully!"})
+        sender_email = os.getenv("EMAIL_USER")
+        app_password = os.getenv("EMAIL_APP_PASSWORD")
+
+        if not sender_email or not app_password:
+            return jsonify({"error": "Email credentials not set on server."}), 500
+
+        msg = MIMEText(
+            f"Namaste Kisan Bhai,\n\n"
+            f"Click below to reset your password:\n{reset_link}\n\n"
+            f"Krishi Mithra Team 🌾"
+        )
+        msg["Subject"] = "Reset Your Krishi Mitra Password"
+        msg["From"] = sender_email
+        msg["To"] = email
+
+        with smtplib.SMTP("smtp.gmail.com", 587) as server:
+            server.starttls()
+            server.login(sender_email, app_password)
+            server.send_message(msg)
+
+        print(f"✅ Password reset email sent to {email}")
+        return jsonify({"message": "Password reset link sent successfully!"}), 200
+
+    except smtplib.SMTPAuthenticationError as e:
+        print("❌ SMTP Authentication failed:", e)
+        return jsonify({"error": "Email authentication failed. Check Gmail app password."}), 500
+
+    except Exception as e:
+        print(f"❌ Forgot-password error: {e}")
+        return jsonify({"error": "Unexpected error while sending reset link."}), 500
+
 
 
 @app.route("/reset-password/<token>", methods=["POST"])

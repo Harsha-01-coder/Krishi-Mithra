@@ -8,7 +8,7 @@
 .hero-nature {
   position: relative;
   height: 90vh;
-  background: url("https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1600&q=80")
+  background: url("https://static.vecteezy.com/system/resources/previews/007/449/070/non_2x/agriculture-plant-seedling-growing-step-concept-with-mountain-and-sunrise-background-free-photo.jpg")
     center/cover no-repeat;
   display: flex;
   align-items: center;
@@ -141,7 +141,9 @@
 }
 
 .feature-img {
-  height: 160px;
+  /* height: 160px; */  /* <-- Remove or comment out this line */
+  aspect-ratio: 16 / 10; /* <-- Add this line. (You can also try 16/9 or 4/3) */
+  width: 100%;
   background-size: cover;
   background-position: center;
   border-bottom: 1px solid rgba(0, 0, 0, 0.05);
@@ -162,7 +164,7 @@
 /* MARKET */
 .market-nature {
   position: relative;
-  background: url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80")
+  background: url("https://tse3.mm.bing.net/th/id/OIP.F57qXEQ-nL9hDAAKyZ2XEAHaEa?cb=ucfimgc2&rs=1&pid=ImgDetMain&o=7&rm=3")
     center/cover no-repeat;
   color: #1b3b17;
   padding: 6rem 2rem;
@@ -172,7 +174,7 @@
   position: absolute;
   inset: 0;
   background: rgba(255, 255, 255, 0.65);
-  backdrop-filter: blur(6px);
+  backdrop-filter: blur(-100px);
 }
 
 .market-content {

@@ -112,3 +112,33 @@
   text-align: center;
   margin-bottom: 15px;
 }
+.google-signin {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.divider {
+  text-align: center;
+  color: #888;
+  margin: 1rem 0;
+  position: relative;
+}
+
+.divider span {
+  background: #fff;
+  padding: 0 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.divider::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: #ddd;
+  z-index: 0;
+}
