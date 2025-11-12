@@ -578,44 +578,59 @@ def contact():
 #
 # --- ALL NEW/UPDATED CODE IS BELOW ---
 #
-
 # ---------------- TIER 1 FEATURE: MARKETPLACE ROUTES ----------------
+
+from werkzeug.utils import secure_filename
+import json
+
+UPLOAD_FOLDER = os.path.join(os.getcwd(), "uploads")
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp"}
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024  # 10MB max
+
+
+def allowed_file(filename):
+    """Check if file has an allowed extension."""
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 def format_product(product):
     """Helper function to convert MongoDB doc to JSON-friendly format."""
     return {
         "id": str(product["_id"]),
-        "name": product["name"],
+        "name": product.get("name"),
         "brand": product.get("brand"),
         "description": product.get("description"),
         "price": product.get("price"),
         "category": product.get("category"),
         "tags": product.get("tags", []),
         "image_url": product.get("image_url"),
-        "stock": product.get("stock", 0)
+        "stock": product.get("stock", 0),
     }
 
-# --- ROUTE UPDATED (Bug Fix) ---
+
+# --- FETCH ALL PRODUCTS ---
 @app.route("/api/products", methods=["GET"])
 def get_all_products():
     """Fetches all products, e.g., for the main marketplace page."""
-    if db is None: return jsonify({"error": "Database not connected"}), 500
+    if db is None:
+        return jsonify({"error": "Database not connected"}), 500
     try:
-        products = db.products.find()
-        # --- THIS IS THE FIX ---
-        # Changed 'product_.ist' to 'product_list'
+        products = db.products.find().sort("createdAt", -1)
         product_list = [format_product(p) for p in products]
-        # --- END OF FIX ---
         return jsonify(product_list)
     except Exception as e:
         print(f"Error fetching products: {e}")
         return jsonify({"error": "Could not fetch products"}), 500
-# --- END ROUTE UPDATE ---
 
+
+# --- FETCH SINGLE PRODUCT ---
 @app.route("/api/product/<product_id>", methods=["GET"])
 def get_one_product_by_id(product_id):
     """Fetches a single product by its ID."""
-    if db is None: return jsonify({"error": "Database not connected"}), 500
+    if db is None:
+        return jsonify({"error": "Database not connected"}), 500
     try:
         product = db.products.find_one({"_id": ObjectId(product_id)})
         if not product:
@@ -627,19 +642,19 @@ def get_one_product_by_id(product_id):
         print(f"Get one product error: {e}")
         return jsonify({"error": "Could not fetch product."}), 500
 
+
+# --- SEARCH PRODUCTS ---
 @app.route("/api/products/search", methods=["GET"])
 def search_products():
-    """
-    Searches for products by tag.
-    Example: /api/products/search?tag=urea
-    """
-    if db is None: return jsonify({"error": "Database not connected"}), 500
-    tag = request.args.get('tag')
+    """Search products by tag, e.g. /api/products/search?tag=urea"""
+    if db is None:
+        return jsonify({"error": "Database not connected"}), 500
+
+    tag = request.args.get("tag")
     if not tag:
         return jsonify({"error": "A 'tag' query parameter is required."}), 400
-    
+
     try:
-        # Find products where the 'tags' array contains the query tag (case-insensitive)
         products = db.products.find({"tags": re.compile(f"^{tag}$", re.IGNORECASE)})
         product_list = [format_product(p) for p in products]
         return jsonify(product_list)
@@ -647,56 +662,83 @@ def search_products():
         print(f"Error searching products: {e}")
         return jsonify({"error": "Could not search products"}), 500
 
+
+# --- ADD PRODUCT (Supports Image Upload) ---
 @app.route("/api/products", methods=["POST"])
 @token_required
 def add_new_product(current_user):
-    """Adds a new product to the database. (Admin function)"""
-    if db is None: return jsonify({"error": "Database not connected"}), 500
-    data = request.get_json()
+    """Adds a new product to the database (supports multipart/form-data)."""
+    if db is None:
+        return jsonify({"error": "Database not connected"}), 500
+
     try:
-        # Basic validation
-        if not data.get("name") or not data.get("price") or not data.get("category"):
-            return jsonify({"error": "Missing required fields: name, price, category"}), 400
-        
-        # Ensure tags are a list of lowercase strings
-        tags = [str(tag).lower() for tag in data.get("tags", [])]
-        
+        # --- Detect JSON vs FormData ---
+        if request.content_type and "multipart/form-data" in request.content_type:
+            data = request.form.to_dict()
+            image_file = request.files.get("image")
+            image_url = None
+
+            # --- Save image if provided ---
+            if image_file and allowed_file(image_file.filename):
+                filename = secure_filename(image_file.filename)
+                unique_name = f"{int(time.time())}_{filename}"
+                save_path = os.path.join(app.config["UPLOAD_FOLDER"], unique_name)
+                image_file.save(save_path)
+                image_url = f"/uploads/{unique_name}"
+            elif data.get("image_url"):
+                image_url = data.get("image_url")
+            else:
+                image_url = None
+
+        else:
+            data = request.get_json() or {}
+            image_url = data.get("image_url")
+
+        # --- Validate Required Fields ---
+        required_fields = ["name", "price", "category"]
+        for field in required_fields:
+            if not data.get(field):
+                return jsonify({"error": f"Missing required field: {field}"}), 400
+
+        # --- Process tags ---
+        raw_tags = data.get("tags")
+        if isinstance(raw_tags, str):
+            try:
+                tags = json.loads(raw_tags)
+            except Exception:
+                tags = [t.strip().lower() for t in raw_tags.split(",") if t.strip()]
+        else:
+            tags = raw_tags or []
+
+        # --- Insert into DB ---
         new_product = {
-            "name": data["name"],
-            "brand": data.get("brand"),
-            "description": data.get("description"),
+            "name": data["name"].strip(),
+            "brand": data.get("brand", "").strip(),
+            "description": data.get("description", "").strip(),
             "price": float(data["price"]),
             "category": data["category"],
             "tags": tags,
-            "image_url": data.get("image_url"),
+            "image_url": image_url,
             "stock": int(data.get("stock", 0)),
-            "createdAt": datetime.now(timezone.utc)
+            "createdAt": datetime.now(timezone.utc),
         }
+
         result = db.products.insert_one(new_product)
-        new_product["id"] = str(result.inserted_id)
+        new_product["_id"] = result.inserted_id
         return jsonify(format_product(new_product)), 201
-        
+
     except Exception as e:
-        print(f"Error adding product: {e}")
+        print(f"❌ Error adding product: {e}")
         return jsonify({"error": "Could not add product"}), 500
 
-# ---------------- TOOL ROUTES (UPGRADED FOR TIER 1) ----------------
 
-@app.route("/analyze-fertility", methods=["POST"])
-def analyze_soil_fertility():
-    # This route is unchanged.
-    data = request.get_json()
-    try:
-        n, p, k, ph = float(data["n"]), float(data["p"]), float(data["k"]), float(data["ph"])
-        location = data["location"]
-        weather_data = get_weather(location)
-        levels, recommendations = analyze_fertility(n, p, k, ph)
-        return jsonify({
-            "location": location, "weather": weather_data,
-            "levels": levels, "recommendations": recommendations
-        })
-    except Exception as e:
-        return jsonify({"error": f"Error in /analyze-fertility: {e}"}), 500
+# --- SERVE UPLOADED FILES ---
+@app.route("/uploads/<filename>")
+def serve_uploaded_file(filename):
+    """Serve uploaded images from local uploads folder."""
+    return send_from_directory(app.config["UPLOAD_FOLDER"], filename)
+
+
 
 @app.route("/calculate-fertilizer", methods=["POST"])
 def calculate_fertilizer():
@@ -1415,6 +1457,37 @@ def auto_soil():
         parsed = {"n": "medium", "p": "medium", "k": "medium", "ph_level": "neutral", "organic_matter": 1.2}
 
     return jsonify(parsed)
+@app.route("/auto-detect-soil", methods=["GET"])
+def auto_detect_soil():
+    """AI-based soil parameter detection using Gemini + mock weather."""
+    try:
+        prompt = """
+        You are an Indian agronomist AI. Estimate soil type and fertility levels
+        for the user's current location (generic India context).
+        Respond in JSON:
+        {
+          "soil_type": "Loamy or Red or Black",
+          "levels": {
+            "n_level": "Low | Medium | High",
+            "p_level": "Low | Medium | High",
+            "k_level": "Low | Medium | High",
+            "ph_level": "Acidic | Neutral | Alkaline"
+          },
+          "organic_matter": "float",
+          "location": "City, State",
+          "recommendations": ["short suggestions"]
+        }
+        """
+
+        model = genai.GenerativeModel("gemini-2.0-flash")
+        response = model.generate_content(prompt)
+        text = response.text.strip()
+        data = json.loads(text)
+        return jsonify(data)
+
+    except Exception as e:
+        print(f"⚠️ AI detection failed: {e}")
+        return jsonify({"error": "AI auto-detection failed."}), 500
 
 # ---------------- Run Flask ----------------
 if __name__ == "__main__":

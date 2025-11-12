@@ -8,43 +8,60 @@ function Marketplace() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      setLoading(true);
-      setError('');
-      try {
-        const response = await axios.get('http://127.0.0.1:5000/api/products');
-        setProducts(response.data);
-      } catch (err) {
-        console.error("Error fetching products:", err);
-        setError('Could not load products. Please try again later.');
-      } finally {
-        setLoading(false);
+  // 🧭 Fetch all products
+  const fetchProducts = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const res = await axios.get('http://127.0.0.1:5000/api/products');
+      if (Array.isArray(res.data)) {
+        setProducts(res.data);
+      } else if (res.data.products) {
+        setProducts(res.data.products);
+      } else {
+        throw new Error("Invalid response format");
       }
-    };
+    } catch (err) {
+      console.error('Error fetching products:', err);
+      setError('⚠️ Could not load products. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchProducts();
   }, []);
 
   return (
     <div className="marketplace-container">
       <div className="marketplace-header">
-        <h1>Marketplace</h1>
-        <p>Find all your agricultural needs in one place.</p>
-        {/* Search bar and filters can be added here */}
+        <h1>🛒 Marketplace</h1>
+        <p>Discover and trade verified agricultural products at fair prices.</p>
       </div>
 
-      {loading && <p>Loading products...</p>}
+      {/* 📊 Status */}
+      {loading && <p className="loading-text">⏳ Loading products...</p>}
       {error && <p className="error-message">{error}</p>}
 
+      {/* 🧾 Product Grid */}
       {!loading && !error && (
         <div className="product-grid">
           {products.length > 0 ? (
-            products.map(product => (
+            products.map((product) => (
+              // --- THIS LINE IS UPDATED ---
               <ProductCard key={product.id} product={product} />
             ))
           ) : (
-            <p>No products found.</p>
+            <div className="empty-state">
+              <h3>😔 No Products Yet</h3>
+              <p>
+                Looks like the marketplace is empty. Be the first to{' '}
+                <a href="admin/add-product" className="add-link">
+                  add your product!
+                </a>
+              </p>
+            </div>
           )}
         </div>
       )}

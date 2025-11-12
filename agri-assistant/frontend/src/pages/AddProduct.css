@@ -1,99 +1,321 @@
+/* =================================== */
+/* 🧾 Add Product Page — Krishi Mitra UI */
+/* =================================== */
+
 .add-product-container {
-  max-width: 700px;
-  margin: 20px auto;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background: linear-gradient(180deg, #f8fff8 0%, #f1fff4 100%);
+  min-height: 100vh;
+  padding: 40px 16px;
+  box-sizing: border-box; /* Ensures padding doesn't break layout */
 }
 
+/* ------------------------------ */
+/* 📦 Form Card */
+/* ------------------------------ */
 .add-product-form {
-  background: #fff;
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  padding: 36px 40px;
+  width: 100%;
+  max-width: 720px;
+  transition: all 0.3s ease;
+  animation: fadeIn 0.6s ease;
+  box-sizing: border-box;
 }
 
+.add-product-form:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.1);
+}
+
+/* ------------------------------ */
+/* 🧩 Header */
+/* ------------------------------ */
 .add-product-form h2 {
+  font-size: 26px;
+  font-weight: 700;
+  color: #2d4739;
   text-align: center;
   margin-top: 0;
-  color: #333;
+  margin-bottom: 8px;
 }
 
 .add-product-form p {
   text-align: center;
+  font-size: 15px;
   color: #666;
-  font-size: 1.1em;
-  margin-bottom: 30px;
-}
-
-.input-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
-
-.input-group {
   margin-bottom: 20px;
+}
+
+/* ------------------------------ */
+/* ✅ Input Groups */
+/* ------------------------------ */
+.input-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 18px;
 }
 
 .input-group label {
-  display: block;
   font-weight: 600;
-  margin-bottom: 8px;
-  color: #444;
+  color: #333;
+  margin-bottom: 6px;
+  font-size: 14px;
 }
 
-.input-group input[type="text"],
-.input-group input[type="number"],
+.input-group input,
 .input-group select,
 .input-group textarea {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #ccc;
+  border: 1px solid #dcdcdc;
   border-radius: 8px;
-  font-size: 1em;
-  box-sizing: border-box; 
+  padding: 10px 12px;
+  font-size: 15px;
   font-family: inherit;
-}
-
-.input-group textarea {
-  resize: vertical;
-}
-
-.btn-submit-product {
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+  background: #fff;
+  box-sizing: border-box;
   width: 100%;
-  padding: 15px;
-  font-size: 1.1em;
-  font-weight: 600;
-  color: #fff;
-  background-color: #056839;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  margin-top: 10px;
 }
 
-.btn-submit-product:disabled {
-  background-color: #999;
+.input-group input:focus,
+.input-group select:focus,
+.input-group textarea:focus {
+  border-color: #43a047;
+  box-shadow: 0 0 0 3px rgba(67, 160, 71, 0.25);
+  outline: none;
+}
+
+/* Disabled state for inputs */
+.input-group input:disabled,
+.upload-box.disabled {
+  background: #f5f5f5;
   cursor: not-allowed;
+  opacity: 0.7;
 }
 
-.btn-submit-product:hover:not(:disabled) {
-  background-color: #04502d;
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* ------------------------------ */
+/* 🧩 Grid Layout for Inputs */
+/* ------------------------------ */
+.input-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+/* ------------------------------ */
+/* 💬 Success & Error Messages */
+/* ------------------------------ */
+.success-message {
+  color: #1b5e20;
+  background: #e9fbe9;
+  border-left: 5px solid #43a047;
+  padding: 12px 14px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-weight: 600;
+  text-align: center;
 }
 
 .error-message {
-  color: #D8000C;
-  background-color: #FFD2D2;
-  padding: 10px;
-  border-radius: 8px;
+  color: #b71c1c;
+  background: #fdecea;
+  border-left: 5px solid #f44336;
+  padding: 12px 14px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-weight: 600;
   text-align: center;
-  margin-bottom: 20px;
 }
 
-.success-message {
-  color: #056839;
-  background-color: #e6f7ec;
-  padding: 10px;
+/* ------------------------------ */
+/* 🌿 Submit Button */
+/* ------------------------------ */
+.btn-submit-product {
+  width: 100%;
+  padding: 12px;
+  border: none;
   border-radius: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  color: #fff;
+  background: linear-gradient(90deg, #43a047, #66bb6a);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(67, 160, 71, 0.25);
+}
+
+.btn-submit-product:hover {
+  background: linear-gradient(90deg, #2e7d32, #43a047);
+  transform: translateY(-2px);
+}
+
+.btn-submit-product:disabled {
+  background: #a5d6a7;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* =============================== */
+/* 🌾 Enhanced Image Upload Preview */
+/* =============================== */
+.upload-box {
+  border: 2px dashed #a5d6a7;
+  border-radius: 14px;
+  background: #fcfffc;
+  padding: 1.5rem;
   text-align: center;
-  margin-bottom: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.upload-box:hover {
+  border-color: #66bb6a;
+  background: #f8fff8;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(67, 160, 71, 0.12);
+}
+
+.upload-box input[type="file"] {
+  display: none;
+}
+
+.upload-box p {
+  color: #388e3c;
+  font-weight: 600;
+  font-size: 15px;
+  margin: 0;
+}
+
+/* ✅ Drag active state */
+.drag-active {
+  border-color: #43a047;
+  background: #ecfdf3;
+  box-shadow: 0 0 12px rgba(76, 175, 80, 0.35);
+  transform: scale(1.02);
+}
+
+.drag-hint {
+  display: block;
+  margin-top: 8px;
+  color: #2e7d32;
+  font-weight: 500;
+  animation: pulseHint 1.2s infinite ease-in-out;
+}
+
+@keyframes pulseHint {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+/* --- Preview --- */
+.image-preview {
+  position: relative;
+  border: 1px solid #e0f2e9;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #ffffff 0%, #f9fff9 100%);
+  padding: 0.8rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.08);
+}
+
+.image-preview img {
+  width: 100%;
+  max-height: 280px;
+  object-fit: cover;
+  border-radius: 12px;
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+.image-preview:hover img {
+  transform: scale(1.03);
+  box-shadow: 0 6px 18px rgba(67, 160, 71, 0.25);
+}
+
+.remove-preview-btn {
+  position: absolute;
+  top: 12px; /* Adjusted for better padding */
+  right: 12px; /* Adjusted for better padding */
+  background: rgba(244, 67, 54, 0.9);
+  border: none;
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
+  line-height: 26px; /* Centers the 'X' */
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.remove-preview-btn:hover {
+  background: #c62828;
+  transform: scale(1.1);
+}
+
+.image-preview small {
+  display: block;
+  margin-top: 8px;
+  font-size: 13px;
+  color: #388e3c;
+  font-weight: 500;
+  opacity: 0.8;
+  word-wrap: break-word; /* Handles long file names */
+}
+
+/* ------------------------------ */
+/* ✨ Animation */
+/* ------------------------------ */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ------------------------------ */
+/* 📱 Responsive */
+/* ------------------------------ */
+@media (max-width: 600px) {
+  .add-product-container {
+    padding: 20px 12px;
+  }
+  
+  .add-product-form {
+    padding: 24px 20px;
+  }
+
+  .add-product-form h2 {
+    font-size: 22px;
+  }
+
+  .btn-submit-product {
+    font-size: 15px;
+  }
+
+  .input-grid {
+    grid-template-columns: 1fr; /* Stack grid items on mobile */
+  }
 }
