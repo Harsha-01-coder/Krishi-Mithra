@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
 
 // --- Context ---
-import { AuthProvider } from "./context/AuthContext";
+// AuthProvider is in index.js, so we don't need it here.
 
 // --- Layout ---
 import Layout from "./components/Layout";
@@ -19,24 +19,25 @@ import Profile from "./pages/Profile";
 import EditPost from "./pages/EditPost";
 import Forum from "./pages/Forum";
 import ChatbotFull from "./pages/ChatbotFull";
-import PostDetail from "./pages/PostDetail";
+import PostDetail from "./pages/PostDetail"; // This is for Forum Posts
 import NewPost from "./pages/NewPost";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
-// --- Tool Pages (Assuming most are still in /components, as per your file) ---
+// --- Tool Pages ---
 import Weather from "./components/Weather";
 import SoilFertility from "./components/SoilFertility";
 import MarketPrices from "./components/MarketPrices";
 import GovSchemes from "./components/GovSchemes";
 import CropRecommender from "./components/CropRecommender";
-
-// --- CORRECTED PATHS for new/upgraded pages ---
 import PestId from "./components/PestId";
 import FertilizerCalculator from "./components/FertilizerCalculator";
 
 // --- NEW MARKETPLACE & ADMIN PAGES ---
 import Marketplace from "./pages/Marketplace";
-import ProductDetail from "./components/ProductCard"; // This is the page for a single product
+import ProductDetail from "./pages/ProductDetail"; // This is the page for a single product
 import AddProduct from "./pages/AddProduct"; // The admin page
+// (Removed the incorrect ProductCard import)
 
 function App() {
   return (
@@ -49,6 +50,8 @@ function App() {
             {/* --- Auth & Profile Routes --- */}
             <Route path="login" element={<Login />} />
             <Route path="signup" element={<Signup />} />
+            <Route path="forgot-password" element={<ForgotPassword />} />   {/* ✅ New Route */}
+            <Route path="reset-password/:token" element={<ResetPassword />} /> {/* ✅ New Route */}
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="profile" element={<Profile />} />
 
@@ -75,10 +78,12 @@ function App() {
             {/* --- NEW MARKETPLACE ROUTES --- */}
             <Route path="marketplace" element={<Marketplace />} />
             
-            {/* --- CORRECTED ROUTE: Use ProductDetail component --- */}
+            {/* --- This route is correct --- */}
             <Route path="products/:productId" element={<ProductDetail />} />
             
-            {/* --- NEW ADMIN ROUTE --- */}
+            {/* --- FIX: Route path now matches the link in Marketplace.js --- */}
+             {/* --- NEW ADMIN ROUTE --- */}
+
             <Route path="admin/add-product" element={<AddProduct />} />
           </Route>
         </Routes>

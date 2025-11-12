@@ -1,0 +1,131 @@
+.product-detail-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 20px;
+  background: #f9fdf9;
+  min-height: 100vh;
+}
+
+.detail-loading, .detail-error {
+  text-align: center;
+  font-size: 1.5rem;
+  margin-top: 50px;
+  font-weight: 600;
+  color: #333;
+}
+.detail-error {
+  color: #b71c1c;
+}
+
+.product-detail-card {
+  display: grid;
+  grid-template-columns: 1fr;
+  max-width: 1100px;
+  width: 100%;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+}
+
+/* --- Image --- */
+.product-detail-image-container {
+  width: 100%;
+  background: #f5f5f5;
+  padding-top: 75%; /* 4:3 Aspect Ratio */
+  position: relative;
+}
+.product-detail-image-container img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* --- Content --- */
+.product-detail-content {
+  padding: 30px 40px;
+}
+
+.product-detail-brand {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+.product-detail-name {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #222;
+  margin: 5px 0 10px 0;
+}
+
+.product-detail-seller {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #777;
+  margin: 0 0 20px 0;
+}
+
+.product-detail-description {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.6;
+  margin: 20px 0;
+}
+
+.product-detail-tags {
+  margin: 20px 0;
+}
+.product-detail-tag {
+  display: inline-block;
+  background: #e9fbe9;
+  color: #388e3c;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-right: 8px;
+  margin-bottom: 8px;
+}
+
+.product-detail-price {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #388e3c;
+  margin: 20px 0;
+}
+
+.product-detail-button {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  color: #fff;
+  background: #43a047;
+  transition: all 0.25s ease;
+}
+
+.product-detail-button:hover {
+  background: #388e3c;
+  transform: translateY(-2px);
+}
+
+/* --- Responsive --- */
+@media (min-width: 768px) {
+  .product-detail-card {
+    grid-template-columns: 1fr 1fr; /* Image | Content */
+  }
+  .product-detail-image-container {
+    padding-top: 100%; /* 1:1 Aspect Ratio on desktop */
+  }
+}

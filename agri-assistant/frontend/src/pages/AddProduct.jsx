@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
-import { useAuth } from "../context/AuthContext"; // Good: Using context
+import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import "./AddProduct.css";
 
@@ -23,21 +23,19 @@ function AddProduct() {
 
   const { token } = useAuth();
   const navigate = useNavigate();
-  const fileInputRef = useRef(null); // Refinement: For the file input
+  const fileInputRef = useRef(null); 
 
-  // Refinement: Handle auth redirect in useEffect
   useEffect(() => {
     if (!token) {
       navigate("/login");
     }
   }, [token, navigate]);
 
-  // 📸 Handle File Upload (manual or drop)
   const handleImageChange = (file) => {
     if (file && file.type.startsWith("image/")) {
       setImageFile(file);
       setImagePreview(URL.createObjectURL(file));
-      setImageUrl(""); // Clear URL if a file is uploaded
+      setImageUrl(""); 
       setError("");
     } else if (file) {
       setError("Please select a valid image file (jpg, png, webp).");
@@ -48,7 +46,6 @@ function AddProduct() {
 
   const handleFileInputChange = (e) => handleImageChange(e.target.files[0]);
 
-  // 🟩 Drag-and-Drop handlers
   const handleDragOver = (e) => {
     e.preventDefault();
     setIsDragging(true);
@@ -63,19 +60,17 @@ function AddProduct() {
     handleImageChange(file);
   };
 
-  // ❌ Remove Preview
   const removeImagePreview = (e) => {
-    e.stopPropagation(); // Refinement: Stop click from bubbling up
+    e.stopPropagation(); 
     setImageFile(null);
     setImagePreview(null);
     setImageUrl("");
-    // Reset file input
     if (fileInputRef.current) {
       fileInputRef.current.value = null;
     }
   };
 
-  // 🧾 Submit handler
+  // --- THIS FUNCTION IS UPDATED ---
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -86,7 +81,7 @@ function AddProduct() {
       const tagsArray = tags
         .split(",")
         .map((tag) => tag.trim().toLowerCase())
-        .filter(Boolean); // Filter out empty strings
+        .filter(Boolean); 
 
       const formData = new FormData();
       formData.append("name", name);
@@ -94,7 +89,6 @@ function AddProduct() {
       formData.append("price", parseFloat(price));
       formData.append("category", category);
       formData.append("description", description);
-      // Send tags as a JSON string, which the backend prefers
       formData.append("tags", JSON.stringify(tagsArray)); 
       formData.append("stock", parseInt(stock, 10));
 
@@ -104,33 +98,34 @@ function AddProduct() {
         formData.append("image_url", imageUrl);
       }
 
-      await axios.post("http://127.0.0.1:5000/api/products", formData, {
+      // --- FIX 1: Capture the response from the server ---
+      const res = await axios.post("http://127.0.0.1:5000/api/products", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
-          // "Content-Type" is set automatically by axios for FormData
         },
       });
 
-      setMessage(`✅ Successfully added ${name}!`);
-      // Clear all fields
-      setName("");
-      setBrand("");
-      setPrice("");
-      setCategory("fertilizer");
-      setDescription("");
-      setTags("");
-      setImageUrl("");
-      setStock(100);
-      setImageFile(null);
-      setImagePreview(null);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = null;
+      // --- FIX 2: Get the new product's ID from the response ---
+      const newProductId = res.data.id;
+
+      if (newProductId) {
+        // --- FIX 3: Set redirect message and navigate ---
+        setMessage(`✅ Successfully added ${name}! Redirecting...`);
+        setLoading(false);
+        
+        // Wait 1.5 seconds so user can read the message, then redirect
+        setTimeout(() => {
+          navigate(`/products/${newProductId}`);
+        }, 1500);
+
+      } else {
+        // This should not happen, but it's good to have a fallback
+        throw new Error("Product created, but no ID was returned.");
       }
 
     } catch (err) {
       console.error("Add product error:", err);
       setError(err.response?.data?.error || "Could not add product.");
-    } finally {
       setLoading(false);
     }
   };
@@ -243,10 +238,9 @@ function AddProduct() {
             onChange={(e) => {
               const url = e.target.value;
               setImageUrl(url);
-              // Show preview from URL
               if (url) {
                 setImagePreview(url);
-                setImageFile(null); // Clear file if URL is typed
+                setImageFile(null); 
                 if (fileInputRef.current) {
                   fileInputRef.current.value = null;
                 }
@@ -255,7 +249,7 @@ function AddProduct() {
               }
             }}
             placeholder="https://example.com/image.jpg"
-            disabled={!!imageFile} // Disable if a file is already uploaded
+            disabled={!!imageFile} 
           />
         </div>
 
@@ -266,7 +260,7 @@ function AddProduct() {
             className={`upload-box ${isDragging ? "drag-active" : ""} ${
               imageUrl ? "disabled" : ""
             }`}
-            onClick={() => fileInputRef.current?.click()} // Refinement: Click ref
+            onClick={() => fileInputRef.current?.click()} 
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
@@ -279,7 +273,7 @@ function AddProduct() {
                   accept="image/*"
                   style={{ display: "none" }}
                   onChange={handleFileInputChange}
-                  ref={fileInputRef} // Refinement: Assign ref
+                  ref={fileInputRef} 
                   disabled={!!imageUrl}
                 />
                 <p>📷 Click or drag & drop an image</p>
@@ -292,7 +286,7 @@ function AddProduct() {
                 <button
                   type="button"
                   className="remove-preview-btn"
-                  onClick={removeImagePreview} // Refinement: StopPropagation is inside
+                  onClick={removeImagePreview} 
                 >
                   ✖
                 </button>

@@ -8,6 +8,13 @@ const PLACEHOLDER_IMAGE = 'https://placehold.co/300x300/f0f0f0/666?text=No+Image
 
 function ProductCard({ product }) {
 
+  // --- THIS IS THE FIX ---
+  // If no product is passed, or product is null, render nothing.
+  if (!product) {
+    return null; 
+  }
+  // --- END FIX ---
+
   // 1. --- ENHANCEMENT ---
   // Check if product.image_url exists.
   // If it does, prepend the backend URL.

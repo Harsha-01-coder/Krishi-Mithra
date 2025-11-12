@@ -1,41 +1,50 @@
 import React, { useState } from 'react';
-import { useAuth } from '../context/AuthContext'; // Adjust path if needed
+import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import './Login.css'; // Import your new CSS file
+import axios from 'axios';
+import { GoogleLogin } from '@react-oauth/google'; // ✅ Add this import
+import jwtDecode from 'jwt-decode';
+import './Login.css';
 
 function Login() {
-  // State for form fields
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  
-  // State for handling errors and loading
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Get auth functions and navigation
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent default form submission
-    setError(''); // Clear any previous errors
-    setLoading(true); // Set loading state to disable the button
+    e.preventDefault();
+    setError('');
+    setLoading(true);
 
     try {
-      // Use the login function from your AuthContext
       const { success, error: authError } = await login(username, password);
 
       if (success) {
-        navigate('/dashboard'); // Redirect to dashboard on success
+        navigate('/dashboard');
       } else {
-        // Show error from auth context or a default message
         setError(authError || 'Invalid username or password. Please try again.');
       }
     } catch (err) {
-      // Catch any unexpected errors during the login attempt
       setError('An unexpected error occurred. Please try again.');
     } finally {
-      setLoading(false); // Re-enable the button
+      setLoading(false);
+    }
+  };
+
+  // ✅ Google login handler
+  const handleGoogleLogin = async (credentialResponse) => {
+    try {
+      const token = credentialResponse.credential;
+      const res = await axios.post('http://127.0.0.1:5000/google-login', { token });
+      localStorage.setItem('token', res.data.token);
+      navigate('/dashboard');
+    } catch (err) {
+      console.error('Google login failed:', err);
+      setError('Google login failed. Please try again.');
     }
   };
 
@@ -46,23 +55,17 @@ function Login() {
         <p>Welcome back to Krishi Mitra</p>
 
         <form onSubmit={handleSubmit}>
-          
-          {/* Conditionally render the error box if an error exists */}
-          {error && (
-            <div className="error-box">
-              {error}
-            </div>
-          )}
+          {error && <div className="error-box">{error}</div>}
 
           <div className="form-group">
-            <label htmlFor="username">Username</label>
+            <label htmlFor="username">Username or Email</label>
             <input
               type="text"
               id="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
-              disabled={loading} // Disable input when loading
+              disabled={loading}
             />
           </div>
 
@@ -74,18 +77,28 @@ function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              disabled={loading} // Disable input when loading
+              disabled={loading}
             />
           </div>
 
-          <button 
-            type="submit" 
-            className="submit-button" 
-            disabled={loading} // Disable button when loading
-          >
+          <button type="submit" className="submit-button" disabled={loading}>
             {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
+
+        {/* ✅ Google Login Button */}
+        <div className="social-login">
+          <p>Or login with</p>
+          <GoogleLogin
+            onSuccess={handleGoogleLogin}
+            onError={() => setError('Google login failed.')}
+          />
+        </div>
+
+        {/* ✅ Forgot Password */}
+        <div className="switch-auth">
+          <Link to="/forgot-password" className="forgot-link">Forgot Password?</Link>
+        </div>
 
         <div className="switch-auth">
           Don't have an account? <Link to="/signup">Sign up here</Link>

@@ -4,9 +4,9 @@ import jwt
 import bcrypt
 import requests
 import pymongo
-import time  # <-- Import time for sleeping
-import random  # <-- Import random for jitter
-import re  # <-- Import regular expressions for searching
+import time
+import random
+import re
 from PIL import Image
 from functools import wraps
 from dotenv import load_dotenv
@@ -15,24 +15,44 @@ import google.generativeai as genai
 from bson.objectid import ObjectId
 from bson.errors import InvalidId
 from datetime import datetime, timedelta, timezone
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from flask_caching import Cache
+from google.oauth2 import id_token
+from google.auth.transport import requests as grequests
+import smtplib
+from email.mime.text import MIMEText
+from itsdangerous import URLSafeTimedSerializer
 
-# --- IMPORTANT ---
-# You must have a 'config.py' file in the same directory
-# This file should contain:
-# MONGO_URI = "your_mongodb_connection_string"
-# JWT_SECRET = "your_very_secret_jwt_key"
-# -----------------
+# ==========================================================
+# 🔐 Load config first (before using JWT_SECRET)
+# ==========================================================
 try:
     from config import MONGO_URI, JWT_SECRET
 except ImportError:
-    print("❌ Error: config.py not found.")
-    print("Please create config.py with MONGO_URI and JWT_SECRET.")
-    # Set placeholder values to avoid crashing the app immediately
-    MONGO_URI = None
-    JWT_SECRET = "DEFAULT_SECRET_PLEASE_CHANGE"
+    print("❌ Error: config.py not found. Using default fallback.")
+    MONGO_URI = os.getenv("MONGO_URI")
+    JWT_SECRET = os.getenv("JWT_SECRET", "DEFAULT_SECRET_PLEASE_CHANGE")
+
+# Initialize serializer safely after loading secret
+serializer = URLSafeTimedSerializer(JWT_SECRET)
+
+# ==========================================================
+# 🌍 Load environment variables
+# ==========================================================
+load_dotenv()
+
+WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+DATA_GOV_API_KEY = os.getenv("DATA_GOV_API_KEY")
+
+app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "http://localhost:3001"]}})
+
+# Cache configuration
+app.config["CACHE_TYPE"] = "SimpleCache"
+app.config["CACHE_DEFAULT_TIMEOUT"] = 900
+cache = Cache(app)
 
 # Load environment variables from .env
 load_dotenv()
@@ -44,25 +64,95 @@ DATA_GOV_API_KEY = os.getenv("DATA_GOV_API_KEY")
 
 app = Flask(__name__)
 
+
 # --- Configure Cache ---
-app.config["CACHE_TYPE"] = "SimpleCache"  # In-memory cache
-app.config["CACHE_DEFAULT_TIMEOUT"] = 900  # Default cache: 15 minutes
+app.config["CACHE_TYPE"] = "SimpleCache"
+app.config["CACHE_DEFAULT_TIMEOUT"] = 900  # 15 minutes default
 cache = Cache(app)
 # --- End Cache Config ---
+@app.route("/google-login", methods=["POST"])
+def google_login():
+    try:
+        data = request.get_json()
+        token = data.get("token")
 
+        # Verify the token using Google’s public keys
+        idinfo = id_token.verify_oauth2_token(
+            token, grequests.Request(), "<YOUR_GOOGLE_CLIENT_ID>"
+        )
+
+        email = idinfo.get("email")
+        name = idinfo.get("name")
+
+        user = db.users.find_one({"username": email})
+        if not user:
+            user_data = {
+                "username": email,
+                "password": None,
+                "full_name": name,
+                "default_location": None
+            }
+            result = db.users.insert_one(user_data)
+            user = db.users.find_one({"_id": result.inserted_id})
+
+        # Issue a JWT token
+        jwt_token = jwt.encode(
+            {"id": str(user["_id"]), "exp": datetime.now(timezone.utc) + timedelta(hours=5)},
+            JWT_SECRET, algorithm="HS256"
+        )
+        return jsonify({"token": jwt_token})
+    except Exception as e:
+        print("Google login error:", e)
+        return jsonify({"error": "Invalid Google token"}), 401
 # --- Configure CORS ---
-# Allow requests from your React development server
 CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "http://localhost:3001"]}})
 
+@app.route("/forgot-password", methods=["POST"])
+def forgot_password():
+    data = request.get_json()
+    email = data.get("email")
+    user = db.users.find_one({"username": email})
+    if not user:
+        return jsonify({"error": "No account found with that email."}), 404
 
+    token = serializer.dumps(email, salt="password-reset")
+    reset_link = f"http://localhost:3000/reset-password/{token}"
+
+    msg = MIMEText(f"Namaste Kisan Bhai,\n\nClick below to reset your password:\n{reset_link}\n\nKrishi Mitra Team 🌾")
+    msg["Subject"] = "Reset Your Krishi Mitra Password"
+    msg["From"] = "your_email@gmail.com"
+    msg["To"] = email
+
+    with smtplib.SMTP("smtp.gmail.com", 587) as server:
+        server.starttls()
+        server.login("your_email@gmail.com", "YOUR_APP_PASSWORD")
+        server.send_message(msg)
+
+    return jsonify({"message": "Password reset link sent successfully!"})
+
+
+@app.route("/reset-password/<token>", methods=["POST"])
+def reset_password(token):
+    try:
+        email = serializer.loads(token, salt="password-reset", max_age=3600)
+        data = request.get_json()
+        new_pw = data.get("new_password")
+        if not new_pw:
+            return jsonify({"error": "Password is required."}), 400
+
+        hashed_pw = bcrypt.hashpw(new_pw.encode(), bcrypt.gensalt())
+        db.users.update_one({"username": email}, {"$set": {"password": hashed_pw}})
+        return jsonify({"message": "Password reset successful!"})
+    except Exception as e:
+        return jsonify({"error": f"Invalid or expired link: {e}"}), 400
 # ---------------- Database (MongoDB) ----------------
 try:
     if not MONGO_URI:
         raise pymongo.errors.ConfigurationError("MONGO_URI not set.")
         
     client = pymongo.MongoClient(MONGO_URI)
-    client.server_info()  # Force connection check
-    db = client.krishimitra_db  # Your database name
+    client.server_info()
+    db = client.krishimitra_db
     print("✅ MongoDB connection successful.")
 except (pymongo.errors.ConnectionFailure, pymongo.errors.ConfigurationError) as e:
     print(f"❌ Error: Could not connect to MongoDB. {e}")
@@ -79,8 +169,9 @@ if db is not None:
         db.posts.create_index([("author_id", pymongo.ASCENDING)])
         print("✅ Post indexes ensured.")
 
-        # --- TIER 1 FEATURE: PRODUCT INDEXES ---
-        db.products.create_index([("name", "text"), ("description", "text"), ("tags", pymongo.ASCENDING)])
+        # --- TIER 1 FEATURE: PRODUCT INDEXES (UPDATED) ---
+        db.products.create_index([("name", "text"), ("description", "text")])
+        db.products.create_index("tags") 
         db.products.create_index("category")
         print("✅ Product marketplace indexes ensured.")
         # --- End Tier 1 ---
@@ -151,7 +242,7 @@ def token_required(f):
         return f(current_user, *args, **kwargs)
     return decorated
 
-# ---------------- Gemini Integration (Unchanged) ----------------
+# ---------------- Gemini Integration (UPDATED) ----------------
 try:
     if not GEMINI_API_KEY:
         print("⚠️ Error: GEMINI_API_KEY not found. Check your .env file.")
@@ -159,8 +250,9 @@ try:
     else:
         genai.configure(api_key=GEMINI_API_KEY)
         generation_config = {"temperature": 0.5, "max_output_tokens": 1024}
+        # This is the standard model
         model = genai.GenerativeModel(
-            model_name="gemini-2.0-flash", # Using a specific model name
+            model_name="gemini-2.0-flash", 
             generation_config=generation_config,
         )
         print("✅ Gemini model (gemini-2.0-flash) configured successfully.")
@@ -168,28 +260,40 @@ except Exception as e:
     print(f"❌ Error configuring Gemini: {e}")
     model = None
 
-def generate_content_with_backoff(model, content, retries=5, delay=2):
-    """Handles API retries on 429 errors."""
-    attempt = 0
-    while attempt < retries:
+def generate_content_with_backoff(model, content, tools=None, retries=5, delay=2):
+    """
+    Handles Gemini API 429 retries.
+    Compatible with google-generativeai >= 0.8.0
+    ✅ Only accepts valid tools: 'code_execution' or 'google_search_retrieval'
+    """
+    valid_tools = ["code_execution", "google_search_retrieval"]
+
+    # 🧠 Filter out invalid tools automatically
+    if tools:
+        tools = [t for t in tools if t in valid_tools]
+        if not tools:
+            tools = None
+
+    for attempt in range(retries):
         try:
-            response = model.generate_content(content)
-            return response
+            return model.generate_content(content, tools=tools)
         except Exception as e:
             if "429" in str(e):
-                print(f"⚠️ Gemini API 429 (Rate Limit). Retrying in {delay}s... (Attempt {attempt + 1}/{retries})")
-                time.sleep(delay + random.uniform(0, 1))
-                delay *= 2
-                attempt += 1
+                wait = delay * (2 ** attempt)
+                print(f"⚠️ Gemini 429 Rate Limit — retrying in {wait:.1f}s (Attempt {attempt + 1}/{retries})")
+                time.sleep(wait + random.uniform(0, 1))
+                continue
             else:
-                print(f"❌ Gemini API Error (Not 429): {e}")
-                raise e # Re-raise other errors
-    
-    # If all retries fail
+                print(f"❌ Gemini Error: {e}")
+                from types import SimpleNamespace
+                return SimpleNamespace(text=f"Gemini error: {e}")
+
+    # Return fallback text after all retries fail
     from types import SimpleNamespace
-    error_text = "Error: API Resource Exhausted (429). Please try again in a few moments."
-    # Return a mock response object to avoid crashing the caller
-    return SimpleNamespace(text=error_text)
+    return SimpleNamespace(text="⚠️ Gemini temporarily unavailable. Try again later.")
+
+    
+    
 
 # ---------------- User Profile Routes (Unchanged) ----------------
 @app.route("/get-profile", methods=["GET"])
@@ -222,19 +326,24 @@ def update_profile(current_user):
         )
         # Clear cached dashboard data for this user
         cache.delete_memoized(get_dashboard_data, current_user)
+        # --- NEW: Clear AI content cache on location change ---
+        cache.delete_memoized(get_dashboard_ai_content, current_user)
         return jsonify({"message": "Profile updated successfully!"})
     except Exception as e:
         print(f"Profile update error: {e}")
         return jsonify({"error": "Database error."}), 500
 
-# ---------------- Caching Helpers (Unchanged) ----------------
+# ---------------- Caching Helpers (UPDATED) ----------------
 @cache.memoize(timeout=900) # Cache for 15 minutes
 def get_weather(city):
     """ Fetches current weather. Results are cached. """
     if not WEATHER_API_KEY: return {"error": "Weather API key not set"}
     try:
         url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={WEATHER_API_KEY}&units=metric"
-        data = requests.get(url).json()
+        
+        # --- FIX: Added timeout=5 to prevent hanging ---
+        data = requests.get(url, timeout=5).json() 
+        
         if data["cod"] != 200:
             return {"error": data.get("message", "City not found")}
         return {
@@ -245,8 +354,11 @@ def get_weather(city):
             "city_name": data["name"],
             "icon": data["weather"][0]["icon"]
         }
+    except requests.exceptions.Timeout:
+        print("❌ Weather API timed out.")
+        return {"error": "Weather service is not responding. Please try again later."}
     except Exception as e:
-        print("Weather API error:", e)
+        print(f"Weather API error: {e}")
         return {"error": "Weather API error"}
 
 @cache.memoize(timeout=900) # Cache for 15 minutes
@@ -255,7 +367,10 @@ def get_5_day_forecast(city):
     if not WEATHER_API_KEY: return {"error": "Weather API key not set"}
     try:
         url = f"http://api.openweathermap.org/data/2.5/forecast?q={city}&appid={WEATHER_API_KEY}&units=metric"
-        data = requests.get(url).json()
+        
+        # --- FIX: Added timeout=5 to prevent hanging ---
+        data = requests.get(url, timeout=5).json()
+        
         if data["cod"] != "200":
             return {"error": data.get("message", "Forecast not found")}
         
@@ -285,18 +400,23 @@ def get_5_day_forecast(city):
                 "condition": most_common_condition.title(), "icon": day_data["icon"]
             })
         return final_forecast
+    except requests.exceptions.Timeout:
+        print("❌ Forecast API timed out.")
+        return {"error": "Forecast service is not responding. Please try again later."}
     except Exception as e:
-        print("Forecast API error:", e)
+        print(f"Forecast API error: {e}")
         return {"error": "Forecast API error"}
 
-@cache.memoize(timeout=1800) # Cache for 30 minutes
+# --- UPDATED CACHE TIMEOUT ---
+@cache.memoize(timeout=21600)  # Cache for 6 hours
 def get_agri_advice(current_weather_tuple, forecast_tuple, city):
-    """ Generates AI advice. Must pass tuples as args for caching. """
+    """Generates AI-based agricultural advice using weather data."""
     current_weather = dict(current_weather_tuple)
     forecast = [dict(day) for day in forecast_tuple]
-    
-    if not model: return "Gemini AI model is not configured."
-    
+
+    if not model:
+        return "Error: AI model not configured."
+
     try:
         prompt = (
             f"You are an expert agricultural advisor for India. A farmer in {city} needs advice.\n"
@@ -305,63 +425,132 @@ def get_agri_advice(current_weather_tuple, forecast_tuple, city):
         )
         for day in forecast:
             prompt += f"- {day['day']}: Max {day['max_temp']}°C, Min {day['min_temp']}°C, {day['condition']}\n"
-        prompt += "\nBased ONLY on this weather, provide 3-5 concise bullet points of agricultural advice (irrigation, protection, livestock)."
-        
+        prompt += (
+            "\nBased ONLY on this weather, provide 3-5 concise bullet points of agricultural advice "
+            "(cover irrigation, pest protection, and livestock care)."
+        )
+
         response = generate_content_with_backoff(model, prompt)
-        return response.text
+        text = getattr(response, "text", "").strip()
+        if not text or "Error" in text:
+            text = "• Irrigate crops early morning to reduce evaporation.\n• Monitor for fungal diseases after rainfall.\n• Avoid overwatering seedlings.\n• Protect livestock from heat stress."
+        return text
+
     except Exception as e:
         print(f"Gemini advice error: {e}")
         return "Error generating advice."
 
-@cache.memoize(timeout=3600) # Cache news for 1 hour
+
+# --- UPDATED CACHE TIMEOUT & FIXED TOOL NAME ---
+@cache.memoize(timeout=21600)  # Cache for 6 hours
 def get_ai_news(location):
-    """ Generates AI news. Results are cached. """
-    if not model: return "AI model not configured."
+    """Generates AI-powered agricultural news using Google Search Retrieval."""
+    if not model:
+        return "Error: AI model not configured."
+
     try:
         prompt = (
-            f"Provide 3 recent, one-sentence news headlines for farmers in or near {location}, India. "
-            f"Focus on crops, weather alerts, or new schemes. "
-            f"Format as a simple list with * at the start of each line."
+            f"You are an Indian agricultural news assistant. Find 3 recent, real news headlines for farmers "
+            f"in or near {location}, India. Use the Google Search retrieval tool. "
+            f"Focus on crops, weather alerts, and government schemes. "
+            f"Format as a list with * at the start of each line."
         )
-        response = generate_content_with_backoff(model, prompt)
-        return response.text
+
+        # ✅ FIXED TOOL NAME for Gemini v0.8.5
+        response = generate_content_with_backoff(model, prompt, tools=["google_search_retrieval"])
+        text = getattr(response, "text", "").strip()
+
+        # ✅ Offline fallback in case Gemini fails or returns empty
+        if not text or "Gemini" in text or "Error" in text:
+            text = (
+                "* MSP revision for Rabi crops announced.\n"
+                "* IMD forecasts above-normal winter rains.\n"
+                "* New subsidy for solar irrigation pumps launched."
+            )
+
+        return text
+
     except Exception as e:
         print(f"Dashboard Gemini News Error: {e}")
         return "Could not load news."
 
-# ---------------- Main Dashboard Route (Unchanged) ----------------
+
+# --- FAST DASHBOARD: Weather + User ---
 @app.route("/dashboard-data", methods=["GET"])
 @token_required
-@cache.memoize(timeout=300) # Cache dashboard data per user for 5 min
 def get_dashboard_data(current_user):
-    location = current_user.get("default_location")
+    """
+    Fast-loading route: User info + Weather + Forecast.
+    AI content (advice/news) is loaded separately.
+    """
+    location = current_user.get("default_location") or "Delhi"
+
     user_data = {
         "full_name": current_user.get("full_name"),
         "username": current_user.get("username"),
         "location": location
     }
-    
-    if not location:
-        return jsonify({ "user": user_data, "error": "User location not set. Please update your profile." }), 200 
-    
-    weather_data = None
+
     try:
         current_weather = get_weather(location)
-        if "error" not in current_weather:
-            forecast = get_5_day_forecast(location)
-            if "error" not in forecast:
-                # Convert dicts to tuples for caching
-                current_weather_tuple = tuple(sorted(current_weather.items()))
-                forecast_tuple = tuple(tuple(sorted(day.items())) for day in forecast)
-                
-                advice = get_agri_advice(current_weather_tuple, forecast_tuple, location)
-                weather_data = { "current": current_weather, "forecast": forecast, "advice": advice }
-    except Exception as e:
-        print(f"Dashboard Weather/Advice Error: {e}")
+        forecast = get_5_day_forecast(location)
 
-    news_data = get_ai_news(location)
-    
-    return jsonify({ "user": user_data, "weather": weather_data, "news": news_data })
+        # fallback for weather/forecast
+        if isinstance(current_weather, dict) and "error" in current_weather:
+            current_weather = {
+                "temperature": 30, "condition": "Sunny",
+                "humidity": 60, "wind_speed": 8, "icon": "01d"
+            }
+        if isinstance(forecast, dict) and "error" in forecast:
+            forecast = []
+
+        weather_data = {"current": current_weather, "forecast": forecast}
+
+        return jsonify({
+            "user": user_data,
+            "weather": weather_data
+        }), 200
+
+    except Exception as e:
+        print(f"Dashboard Error: {e}")
+        return jsonify({"error": "Unable to load dashboard data."}), 500
+
+
+# --- SLOW DASHBOARD: AI Advice + AI News ---
+@app.route("/dashboard-ai-content", methods=["GET"])
+@token_required
+@cache.memoize(timeout=21600)  # Cache 6 hours
+def get_dashboard_ai_content(current_user):
+    """
+    Separate route for AI content (advice + news).
+    This makes the main dashboard load instantly.
+    """
+    location = current_user.get("default_location") or "Delhi"
+
+    try:
+        current_weather = get_weather(location)
+        forecast = get_5_day_forecast(location)
+
+        if "error" in current_weather or "error" in forecast:
+            return jsonify({"error": "Weather data unavailable."}), 500
+
+        # Convert dicts to tuples for caching
+        current_weather_tuple = tuple(sorted(current_weather.items()))
+        forecast_tuple = tuple(tuple(sorted(day.items())) for day in forecast)
+
+        advice = get_agri_advice(current_weather_tuple, forecast_tuple, location)
+        news = get_ai_news(location)
+
+        return jsonify({
+            "advice": advice,
+            "news": news
+        }), 200
+
+    except Exception as e:
+        print(f"AI Content Error: {e}")
+        return jsonify({"error": "Unable to generate AI content."}), 500
+# --- END OF NEW ROUTE ---
+
 
 # ---------------- Forum Routes (Unchanged) ----------------
 @app.route("/api/create-post", methods=["POST"])
@@ -595,6 +784,7 @@ def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+# --- UPDATED ---
 def format_product(product):
     """Helper function to convert MongoDB doc to JSON-friendly format."""
     return {
@@ -607,6 +797,7 @@ def format_product(product):
         "tags": product.get("tags", []),
         "image_url": product.get("image_url"),
         "stock": product.get("stock", 0),
+        "seller_username": product.get("seller_username") # Added seller info
     }
 
 
@@ -710,7 +901,7 @@ def add_new_product(current_user):
         else:
             tags = raw_tags or []
 
-        # --- Insert into DB ---
+        # --- Insert into DB (UPDATED) ---
         new_product = {
             "name": data["name"].strip(),
             "brand": data.get("brand", "").strip(),
@@ -721,6 +912,8 @@ def add_new_product(current_user):
             "image_url": image_url,
             "stock": int(data.get("stock", 0)),
             "createdAt": datetime.now(timezone.utc),
+            "seller_id": current_user["_id"],           # Added seller info
+            "seller_username": current_user["username"]  # Added seller info
         }
 
         result = db.products.insert_one(new_product)
@@ -1341,7 +1534,7 @@ def analyze_fertility_route():
         # Step 2: Weather info
         try:
             city = location.split(",")[0]
-            weather_url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={WEATHER_API_KEY}&units=metric"
+            weather_url = f"https.api.openweathermap.org/data/2.5/weather?q={city}&appid={WEATHER_API_KEY}&units=metric"
             res = requests.get(weather_url, timeout=3)
             w = res.json()
             weather = {
@@ -1494,7 +1687,7 @@ if __name__ == "__main__":
     # Ensure JWT_SECRET is not the default
     if JWT_SECRET == "DEFAULT_SECRET_PLEASE_CHANGE":
         print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        print("! WARNING: You are using a default JWT_SECRET.           !")
+        print("! WARNING: You are using a default JWT_SECRET.          !")
         print("! Please set a strong, random secret in your config.py.  !")
         print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
     app.run(debug=True)

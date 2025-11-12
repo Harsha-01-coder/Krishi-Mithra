@@ -22,18 +22,18 @@
   color: inherit;
   display: flex;
   flex-direction: column;
-  flex-grow: 1; /* Makes the link fill the card (except the button) */
+  flex-grow: 1; 
 }
 
 /* ------------------------------ */
-/* 🖼️ Image */
+/* 🖼️ Image (This fixes your problem) */
 /* ------------------------------ */
 .product-card-image-container {
   width: 100%;
-  padding-top: 100%; /* Creates a 1:1 aspect ratio */
+  padding-top: 100%; /* Creates a 1:1 aspect ratio (a square) */
   position: relative;
   overflow: hidden;
-  background: #f9f9f9; /* Background color while image loads */
+  background: #f9f9f9; 
 }
 
 .product-card-image {
@@ -42,7 +42,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover; /* Scales image to fit, cropping if necessary */
+  object-fit: cover; /* This scales/crops the image to fit the square */
   transition: transform 0.35s ease;
 }
 
@@ -55,7 +55,7 @@
 /* ------------------------------ */
 .product-card-content {
   padding: 1rem;
-  flex-grow: 1; /* Pushes content down, aligns button */
+  flex-grow: 1; 
 }
 
 .product-card-brand {
@@ -72,18 +72,17 @@
   font-weight: 700;
   color: #333;
   margin: 0 0 0.5rem 0;
-  /* Truncate long names */
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  min-height: 2.5rem; /* Reserve space for 2 lines */
+  min-height: 2.5rem; 
 }
 
 .product-card-price {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #388e3c; /* Green price */
+  color: #388e3c; 
   margin: 0;
 }
 
@@ -92,8 +91,8 @@
 /* ------------------------------ */
 .product-card-button {
   display: block;
-  width: calc(100% - 2rem); /* Full width with padding */
-  margin: 0 1rem 1rem 1rem; /* Aligns with content padding */
+  width: calc(100% - 2rem); 
+  margin: 0 1rem 1rem 1rem; 
   padding: 0.75rem;
   border: none;
   border-radius: 8px;
@@ -109,9 +108,4 @@
   background: #388e3c;
   transform: translateY(-2px);
   box-shadow: 0 4px 10px rgba(56, 142, 60, 0.3);
-}
-
-.product-card-button:active {
-  transform: translateY(0);
-  box-shadow: none;
 }

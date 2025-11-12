@@ -3,12 +3,14 @@
     max-width: 1400px;
     margin: 0 auto;
     background-color: #f9fdf8;
+    transition: all 0.3s ease-in-out;
 }
 
 .dashboard-welcome {
     font-size: 2.5rem;
     color: #1a531b;
     margin: 0 0 5px 0;
+    font-weight: 700;
 }
 
 .dashboard-location {
@@ -22,27 +24,24 @@
     font-size: 0.9rem;
     color: #1a531b;
     text-decoration: none;
+    transition: color 0.2s;
 }
 .change-location-link:hover {
     text-decoration: underline;
+    color: #256d1e;
 }
 
-/* --- GRID LAYOUT UPDATE --- */
+/* --- GRID LAYOUT --- */
 .dashboard-grid {
     display: grid;
-    /* Default to 1 column on mobile */
     grid-template-columns: 1fr;
     gap: 1.5rem;
 }
-
-/* On screens wider than 900px, go to 2 columns */
 @media (min-width: 900px) {
     .dashboard-grid {
-        grid-template-columns: 1fr 1fr; /* 2 equal columns */
+        grid-template-columns: 1fr 1fr;
     }
 }
-/* --- END GRID UPDATE --- */
-
 
 .dashboard-card {
     background: #ffffff;
@@ -51,10 +50,13 @@
     padding: 1.5rem;
     display: flex;
     flex-direction: column;
-    /* This ensures cards in a row stretch to the same height */
-    height: 100%; 
+    height: 100%;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
-
+.dashboard-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
 .dashboard-card h3 {
     margin-top: 0;
     color: #333;
@@ -62,12 +64,11 @@
     padding-bottom: 10px;
 }
 
-/* 1. Weather Card */
 .wide-card {
-    /* This will span both columns */
-    grid-column: 1 / -1; 
+    grid-column: 1 / -1;
 }
 
+/* --- WEATHER CARD --- */
 .weather-card {
     background: linear-gradient(135deg, #e9f5e6, #f3fdf3);
 }
@@ -105,7 +106,7 @@
 }
 .advice-list {
     padding-left: 20px;
-    margin-bottom: 0; /* Remove default margin */
+    margin-bottom: 0;
 }
 .advice-list li {
     font-size: 1rem;
@@ -113,12 +114,33 @@
     margin-bottom: 10px;
 }
 
-/* 2. Quick Actions */
+/* ✨ AI Loading Animation (Advice + News shimmer) */
+.loading-ai {
+    position: relative;
+    color: #7d9f7a;
+    font-style: italic;
+    overflow: hidden;
+}
+.loading-ai::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -150px;
+    width: 150px;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    animation: shimmer 1.8s infinite;
+}
+@keyframes shimmer {
+    0% { left: -150px; }
+    100% { left: 100%; }
+}
+
+/* --- QUICK ACTIONS --- */
 .actions-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1rem;
-    /* This makes the card content fill the height */
     flex-grow: 1;
 }
 .action-button {
@@ -153,8 +175,7 @@
     color: #555;
 }
 
-
-/* 3. Forecast */
+/* --- FORECAST --- */
 .forecast-list {
     list-style: none;
     padding: 0;
@@ -179,12 +200,11 @@
     color: #555;
 }
 
-/* 4. My Posts Card */
+/* --- POSTS --- */
 .my-posts-list {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    /* This makes the card content fill the height */
     flex-grow: 1;
 }
 .my-post-item {
@@ -207,14 +227,13 @@
 .my-post-actions {
     display: flex;
     gap: 8px;
-    flex-shrink: 0; /* Prevents buttons from wrapping */
+    flex-shrink: 0;
 }
 .post-action-btn {
     padding: 4px 8px;
     font-size: 0.85rem;
     font-weight: 600;
     border-radius: 4px;
-    text-decoration: none;
     cursor: pointer;
     border: 1px solid transparent;
 }
@@ -232,7 +251,7 @@
     color: #777;
     text-align: center;
     padding: 1rem 0;
-    flex-grow: 1; /* Pushes button to bottom */
+    flex-grow: 1;
 }
 .btn-new-post-dash {
     margin-top: 1rem;
@@ -249,7 +268,7 @@
     background-color: #256d1e;
 }
 
-/* 5. News */
+/* --- NEWS --- */
 .news-list {
     padding-left: 20px;
     line-height: 1.7;
@@ -257,20 +276,25 @@
 }
 .news-list li {
     margin-bottom: 8px;
+    opacity: 0;
+    transform: translateY(10px);
+    animation: fadeUp 0.4s forwards;
+}
+@keyframes fadeUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
-/* --- Other --- */
-
-/* 🚀 UPDATED LOADER STYLE 🚀 */
+/* --- LOADER --- */
 .loader {
     text-align: center;
     padding: 4rem;
     font-size: 1.5rem;
-    color: #1a531b; /* Use theme green */
+    color: #1a531b;
     font-weight: 600;
 }
-
-/* This adds the pulsing sprout above the "Loading..." text */
 .loader::before {
     content: '🌱';
     font-size: 3rem;
@@ -279,6 +303,7 @@
     animation: pulse-sprout 1.5s infinite ease-in-out;
 }
 
+/* --- ERRORS --- */
 .error-box {
     background-color: #ffe5e5;
     color: #b00000;
@@ -288,23 +313,9 @@
     font-size: 1.1rem;
     margin-bottom: 1rem;
 }
-.profile-link {
-    display: block;
-    margin-top: 1rem;
-    font-size: 1rem;
-    padding: 8px 15px;
-    background-color: #1a531b;
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
-    max-width: 200px;
-    margin-left: auto;
-    margin-right: auto;
-}
 
-/* Responsive Design */
+/* --- RESPONSIVE --- */
 @media (max-width: 900px) {
-    /* Stack to 1 column on mobile */
     .dashboard-grid {
         grid-template-columns: 1fr;
     }
@@ -314,37 +325,27 @@
         text-align: left;
     }
 }
-
 @media (max-width: 500px) {
     .actions-grid {
-        /* Stack to 1 column on very small screens */
         grid-template-columns: 1fr;
     }
     .forecast-list li {
-        /* Simplify forecast for small screens */
         grid-template-columns: 40px 1fr;
         gap: 15px;
     }
     .forecast-list li span {
-        display: none; /* Hide text spans */
-    }
-    .forecast-list li strong {
-        grid-column: 2;
+        display: none;
     }
 }
 
-/* 🚀 NEW: Animation for the sprout */
+/* --- ANIMATIONS --- */
 @keyframes pulse-sprout {
-    0% {
+    0%, 100% {
         transform: scale(1);
         opacity: 0.7;
     }
     50% {
         transform: scale(1.2);
         opacity: 1;
-    }
-    100% {
-        transform: scale(1);
-        opacity: 0.7;
     }
 }
