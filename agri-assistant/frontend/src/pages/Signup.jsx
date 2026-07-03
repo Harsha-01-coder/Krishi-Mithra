@@ -10,6 +10,7 @@ import "./Login.css";
 function Signup() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -38,16 +39,45 @@ function Signup() {
   const handleSignup = async (e) => {
     e.preventDefault();
     setError("");
+
+    const trimmedUsername = username.trim();
+    const trimmedPassword = password.trim();
+    const trimmedConfirmPassword = confirmPassword.trim();
+
+    // 1. Username validations
+    if (trimmedUsername.length < 3) {
+      setError("Username must be at least 3 characters long.");
+      return;
+    }
+    
+    // Check if starts with a letter, and only alphanumeric/underscores thereafter
+    const usernameRegex = /^[a-zA-Z][a-zA-Z0-9_]*$/;
+    if (!usernameRegex.test(trimmedUsername)) {
+      setError("Username must start with a letter and contain only letters, numbers, or underscores.");
+      return;
+    }
+
+    // 2. Password validations
+    if (trimmedPassword.length < 6) {
+      setError("Password must be at least 6 characters long.");
+      return;
+    }
+
+    if (trimmedPassword !== trimmedConfirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
       await axios.post(`${API_BASE_URL}/signup`, {
-        username: username.trim(),
-        password: password.trim(),
+        username: trimmedUsername,
+        password: trimmedPassword,
       });
 
       console.log("✅ Signup successful, logging in...");
-      const { success, error: loginError } = await auth.login(username, password);
+      const { success, error: loginError } = await auth.login(trimmedUsername, trimmedPassword);
       if (success) {
         navigate("/dashboard");
       } else {
@@ -94,7 +124,7 @@ function Signup() {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter username or email"
+              placeholder="Enter username"
               required
               disabled={isLoading}
             />
@@ -106,7 +136,19 @@ function Signup() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Create a password"
+              placeholder="Create a password (min 6 characters)"
+              required
+              disabled={isLoading}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Confirm Password</label>
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Confirm your password"
               required
               disabled={isLoading}
             />
