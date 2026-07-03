@@ -22,6 +22,18 @@ export const AuthProvider = ({ children }) => {
     setLoading(false); // Done checking
   }, []);
 
+  // Custom setToken wrapper to sync localStorage and Axios headers
+  const setTokenAndSync = (newToken) => {
+    setToken(newToken);
+    if (newToken) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
+      localStorage.setItem('token', newToken);
+    } else {
+      delete axios.defaults.headers.common['Authorization'];
+      localStorage.removeItem('token');
+    }
+  };
+
   // 4. Login function
   const login = async (username, password) => {
     try {
@@ -31,9 +43,7 @@ export const AuthProvider = ({ children }) => {
       });
       
       const newToken = response.data.token;
-      setToken(newToken);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`;
-      localStorage.setItem('token', newToken);
+      setTokenAndSync(newToken);
       return { success: true };
 
     } catch (err) {
@@ -53,6 +63,7 @@ export const AuthProvider = ({ children }) => {
   // 6. Value to be passed to consumers
   const value = {
     token,
+    setToken: setTokenAndSync, // Export custom setToken wrapper
     user,
     login,
     logout,

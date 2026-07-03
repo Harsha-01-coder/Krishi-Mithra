@@ -13,7 +13,7 @@ function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const { login } = useAuth();
+  const { login, setToken } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -41,7 +41,7 @@ function Login() {
     try {
       const token = credentialResponse.credential;
       const res = await axios.post(`${API_BASE_URL}/google-login`, { token });
-      localStorage.setItem('token', res.data.token);
+      setToken(res.data.token);
       navigate('/dashboard');
     } catch (err) {
       console.error('Google login failed:', err);
