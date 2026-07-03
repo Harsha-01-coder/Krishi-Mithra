@@ -42,34 +42,23 @@ serializer = URLSafeTimedSerializer(JWT_SECRET)
 # ==========================================================
 load_dotenv()
 
+# Load environment variables from .env
+load_dotenv()
+
 WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 DATA_GOV_API_KEY = os.getenv("DATA_GOV_API_KEY")
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "http://localhost:3001"]}})
+
+# Enable CORS for all origins in production to allow frontend access
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 # Cache configuration
 app.config["CACHE_TYPE"] = "SimpleCache"
 app.config["CACHE_DEFAULT_TIMEOUT"] = 900
 cache = Cache(app)
 
-# Load environment variables from .env
-load_dotenv()
-
-# --- SAFE API KEY LOADING ---
-WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-DATA_GOV_API_KEY = os.getenv("DATA_GOV_API_KEY")
-
-app = Flask(__name__)
-
-CORS(app, resources={r"/*": {"origins": ["http://localhost:3000", "http://127.0.0.1:3000"]}})
-# --- Configure Cache ---
-app.config["CACHE_TYPE"] = "SimpleCache"
-app.config["CACHE_DEFAULT_TIMEOUT"] = 900  # 15 minutes default
-cache = Cache(app)
-# --- End Cache Config ---
 @app.route("/google-login", methods=["POST"])
 def google_login():
     """
