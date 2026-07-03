@@ -95,7 +95,16 @@ function Dashboard() {
     if (token) fetchAIContent();
   }, [token]);
 
-  if (isLoading) return <div className="loader">Loading Dashboard...</div>;
+  if (isLoading) {
+    return (
+      <div className="loader-container">
+        <div className="custom-loader">
+          <div className="leaf"></div>
+        </div>
+        <div className="loader-text">Loading Dashboard...</div>
+      </div>
+    );
+  }
 
   if (error && !dashboardData?.user) {
     return <div className="error-box">{error}</div>;
@@ -158,7 +167,12 @@ function Dashboard() {
             </div>
           </div>
         ) : (
-          <div className="dashboard-card loader">Loading weather...</div>
+          <div className="dashboard-card loader-card-container">
+            <div className="custom-loader small">
+              <div className="leaf"></div>
+            </div>
+            <div className="loader-text small">Loading weather...</div>
+          </div>
         )}
 
         {/* 2️⃣ My Posts */}

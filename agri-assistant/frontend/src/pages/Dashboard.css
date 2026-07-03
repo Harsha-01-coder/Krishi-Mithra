@@ -287,20 +287,104 @@
     }
 }
 
-/* --- LOADER --- */
-.loader {
-    text-align: center;
-    padding: 4rem;
-    font-size: 1.5rem;
+/* --- CUSTOM SPROUT LOADER --- */
+.loader-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 350px;
+    gap: 1.5rem;
+    width: 100%;
+}
+
+.loader-card-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 180px;
+    gap: 1rem;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    width: 100%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.custom-loader {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.custom-loader.small {
+    width: 40px;
+    height: 40px;
+}
+
+/* Spinning outer ring */
+.custom-loader::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 4px solid rgba(46, 125, 50, 0.1);
+    border-top: 4px solid #1a531b;
+    border-right: 4px solid #4caf50;
+    border-radius: 50%;
+    animation: loader-spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+}
+
+.custom-loader.small::before {
+    border-width: 3px;
+}
+
+/* Pulsing leaf inside */
+.custom-loader .leaf {
+    width: 18px;
+    height: 18px;
+    background: linear-gradient(135deg, #81c784, #1a531b);
+    border-radius: 0 100% 0 100%;
+    transform: rotate(-45deg);
+    animation: leaf-pulse 1.5s ease-in-out infinite alternate;
+}
+
+.custom-loader.small .leaf {
+    width: 12px;
+    height: 12px;
+}
+
+.loader-text {
+    font-size: 1.3rem;
     color: #1a531b;
     font-weight: 600;
+    letter-spacing: 0.5px;
 }
-.loader::before {
-    content: '🌱';
-    font-size: 3rem;
-    display: block;
-    margin: 0 auto 1rem;
-    animation: pulse-sprout 1.5s infinite ease-in-out;
+
+.loader-text.small {
+    font-size: 1rem;
+}
+
+@keyframes loader-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes leaf-pulse {
+    0% {
+        transform: rotate(-45deg) scale(0.85);
+        filter: drop-shadow(0 0 2px rgba(76, 175, 80, 0.4));
+    }
+    100% {
+        transform: rotate(-45deg) scale(1.15);
+        filter: drop-shadow(0 0 8px rgba(76, 175, 80, 0.8));
+    }
 }
 
 /* --- ERRORS --- */
@@ -335,17 +419,5 @@
     }
     .forecast-list li span {
         display: none;
-    }
-}
-
-/* --- ANIMATIONS --- */
-@keyframes pulse-sprout {
-    0%, 100% {
-        transform: scale(1);
-        opacity: 0.7;
-    }
-    50% {
-        transform: scale(1.2);
-        opacity: 1;
     }
 }

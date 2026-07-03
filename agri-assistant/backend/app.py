@@ -302,7 +302,7 @@ try:
         generation_config = {"temperature": 0.5, "max_output_tokens": 1024}
         # This is the standard model
         model = genai.GenerativeModel(
-            model_name="gemini-2.0-flash", 
+            model_name="gemini-2.5-flash", 
             generation_config=generation_config,
         )
         print("✅ Gemini model (gemini-2.0-flash) configured successfully.")
@@ -1173,7 +1173,7 @@ def get_market_prices():
     print(f"📦 Params: {params}")
 
     try:
-        response = requests.get(base_url, params=params, timeout=10)
+        response = requests.get(base_url, params=params, timeout=2.5)
         print(f"📥 Status Code: {response.status_code}")
         print("🔗 Full Request URL:", response.url)
 
@@ -1210,11 +1210,11 @@ def get_market_prices():
 
     except requests.exceptions.Timeout:
         print("❌ Timeout fetching from data.gov.in — returning fallback data.")
-        return jsonify(MOCK_DATA_FALLBACK), 504
+        return jsonify(MOCK_DATA_FALLBACK), 200
 
     except Exception as e:
         print(f"❌ Unexpected error: {e}")
-        return jsonify(MOCK_DATA_FALLBACK), 500
+        return jsonify(MOCK_DATA_FALLBACK), 200
 
 
 
@@ -1584,7 +1584,7 @@ def analyze_fertility_route():
         # Step 2: Weather info
         try:
             city = location.split(",")[0]
-            weather_url = f"https.api.openweathermap.org/data/2.5/weather?q={city}&appid={WEATHER_API_KEY}&units=metric"
+            weather_url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={WEATHER_API_KEY}&units=metric"
             res = requests.get(weather_url, timeout=3)
             w = res.json()
             weather = {
@@ -1740,4 +1740,4 @@ if __name__ == "__main__":
         print("! WARNING: You are using a default JWT_SECRET.          !")
         print("! Please set a strong, random secret in your config.py.  !")
         print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-    app.run(debug=True)
+    app.run(debug=True, threaded=True)
