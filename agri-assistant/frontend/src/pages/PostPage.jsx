@@ -1,3 +1,4 @@
+import API_BASE_URL from '../config';
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
@@ -19,7 +20,7 @@ function PostPage() {
     setLoading(true);
     try {
       // --- FIX 1: Changed URL to the correct API route ---
-      const res = await axios.get(`http://127.0.0.1:5000/api/post/${id}`);
+      const res = await axios.get(`${API_BASE_URL}/api/post/${id}`);
       setPost(res.data);
       setReplies(res.data.replies || []);
     } catch (err) {
@@ -40,7 +41,7 @@ function PostPage() {
     try {
       const res = await axios.post(
         // --- FIX 2: Changed URL to the correct API route ---
-        `http://127.0.0.1:5000/api/post/${id}/reply`, 
+        `${API_BASE_URL}/api/post/${id}/reply`, 
         // --- FIX 3: Send 'content' to match API ---
         { content: newReply },
         { headers: { 'Authorization': `Bearer ${token}` } }

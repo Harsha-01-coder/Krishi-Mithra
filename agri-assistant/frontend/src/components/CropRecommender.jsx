@@ -1,3 +1,4 @@
+import API_BASE_URL from '../config';
 import React, { useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
@@ -34,7 +35,7 @@ function CropRecommender() {
     }
 
     try {
-      const response = await axios.post("http://127.0.0.1:5000/detailed-recommendation", {
+      const response = await axios.post(`${API_BASE_URL}/detailed-recommendation`, {
         soil,
         season,
         stateName,
@@ -55,7 +56,7 @@ function CropRecommender() {
   const fetchCropSummary = async (name) => {
     try {
       setIsSummaryLoading(true);
-      const res = await axios.post("http://127.0.0.1:5000/crop-summary", { crop: name });
+      const res = await axios.post(`${API_BASE_URL}/crop-summary`, { crop: name });
       setCropSummary(res.data);
     } catch (err) {
       console.error("Error fetching crop summary:", err);

@@ -1,3 +1,4 @@
+import API_BASE_URL from '../config';
 import React, { useState } from 'react';
 import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
@@ -53,7 +54,7 @@ function PestId() {
         formData.append('symptoms', symptoms);
 
         try {
-            const res = await axios.post("http://127.0.0.1:5000/identify-pest", formData, {
+            const res = await axios.post(`${API_BASE_URL}/identify-pest`, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data' 
                 }

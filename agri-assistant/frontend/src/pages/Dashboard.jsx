@@ -1,3 +1,4 @@
+import API_BASE_URL from '../config';
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -24,7 +25,7 @@ function Dashboard() {
 
   const handleDelete = async (postId) => {
     try {
-      await axios.delete(`http://127.0.0.1:5000/api/post/${postId}`, {
+      await axios.delete(`${API_BASE_URL}/api/post/${postId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setMyPosts((prev) => prev.filter((p) => p.id !== postId));
@@ -36,7 +37,7 @@ function Dashboard() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const res = await axios.get("http://127.0.0.1:5000/dashboard-data", {
+        const res = await axios.get(`${API_BASE_URL}/dashboard-data`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setDashboardData(res.data);
@@ -49,7 +50,7 @@ function Dashboard() {
 
     const fetchMyPosts = async () => {
       try {
-        const res = await axios.get("http://127.0.0.1:5000/api/my-posts", {
+        const res = await axios.get(`${API_BASE_URL}/api/my-posts`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setMyPosts(res.data);
@@ -78,7 +79,7 @@ function Dashboard() {
     const fetchAIContent = async () => {
       try {
         setAiLoading(true);
-        const res = await axios.get("http://127.0.0.1:5000/dashboard-ai-content", {
+        const res = await axios.get(`${API_BASE_URL}/dashboard-ai-content`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setAiContent({

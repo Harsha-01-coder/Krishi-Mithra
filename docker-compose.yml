@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  # Local MongoDB database service
+  database:
+    image: mongo:6.0
+    container_name: krishimitra_db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+
+  # Flask Backend API service
+  backend:
+    build:
+      context: ./agri-assistant/backend
+      dockerfile: Dockerfile
+    container_name: krishimitra_backend
+    ports:
+      - "5000:5000"
+    environment:
+      - MONGO_URI=mongodb://database:27017/krishimitra_db
+      - JWT_SECRET=YOUR_PRODUCTION_JWT_SECRET_KEY
+      - WEATHER_API_KEY=27603af9c613c33eb8ee606d7202da60
+      - GEMINI_API_KEY=AIzaSyC4UtPtkt6HcUd1pwQal6OP08DbBzc_yeo
+      - DATA_GOV_API_KEY=579b464db66ec23bdd0000010519c67771a54d9c66de1971769cb50b
+      - GOOGLE_CLIENT_ID=1234567890-abcdefghij.apps.googleusercontent.com
+      - EMAIL_USER=your_email@gmail.com
+      - EMAIL_APP_PASSWORD=your_16_char_app_password
+    depends_on:
+      - database
+    restart: unless-stopped
+
+  # React Frontend client service
+  frontend:
+    build:
+      context: ./agri-assistant/frontend
+      dockerfile: Dockerfile
+      args:
+        # Direct the React app to hit the backend API (localhost:5000)
+        - REACT_APP_API_URL=http://localhost:5000
+    container_name: krishimitra_frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  mongo_data:

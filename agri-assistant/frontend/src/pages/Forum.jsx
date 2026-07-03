@@ -1,3 +1,4 @@
+import API_BASE_URL from '../config';
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -14,7 +15,7 @@ function Forum() {
     const fetchPosts = async () => {
       setLoading(true);
       try {
-        const res = await axios.get('http://127.0.0.1:5000/api/posts');
+        const res = await axios.get(`${API_BASE_URL}/api/posts`);
         setPosts(res.data);
       } catch (err) {
         console.error("Error fetching posts:", err);

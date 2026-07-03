@@ -1,3 +1,4 @@
+import API_BASE_URL from '../config';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -23,7 +24,7 @@ function CreatePost() {
     try {
       const res = await axios.post(
         // --- FIX 2: Changed URL to the correct API route ---
-        'http://127.0.0.1:5000/api/create-post',
+        `${API_BASE_URL}/api/create-post`,
         // --- FIX 3: Send 'content' to match API ---
         { title: title, content: content },
         { headers: { 'Authorization': `Bearer ${token}` } }

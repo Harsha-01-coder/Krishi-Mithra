@@ -1,3 +1,4 @@
+import API_BASE_URL from '../config';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import axios from 'axios';
 import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
@@ -23,7 +24,7 @@ function ChatbotFull() {
 
     // Removed isSpeaking and isMuted states, as speech is now opt-in
 
-    const API_URL = 'http://127.0.0.1:5000/chatbot';
+    const API_URL = `${API_BASE_URL}/chatbot`;
 
     // Auto-scroll to the bottom when new messages are added
     const scrollToBottom = () => {

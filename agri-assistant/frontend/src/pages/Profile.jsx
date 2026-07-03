@@ -1,3 +1,4 @@
+import API_BASE_URL from '../config';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -19,7 +20,7 @@ function Profile() {
                 return;
             }
             try {
-                const res = await axios.get("http://127.0.0.1:5000/get-profile", {
+                const res = await axios.get(`${API_BASE_URL}/get-profile`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 setFullName(res.data.full_name || 'User');
@@ -38,7 +39,7 @@ function Profile() {
         setMessage('');
 
         try {
-            const res = await axios.post("http://127.0.0.1:5000/update-profile", 
+            const res = await axios.post(`${API_BASE_URL}/update-profile`, 
                 { 
                     location: location,
                     fullName: fullName // Send both fields

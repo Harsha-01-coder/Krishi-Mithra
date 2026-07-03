@@ -1,3 +1,4 @@
+import API_BASE_URL from '../config';
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
@@ -31,7 +32,7 @@ function ChatbotWidget() {
     setLoading(true);
 
     try {
-      const res = await axios.post("http://127.0.0.1:5000/chatbot", { query: text });
+      const res = await axios.post(`${API_BASE_URL}/chatbot`, { query: text });
       const botReply = res.data.answer || "Sorry, I couldn't understand that.";
       
       // 2. Add bot message

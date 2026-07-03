@@ -1,3 +1,4 @@
+import API_BASE_URL from '../config';
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "../context/AuthContext";
@@ -99,7 +100,7 @@ function AddProduct() {
       }
 
       // --- FIX 1: Capture the response from the server ---
-      const res = await axios.post("http://127.0.0.1:5000/api/products", formData, {
+      const res = await axios.post(`${API_BASE_URL}/api/products`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

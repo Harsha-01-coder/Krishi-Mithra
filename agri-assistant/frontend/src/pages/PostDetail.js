@@ -1,3 +1,4 @@
+import API_BASE_URL from '../config';
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
@@ -14,7 +15,7 @@ function PostDetail() {
   const [replyContent, setReplyContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const API_BASE_URL = 'http://127.0.0.1:5000/api';
+  const API_BASE_URL = `${API_BASE_URL}/api`;
 
   useEffect(() => {
     const fetchPost = async () => {

@@ -1,3 +1,4 @@
+import API_BASE_URL from '../config';
 import React, { useState } from 'react';
 import axios from 'axios';
 import './ForgotPassword.css';
@@ -9,7 +10,7 @@ function ForgotPassword() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://127.0.0.1:5000/forgot-password', { email });
+      const res = await axios.post(`${API_BASE_URL}/forgot-password`, { email });
       setMessage(res.data.message);
     } catch (err) {
       setMessage(err.response?.data?.error || 'Error sending reset link.');

@@ -1,3 +1,4 @@
+import API_BASE_URL from '../config';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
 // Assuming you have a corresponding CSS file
@@ -43,7 +44,7 @@ const MOCK_FALLBACK_RECORDS = [
 
 // --- API_URL FIX ---
 // Calling our own Flask backend
-const API_URL = "http://127.0.0.1:5000/market-prices";
+const API_URL = `${API_BASE_URL}/market-prices`;
 
 function MarketPrices() {
     const [isLoading, setIsLoading] = useState(true);

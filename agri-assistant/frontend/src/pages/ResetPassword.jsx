@@ -1,3 +1,4 @@
+import API_BASE_URL from '../config';
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
@@ -10,7 +11,7 @@ function ResetPassword() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(`http://127.0.0.1:5000/reset-password/${token}`, { new_password: password });
+      const res = await axios.post(`${API_BASE_URL}/reset-password/${token}`, { new_password: password });
       setMessage(res.data.message);
     } catch (err) {
       setMessage(err.response?.data?.error || 'Error resetting password.');

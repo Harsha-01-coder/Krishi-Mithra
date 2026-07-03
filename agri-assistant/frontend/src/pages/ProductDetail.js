@@ -1,9 +1,10 @@
+import API_BASE_URL from '../config';
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import './ProductDetail.css';
 
-const BACKEND_URL = 'http://127.0.0.1:5000';
+const BACKEND_URL = API_BASE_URL;
 const PLACEHOLDER_IMAGE = 'https://placehold.co/600x600/f0f0f0/666?text=No+Image';
 
 function ProductDetail() {

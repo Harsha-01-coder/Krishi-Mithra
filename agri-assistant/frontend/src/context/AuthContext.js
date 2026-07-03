@@ -1,3 +1,4 @@
+import API_BASE_URL from '../config';
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 
@@ -24,7 +25,7 @@ export const AuthProvider = ({ children }) => {
   // 4. Login function
   const login = async (username, password) => {
     try {
-      const response = await axios.post('http://127.0.0.1:5000/login', {
+      const response = await axios.post(`${API_BASE_URL}/login`, {
         username,
         password,
       });

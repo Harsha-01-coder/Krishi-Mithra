@@ -1,3 +1,4 @@
+import API_BASE_URL from '../config';
 import React, { useState, useRef } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
@@ -58,7 +59,7 @@ function FertilizerCalculator() {
             };
 
       const res = await axios.post(
-        "http://127.0.0.1:5000/smart-fertilizer",
+        `${API_BASE_URL}/smart-fertilizer`,
         payload
       );
       setResult(res.data);

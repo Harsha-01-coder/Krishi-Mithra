@@ -1,3 +1,4 @@
+import API_BASE_URL from '../config';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import ProductCard from '../components/ProductCard';
@@ -13,7 +14,7 @@ function Marketplace() {
     setLoading(true);
     setError('');
     try {
-      const res = await axios.get('http://127.0.0.1:5000/api/products');
+      const res = await axios.get(`${API_BASE_URL}/api/products`);
       if (Array.isArray(res.data)) {
         setProducts(res.data);
       } else if (res.data.products) {

@@ -1,3 +1,4 @@
+import API_BASE_URL from '../config';
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -17,7 +18,7 @@ function EditPost() {
     useEffect(() => {
         const fetchPost = async () => {
             try {
-                const res = await axios.get(`http://127.0.0.1:5000/api/post/${id}`);
+                const res = await axios.get(`${API_BASE_URL}/api/post/${id}`);
                 setTitle(res.data.title);
                 setContent(res.data.content);
             } catch (err) {
@@ -35,7 +36,7 @@ function EditPost() {
 
         try {
             const res = await axios.put(
-                `http://127.0.0.1:5000/api/post/${id}`,
+                `${API_BASE_URL}/api/post/${id}`,
                 { title, content },
                 { headers: { 'Authorization': `Bearer ${token}` } }
             );
@@ -53,7 +54,7 @@ function EditPost() {
         }
         
         try {
-            await axios.delete(`http://127.0.0.1:5000/api/post/${id}`, {
+            await axios.delete(`${API_BASE_URL}/api/post/${id}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             navigate('/dashboard'); // Go back to dashboard

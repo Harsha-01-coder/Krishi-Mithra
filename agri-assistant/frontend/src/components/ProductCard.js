@@ -1,9 +1,10 @@
+import API_BASE_URL from '../config';
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './ProductCard.css';
 
 // Define your backend's base URL once
-const BACKEND_URL = 'http://127.0.0.1:5000';
+const BACKEND_URL = API_BASE_URL;
 const PLACEHOLDER_IMAGE = 'https://placehold.co/300x300/f0f0f0/666?text=No+Image';
 
 function ProductCard({ product }) {

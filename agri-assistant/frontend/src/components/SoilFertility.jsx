@@ -1,3 +1,4 @@
+import API_BASE_URL from '../config';
 import React, { useState } from "react";
 import axios from "axios";
 import "./SoilFertility.css";
@@ -44,7 +45,7 @@ function SoilFertility() {
         throw new Error("⚠️ Please fill in all 6 fields.");
       }
 
-      const res = await axios.post("http://127.0.0.1:5000/analyze-fertility", {
+      const res = await axios.post(`${API_BASE_URL}/analyze-fertility`, {
         n: parseFloat(n),
         p: parseFloat(p),
         k: parseFloat(k),

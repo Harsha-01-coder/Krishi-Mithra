@@ -1,3 +1,4 @@
+import API_BASE_URL from '../config';
 // src/pages/Signup.jsx
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -18,7 +19,7 @@ function Signup() {
   const handleGoogleResponse = async (credentialResponse) => {
     try {
       const token = credentialResponse.credential;
-      const res = await axios.post("http://127.0.0.1:5000/google-login", { token });
+      const res = await axios.post(`${API_BASE_URL}/google-login`, { token });
 
       const jwt = res.data.token;
       if (jwt) {
@@ -40,7 +41,7 @@ function Signup() {
     setIsLoading(true);
 
     try {
-      await axios.post("http://127.0.0.1:5000/signup", {
+      await axios.post(`${API_BASE_URL}/signup`, {
         username: username.trim(),
         password: password.trim(),
       });

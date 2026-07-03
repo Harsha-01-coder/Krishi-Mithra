@@ -1,3 +1,4 @@
+import API_BASE_URL from '../config';
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -12,7 +13,7 @@ function NewPost() {
   const { token } = useAuth();
   const navigate = useNavigate();
 
-  const API_BASE_URL = 'http://127.0.0.1:5000/api';
+  const API_BASE_URL = `${API_BASE_URL}/api`;
 
   const handleSubmit = async (e) => {
     e.preventDefault();

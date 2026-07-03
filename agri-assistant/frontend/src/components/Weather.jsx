@@ -1,3 +1,4 @@
+import API_BASE_URL from '../config';
 import React, { useState } from 'react';
 import axios from 'axios';
 import './Weather.css';
@@ -37,7 +38,7 @@ function Weather() {
     setData(null);
 
     try {
-      const res = await axios.get(`http://127.0.0.1:5000/weather?city=${city}`);
+      const res = await axios.get(`${API_BASE_URL}/weather?city=${city}`);
       setData(res.data);
     } catch (err) {
       setError(err.response?.data?.error || 'Error fetching weather data.');

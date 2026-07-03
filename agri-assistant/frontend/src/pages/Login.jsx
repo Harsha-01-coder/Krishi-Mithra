@@ -1,3 +1,4 @@
+import API_BASE_URL from '../config';
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
@@ -39,7 +40,7 @@ function Login() {
   const handleGoogleLogin = async (credentialResponse) => {
     try {
       const token = credentialResponse.credential;
-      const res = await axios.post('http://127.0.0.1:5000/google-login', { token });
+      const res = await axios.post(`${API_BASE_URL}/google-login`, { token });
       localStorage.setItem('token', res.data.token);
       navigate('/dashboard');
     } catch (err) {
