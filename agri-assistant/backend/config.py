@@ -1,19 +1,13 @@
 import os
 
 # --- JWT Secret ---
-# This is your original secret key. KEEP THIS CONFIDENTIAL AND COMPLEX.
-JWT_SECRET = "your_jwt_secret_key_here"
+# Load from environment in production, fall back to local key for dev.
+JWT_SECRET = os.getenv("JWT_SECRET", "your_jwt_secret_key_here")
 
 
 # --- MongoDB Connection String ---
-#
-# Choose ONE of the options below.
-#
-#
-# === OPTION 1: Local MongoDB (Recommended for development) ===
-# This assumes MongoDB is running on your computer.
-# "krishimitra_db" will be the name of your new database.
-MONGO_URI = "mongodb://localhost:27017/krishimitra_db"
+# Load from environment in production, fall back to local MongoDB for dev.
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017/krishimitra_db")
 
 
 #
