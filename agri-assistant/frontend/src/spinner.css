@@ -1,0 +1,80 @@
+/* =====================================================
+   GLOBAL BUFFERING SPINNER
+   Standard circular progress indicator
+   Usage: <div className="spinner"></div>
+          <div className="spinner spinner-sm"></div>
+          <div className="spinner spinner-lg"></div>
+   ===================================================== */
+
+.spinner {
+  display: inline-block;
+  width: 44px;
+  height: 44px;
+  border: 4px solid rgba(26, 83, 27, 0.15);
+  border-top-color: #1a531b;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+  flex-shrink: 0;
+}
+
+.spinner-sm {
+  width: 24px;
+  height: 24px;
+  border-width: 3px;
+}
+
+.spinner-lg {
+  width: 64px;
+  height: 64px;
+  border-width: 5px;
+}
+
+/* Neutral variant (white top for dark backgrounds) */
+.spinner-white {
+  border-color: rgba(255, 255, 255, 0.25);
+  border-top-color: #ffffff;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ------ Spinner Container helpers ------ */
+.spinner-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 2rem;
+}
+
+.spinner-center-full {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  min-height: 350px;
+  width: 100%;
+}
+
+.spinner-label {
+  font-size: 1rem;
+  color: #555;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+/* Inline spinner (inside a button or small area) */
+.spinner-inline {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(26, 83, 27, 0.2);
+  border-top-color: #1a531b;
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+  vertical-align: middle;
+  margin-right: 6px;
+}

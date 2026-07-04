@@ -99,9 +99,7 @@ function Dashboard() {
   if (isLoading) {
     return (
       <div className="loader-container">
-        <div className="custom-loader">
-          <div className="leaf"></div>
-        </div>
+        <div className="spinner spinner-lg"></div>
         <div className="loader-text">Loading Dashboard...</div>
       </div>
     );
@@ -169,9 +167,7 @@ function Dashboard() {
           </div>
         ) : (
           <div className="dashboard-card loader-card-container">
-            <div className="custom-loader small">
-              <div className="leaf"></div>
-            </div>
+            <div className="spinner spinner-sm"></div>
             <div className="loader-text small">Loading weather...</div>
           </div>
         )}

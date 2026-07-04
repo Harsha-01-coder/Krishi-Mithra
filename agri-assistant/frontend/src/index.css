@@ -1,4 +1,8 @@
+/* --- Global Spinner (available app-wide) --- */
+@import './spinner.css';
+
 /* --- Global Base Styles --- */
+
 #root {
   min-height: 100vh;
   display: flex;

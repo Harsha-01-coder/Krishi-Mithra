@@ -1,3 +1,5 @@
+@import '../spinner.css';
+
 .dashboard-container {
     padding: 2rem;
     max-width: 1400px;
@@ -287,14 +289,14 @@
     }
 }
 
-/* --- CUSTOM SPROUT LOADER --- */
+/* --- STANDARD BUFFERING SPINNERS (replaces leaf loader) --- */
 .loader-container {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     min-height: 350px;
-    gap: 1.5rem;
+    gap: 1.25rem;
     width: 100%;
 }
 
@@ -312,79 +314,39 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-.custom-loader {
-    position: relative;
-    width: 60px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.custom-loader.small {
-    width: 40px;
-    height: 40px;
-}
-
-/* Spinning outer ring */
-.custom-loader::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    border: 4px solid rgba(46, 125, 50, 0.1);
-    border-top: 4px solid #1a531b;
-    border-right: 4px solid #4caf50;
-    border-radius: 50%;
-    animation: loader-spin 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-}
-
-.custom-loader.small::before {
-    border-width: 3px;
-}
-
-/* Pulsing leaf inside */
-.custom-loader .leaf {
-    width: 18px;
-    height: 18px;
-    background: linear-gradient(135deg, #81c784, #1a531b);
-    border-radius: 0 100% 0 100%;
-    transform: rotate(-45deg);
-    animation: leaf-pulse 1.5s ease-in-out infinite alternate;
-}
-
-.custom-loader.small .leaf {
-    width: 12px;
-    height: 12px;
-}
-
 .loader-text {
-    font-size: 1.3rem;
-    color: #1a531b;
-    font-weight: 600;
-    letter-spacing: 0.5px;
+    font-size: 1.1rem;
+    color: #555;
+    font-weight: 500;
+    letter-spacing: 0.3px;
 }
 
 .loader-text.small {
-    font-size: 1rem;
+    font-size: 0.9rem;
 }
 
-@keyframes loader-spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+/* AI section inline buffering indicator */
+.loading-ai {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #7d9f7a;
+    font-style: italic;
+    font-size: 0.95rem;
 }
-
-@keyframes leaf-pulse {
-    0% {
-        transform: rotate(-45deg) scale(0.85);
-        filter: drop-shadow(0 0 2px rgba(76, 175, 80, 0.4));
-    }
-    100% {
-        transform: rotate(-45deg) scale(1.15);
-        filter: drop-shadow(0 0 8px rgba(76, 175, 80, 0.8));
-    }
+.loading-ai::before {
+    content: '';
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(26, 83, 27, 0.2);
+    border-top-color: #1a531b;
+    border-radius: 50%;
+    animation: spin 0.75s linear infinite;
+    flex-shrink: 0;
+}
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
 
 /* --- ERRORS --- */

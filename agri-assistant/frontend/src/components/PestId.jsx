@@ -2,8 +2,9 @@ import API_BASE_URL from '../config';
 import React, { useState } from 'react';
 import axios from 'axios';
 import ReactMarkdown from 'react-markdown';
-import ProductCard from '../components/ProductCard'; // <-- 1. IMPORT
-import './PestId.css'; // <-- CSS to match your original design
+import ProductCard from '../components/ProductCard';
+import './PestId.css';
+import '../spinner.css';
 
 // ... (Your original BugIcon component) ...
 const BugIcon = () => (
@@ -129,7 +130,12 @@ function PestId() {
                     </div>
 
                     <button type="submit" disabled={isLoading} className="submit-button">
-                        {isLoading ? "Analyzing..." : "Identify Pest/Disease"}
+                        {isLoading ? (
+                            <>
+                                <span className="spinner-inline"></span>
+                                Analyzing...
+                            </>
+                        ) : "Identify Pest/Disease"}
                     </button>
                 </form>
 

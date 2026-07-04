@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import { Sparkles, Sun, Leaf, DollarSign, Timer } from "lucide-react";
 import "./CropRecommender.css";
+import "../spinner.css";
 
 function CropRecommender() {
   const [soil, setSoil] = useState("");
@@ -153,11 +154,7 @@ function CropRecommender() {
           {error && <p className="error-box">{error}</p>}
           {isLoading && (
   <div className="loader-container">
-    <motion.div
-      className="loader-ring"
-      animate={{ rotate: 360 }}
-      transition={{ repeat: Infinity, duration: 1.2, ease: "linear" }}
-    />
+    <div className="spinner spinner-lg"></div>
     <p className="loader-text">
       🌿 Analyzing soil, season, and weather data...
     </p>
@@ -261,7 +258,10 @@ function CropRecommender() {
                             transition={{ duration: 0.3 }}
                           >
                             {isSummaryLoading ? (
-                              <p>Fetching summary...</p>
+                              <div style={{display:'flex',alignItems:'center',gap:'8px',padding:'8px'}}>
+                                <div className="spinner spinner-sm"></div>
+                                <span style={{fontSize:'0.85rem',color:'#555'}}>Loading summary...</span>
+                              </div>
                             ) : (
                               <>
                                 <p className="popup-summary">
