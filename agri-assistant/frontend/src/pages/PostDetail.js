@@ -15,14 +15,14 @@ function PostDetail() {
   const [replyContent, setReplyContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const API_BASE_URL = `${API_BASE_URL}/api`;
+  const API_URL = `${API_BASE_URL}/api`;
 
   useEffect(() => {
     const fetchPost = async () => {
       setLoading(true);
       setError(null);
       try {
-        const res = await axios.get(`${API_BASE_URL}/post/${postId}`);
+        const res = await axios.get(`${API_URL}/post/${postId}`);
         setPost(res.data);
       } catch (err) {
         console.error("Error fetching post details:", err);
@@ -45,7 +45,7 @@ function PostDetail() {
     setIsSubmitting(true);
     try {
       const res = await axios.post(
-        `${API_BASE_URL}/post/${postId}/reply`,
+        `${API_URL}/post/${postId}/reply`,
         { content: replyContent },
         {
           headers: {

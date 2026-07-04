@@ -13,7 +13,7 @@ function NewPost() {
   const { token } = useAuth();
   const navigate = useNavigate();
 
-  const API_BASE_URL = `${API_BASE_URL}/api`;
+  const API_URL = `${API_BASE_URL}/api`;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,7 +35,7 @@ function NewPost() {
 
     try {
       const res = await axios.post(
-        `${API_BASE_URL}/create-post`,
+        `${API_URL}/create-post`,
         { title, content },
         {
           headers: {
