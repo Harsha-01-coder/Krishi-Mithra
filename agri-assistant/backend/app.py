@@ -618,9 +618,9 @@ def get_dashboard_ai_content(current_user):
         news = get_ai_news(location)
 
         # If Gemini returned an error, use local fallback
-        if not advice or "Error" in str(advice):
+        if not advice or "error" in str(advice).lower():
             advice = get_seasonal_advice(location)["advice"]
-        if not news or "Error" in str(news):
+        if not news or "error" in str(news).lower():
             news = get_seasonal_advice(location)["news"]
 
         return jsonify({
@@ -1413,6 +1413,24 @@ Please give a detailed agronomic recommendation in this format:
         response = generate_content_with_backoff(model, prompt)
         text = getattr(response, "text", "").strip()
 
+        # ✅ Check for API errors in text response
+        if not text or "error" in text.lower():
+            fallback_text = (
+                "### General Agronomic Recommendation\n\n"
+                f"For **{soil} soil** in **{state}** during **{season}** season:\n\n"
+                f"**Environmental Check:** Rainfall {rainfall}mm and temperature {temp}°C are being analyzed.\n\n"
+                "**General Tips:**\n"
+                "- Test your soil at your nearest KVK for precise NPK values\n"
+                "- Apply compost @ 5 tonnes/ha to improve soil health\n"
+                "- Use certified seeds of improved varieties\n"
+                "- Contact your local agricultural extension officer for state-specific advice"
+            )
+            return jsonify({
+                "remarks": ["⚠️ Using estimated recommendation (Gemini API error)."],
+                "crops": "1. 🌾 Rice / Wheat (season-dependent)\n2. 🌽 Maize\n3. 🫘 Legume crops\n4. 🥜 Oilseeds\n5. 🌿 Vegetables",
+                "analysis": fallback_text
+            }), 200
+
         crops, analysis = "", ""
         if "---ANALYSIS---" in text:
             parts = text.split("---ANALYSIS---", 1)
@@ -1548,11 +1566,10 @@ def smart_fertilizer():
             }}
             """
 
-            model = genai.GenerativeModel("gemini-2.0-flash")
-            ai_response = model.generate_content(prompt)
-            text = ai_response.text.strip()
-
             try:
+                model_local = genai.GenerativeModel("gemini-2.0-flash")
+                ai_response = model_local.generate_content(prompt)
+                text = ai_response.text.strip()
                 ai_data = json.loads(text)
             except Exception:
                 ai_data = {
