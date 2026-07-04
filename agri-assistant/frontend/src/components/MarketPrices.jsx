@@ -1,8 +1,8 @@
 import API_BASE_URL from '../config';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import axios from 'axios';
-// Assuming you have a corresponding CSS file
 import './MarketPrices.css'; 
+import '../spinner.css'; 
 
 import {
     Chart as ChartJS,
@@ -353,7 +353,12 @@ function MarketPrices() {
                     </button>
                 </div>
 
-                {isLoading && <div className="loader">Loading prices...</div>}
+                {isLoading && (
+                    <div className="spinner-center" style={{ margin: '2rem 0' }}>
+                        <div className="spinner"></div>
+                        <span className="spinner-label">Loading prices...</span>
+                    </div>
+                )}
                 
                 {error && <div className="error-box">❌ {error}</div>}
                 
@@ -405,7 +410,7 @@ function MarketPrices() {
                             </div>
                         </div>
                     ) : (
-                        <div className="loader"> 
+                        <div className="prices-alert-box"> 
                             {/* Show nothing if comparisonError is already shown */}
                             {!comparisonError && "No data to display graphs."}
                         </div>
@@ -425,7 +430,7 @@ function MarketPrices() {
 
 function PriceChangeTable({ data }) {
     if (data.length === 0) {
-        return <div className="loader">No comparison data found for the selected filters.</div>;
+        return <div className="prices-alert-box">No comparison data found for the selected filters.</div>;
     }
     return (
         <table className="prices-table">
@@ -463,7 +468,7 @@ function PriceChangeTable({ data }) {
 
 function AllPricesTable({ data }) {
     if (data.length === 0) {
-        return <div className="loader">No results found for the selected filters.</div>;
+        return <div className="prices-alert-box">No results found for the selected filters.</div>;
     }
     return (
         <table className="prices-table all-data-table">

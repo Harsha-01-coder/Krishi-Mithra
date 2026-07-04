@@ -121,7 +121,7 @@
 }
 
 /* --- Status, Loader, Error Boxes --- */
-.loader, #status {
+.prices-alert-box, #status {
     text-align: center;
     padding: 15px;
     font-size: 1.1em;
@@ -131,7 +131,7 @@
     margin-bottom: 20px;
 }
 
-.loader {
+.prices-alert-box {
     color: #384236;
 }
 
